@@ -29,7 +29,7 @@ export function replaceUrlHashQuery(
 ) {
   const url = parseUrl(rawUrl);
   const hash = parseUrlHash(rawUrl);
-  const newQuery = queryReplacer(hash?.query || {});
+  const newQuery = queryReplacer(hash?.query || (url.query ?? {}));
   const searchQueryString = stringify(urlUtils.encodeQuery(newQuery), {
     sort: false,
     encode: false,
