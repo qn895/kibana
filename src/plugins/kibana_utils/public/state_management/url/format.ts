@@ -24,7 +24,8 @@ import { url as urlUtils } from '../../../common';
 
 export function replaceUrlHashQuery(
   rawUrl: string,
-  queryReplacer: (query: ParsedQuery) => ParsedQuery
+  queryReplacer: (query: ParsedQuery) => ParsedQuery,
+  hashBeforeQuery: boolean = true
 ) {
   const url = parseUrl(rawUrl);
   const hash = parseUrlHash(rawUrl);
@@ -37,9 +38,10 @@ export function replaceUrlHashQuery(
   if ((!hash || !hash.search) && !searchQueryString) return rawUrl; // nothing to change. return original url
   return formatUrl({
     ...url,
+    ...(!hashBeforeQuery ? { search: searchQueryString } : {}),
     hash: formatUrl({
       pathname: hash?.pathname || '',
-      search: searchQueryString,
+      ...(hashBeforeQuery ? { search: searchQueryString } : {}),
     }),
   });
 }

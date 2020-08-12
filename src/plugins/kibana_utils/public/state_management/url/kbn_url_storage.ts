@@ -84,16 +84,23 @@ export function getStateFromKbnUrl<State>(
 export function setStateToKbnUrl<State>(
   key: string,
   state: State,
-  { useHash = false }: { useHash: boolean } = { useHash: false },
+  { useHash = false, hashBeforeQuery }: { useHash: boolean; hashBeforeQuery: boolean } = {
+    useHash: false,
+    hashBeforeQuery: true,
+  },
   rawUrl = window.location.href
 ): string {
-  return replaceUrlHashQuery(rawUrl, (query) => {
-    const encoded = encodeState(state, useHash);
-    return {
-      ...query,
-      [key]: encoded,
-    };
-  });
+  return replaceUrlHashQuery(
+    rawUrl,
+    (query) => {
+      const encoded = encodeState(state, useHash);
+      return {
+        ...query,
+        [key]: encoded,
+      };
+    },
+    hashBeforeQuery
+  );
 }
 
 /**
