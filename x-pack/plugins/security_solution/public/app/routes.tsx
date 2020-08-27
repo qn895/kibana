@@ -5,7 +5,7 @@
  */
 
 import { History } from 'history';
-import React, { FC, memo, useEffect } from 'react';
+import React, { FC, memo, useCallback, useEffect, useState } from 'react';
 import { Route, Router, Switch } from 'react-router-dom';
 
 import { useDispatch } from 'react-redux';
@@ -14,6 +14,9 @@ import { HomePage } from './home';
 import { ManageRoutesSpy } from '../common/utils/route/manage_spy_routes';
 import { RouteCapture } from '../common/components/endpoint/route_capture';
 import { AppAction } from '../common/store/actions';
+import { useKibana } from '../common/lib/kibana';
+
+// import { ML_PAGES } from '../../../ml/public'; // not ok import
 
 interface RouterProps {
   children: React.ReactNode;
@@ -22,6 +25,24 @@ interface RouterProps {
 
 const PageRouterComponent: FC<RouterProps> = ({ history, children }) => {
   const dispatch = useDispatch<(action: AppAction) => void>();
+  const {
+    services: {
+      ml: { urlGenerator },
+    },
+  } = useKibana();
+  const [url, setUrl] = useState<string | undefined>();
+
+  const generateUrl = useCallback(async () => {
+    if (urlGenerator !== undefined) {
+      const dataframeUrl = await urlGenerator.createUrl({ page: 'jobs', jobId: 'blah' });
+      setUrl(dataframeUrl);
+    }
+  }, [urlGenerator]);
+
+  useEffect(() => {
+    generateUrl();
+  }, [generateUrl]);
+
   useEffect(() => {
     return () => {
       // When app is dismounted via a non-router method (ex. using Kibana's `services.application.navigateToApp()`)

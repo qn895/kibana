@@ -8,7 +8,7 @@ import { RefreshInterval, TimeRange } from '../../../../../src/plugins/data/comm
 import { JobId } from '../../../reporting/common/types';
 import { ML_PAGES } from '../constants/ml_url_generator';
 
-export const ANALYSIS_CONFIG_TYPE = {
+export const DATA_FRAME_ANALYTICS_TYPE = {
   OUTLIER_DETECTION: 'outlier_detection',
   REGRESSION: 'regression',
   CLASSIFICATION: 'classification',
@@ -150,14 +150,14 @@ export interface DataVisualizerUrlState {
 export interface DataFrameAnalyticsExplorationQueryState {
   ml: {
     jobId: JobId;
-    analysisType: typeof ANALYSIS_CONFIG_TYPE;
+    analysisType: typeof DATA_FRAME_ANALYTICS_TYPE;
   };
 }
 
 export interface DataFrameAnalyticsExplorationUrlState {
   page: typeof ML_PAGES.DATA_FRAME_ANALYTICS_EXPLORATION;
   jobId: JobId;
-  analysisType: typeof ANALYSIS_CONFIG_TYPE;
+  analysisType: typeof DATA_FRAME_ANALYTICS_TYPE;
 }
 
 /**

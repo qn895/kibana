@@ -22,6 +22,7 @@ import {
 import { SecurityPluginSetup } from '../../security/public';
 import { AppFrontendLibs } from './common/lib/lib';
 import { ResolverPluginSetup } from './resolver/types';
+import { MlPluginStart } from '../../ml/public';
 
 export interface SetupPlugins {
   home: HomePublicPluginSetup;
@@ -43,6 +44,7 @@ export interface StartPlugins {
 
 export type StartServices = CoreStart &
   StartPlugins & {
+    ml: MlPluginStart;
     security: SecurityPluginSetup;
     storage: Storage;
   };

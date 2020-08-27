@@ -5,7 +5,8 @@
  */
 
 export * from '../common/constants/anomalies';
-
+export * from '../common/constants/ml_url_generator';
+export * from '../common/types/ml_url_generator';
 export * from '../common/types/data_recognizer';
 export * from '../common/types/capabilities';
 export * from '../common/types/anomalies';
