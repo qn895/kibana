@@ -10,17 +10,16 @@ import { FieldVisConfig } from '../../../stats_datagrid/types';
 import {
   BooleanContent,
   DateContent,
-  GeoPointContent,
   IpContent,
   KeywordContent,
   NumberContent,
   OtherContent,
   TextContent,
 } from '../../../stats_datagrid/components/field_data_expanded_row';
-
 import { ML_JOB_FIELD_TYPES } from '../../../../../../common/constants/field_types';
 import { LoadingIndicator } from '../field_data_row/loading_indicator';
 import { NotInDocsContent } from '../field_data_row/content_types';
+import { EmbeddedMapComponent } from '../../../stats_datagrid/components/field_data_expanded_row/ml_embedded_map';
 
 export const IndexBasedDataVisualizerExpandedRow = ({ item }: { item: FieldVisConfig }) => {
   const config = item;
@@ -42,7 +41,7 @@ export const IndexBasedDataVisualizerExpandedRow = ({ item }: { item: FieldVisCo
         return <DateContent config={config} />;
 
       case ML_JOB_FIELD_TYPES.GEO_POINT:
-        return <GeoPointContent config={config} />;
+        return <EmbeddedMapComponent config={config} />;
 
       case ML_JOB_FIELD_TYPES.IP:
         return <IpContent config={config} />;
