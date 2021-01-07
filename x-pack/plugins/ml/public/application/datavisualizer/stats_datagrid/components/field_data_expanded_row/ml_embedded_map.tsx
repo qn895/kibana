@@ -19,18 +19,16 @@ import {
 } from '../../../../../../../maps/public/embeddable';
 import { useMlKibana } from '../../../../contexts/kibana';
 import { MAP_SAVED_OBJECT_TYPE, SOURCE_TYPES } from '../../../../../../../maps/common/constants';
-import {
-  GeojsonFileSourceDescriptor,
-  LayerDescriptor,
-} from '../../../../../../../maps/common/descriptor_types';
-
+import { LayerDescriptor } from '../../../../../../../maps/common/descriptor_types';
+import { RenderTooltipContentParams } from '../../../../../../../maps/public';
+import { MapToolTip } from './ml_embedded_map_tooltip';
 export const getGeoPointsLayer = (
   geoPoints: Array<{ lon: number; lat: number }>,
   pointColor: string
 ) => {
   const features: FeatureCollection = geoPoints?.map((point, idx) => ({
     type: 'feature',
-    id: idx,
+    id: `geo_points-${idx}`,
     geometry: {
       type: 'Point',
       coordinates: [+point.lon, +point.lat],
@@ -38,7 +36,7 @@ export const getGeoPointsLayer = (
   }));
   return {
     id: 'geo_points',
-    label: null,
+    label: 'Geo points',
     sourceDescriptor: {
       type: SOURCE_TYPES.GEOJSON_FILE,
       __featureCollection: {
@@ -124,6 +122,20 @@ export function EmbeddedMapComponent({ config }) {
     hideViewControl: false,
   };
 
+  const renderTooltipContent = ({
+    closeTooltip,
+    features,
+    loadFeatureProperties,
+  }): RenderTooltipContentParams => {
+    return (
+      <MapToolTip
+        closeTooltip={closeTooltip}
+        features={features}
+        loadFeatureProperties={loadFeatureProperties}
+      />
+    );
+  };
+
   // Update the layer list  with updated geo points upon refresh
   useEffect(() => {
     if (embeddable && !isErrorEmbeddable(embeddable) && Array.isArray(config?.stats?.examples)) {
@@ -139,11 +151,11 @@ export function EmbeddedMapComponent({ config }) {
       }
       const embeddableObject: any = await factory.create({
         ...input,
-        title: 'Visitors by region',
+        title: 'Data visualizer map',
       });
 
       if (embeddableObject && !isErrorEmbeddable(embeddableObject)) {
-        // embeddableObject.setRenderTooltipContent(renderTooltipContent);
+        embeddableObject.setRenderTooltipContent(renderTooltipContent);
         const basemapLayerDescriptor = mapsPlugin
           ? await mapsPlugin.createLayerDescriptors.createBasemapLayerDescriptor()
           : null;
