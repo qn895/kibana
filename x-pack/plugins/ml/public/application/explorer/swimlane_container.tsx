@@ -180,6 +180,7 @@ export const SwimlaneContainer: FC<SwimlaneProps> = ({
   const resizeHandler = useCallback(
     throttle((e: { width: number; height: number }) => {
       const resultNewWidth = e.width - SWIM_LANE_LABEL_WIDTH;
+      console.log('resultNewWidth', resultNewWidth);
       setChartWidth(resultNewWidth);
       onResize(resultNewWidth);
     }, RESIZE_THROTTLE_TIME_MS),

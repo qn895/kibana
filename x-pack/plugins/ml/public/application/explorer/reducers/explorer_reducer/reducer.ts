@@ -29,6 +29,7 @@ export const explorerReducer = (state: ExplorerState, nextAction: Action): Explo
   const { type, payload } = nextAction;
 
   let nextState: ExplorerState;
+  console.log('previouState', state.swimlaneContainerWidth, type);
 
   switch (type) {
     case EXPLORER_ACTION.CLEAR_EXPLORER_DATA:
@@ -57,7 +58,16 @@ export const explorerReducer = (state: ExplorerState, nextAction: Action): Explo
       nextState = {
         ...state,
         anomalyChartsDataLoading: true,
-        chartsData: getDefaultChartsData(),
+        chartsData: {
+          ...state.chartsData,
+          seriesToPlot: state.chartsData.seriesToPlot.map((series) => ({
+            ...series,
+            loading: true,
+            chartData: null,
+          })),
+        },
+        // @todo
+        // chartsData: getDefaultChartsData(),
       };
       break;
 

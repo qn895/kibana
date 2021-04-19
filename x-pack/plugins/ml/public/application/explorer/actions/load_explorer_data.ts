@@ -211,7 +211,7 @@ const loadExplorerDataProvider = (
       // show the view-by loading indicator
       // and pass on the data we already fetched.
       tap(explorerService.setViewBySwimlaneLoading),
-      tap(explorerService.setChartsDataLoading),
+      // tap(explorerService.setChartsDataLoading),
       mergeMap(
         ({
           anomalyChartRecords,
@@ -266,9 +266,9 @@ const loadExplorerDataProvider = (
               influencersFilterQuery
             ),
           }).pipe(
-            tap(({ anomalyChartsData }) => {
-              explorerService.setCharts(anomalyChartsData as ExplorerChartsData);
-            }),
+            // tap(({ anomalyChartsData }) => {
+            //   explorerService.setCharts(anomalyChartsData as ExplorerChartsData);
+            // }),
             map(({ viewBySwimlaneState, filteredTopInfluencers }) => {
               return {
                 annotations: annotationsData,
