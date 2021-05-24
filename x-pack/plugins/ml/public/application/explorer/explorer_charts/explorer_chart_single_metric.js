@@ -105,6 +105,43 @@ export class ExplorerChartSingleMetric extends React.Component {
         .attr('width', svgWidth)
         .attr('height', svgHeight);
 
+      const mouseG = svg.append('g').attr('class', 'mouse-over-effects');
+
+      mouseG
+        .append('path') // this is the black vertical line to follow mouse
+        .attr('class', 'mouse-line')
+        .style('stroke', 'black')
+        .style('stroke-width', '1px')
+        .style('opacity', '0');
+
+      mouseG
+        .append('svg:rect') // append a rect to catch mouse movements on canvas
+        .attr('width', svgWidth) // can't catch mouse events on a g element
+        .attr('height', svgHeight)
+        .attr('fill', 'none')
+        .attr('pointer-events', 'all')
+        .on('mouseout', function () {
+          // on mouse out hide line, circles and text
+          d3.select('.mouse-line').style('opacity', '0');
+          d3.selectAll('.mouse-per-line circle').style('opacity', '0');
+          d3.selectAll('.mouse-per-line text').style('opacity', '0');
+        })
+        .on('mouseover', function () {
+          // on mouse in show line, circles and text
+          d3.select('.mouse-line').style('opacity', '1');
+          d3.selectAll('.mouse-per-line circle').style('opacity', '1');
+          d3.selectAll('.mouse-per-line text').style('opacity', '1');
+        })
+        .on('mousemove', function () {
+          // mouse moving over canvas
+          const mouse = d3.mouse(this);
+          d3.select('.mouse-line').attr('d', function () {
+            let d = 'M' + mouse[0] + ',' + svgHeight;
+            d += ' ' + mouse[0] + ',' + 0;
+            return d;
+          });
+        });
+
       // Set the size of the left margin according to the width of the largest y axis tick label.
       lineChartYScale = d3.scale
         .linear()
@@ -180,10 +217,53 @@ export class ExplorerChartSingleMetric extends React.Component {
         .style('stroke-width', 1);
 
       drawLineChartAxes();
-      drawLineChartHighlightedSpan();
+      drawLineChartHighlightedSpan(vizWidth, chartHeight);
       drawLineChartPaths(data);
+      drawChartAnnotationLine(vizWidth, chartHeight);
       drawLineChartDots(data, lineChartGroup, lineChartValuesLine);
       drawLineChartMarkers(data);
+    }
+
+    function drawChartAnnotationLine(svgWidth, svgHeight) {
+      const mouseG = lineChartGroup.append('g').attr('class', 'mouse-over-effects');
+
+      mouseG
+        .append('rect') // append a rect to catch mouse movements on canvas
+        .attr('width', svgWidth) // can't catch mouse events on a g element
+        .attr('height', svgHeight)
+        .attr('fill', 'none')
+        .style('opacity', '0')
+        .attr('pointer-events', 'all')
+        .on('mouseout', function () {
+          // on mouse out hide line
+          d3.selectAll('.ml-anomalies-annotation-line').style('opacity', '0');
+        })
+        .on('mouseover', function () {
+          // on mouse in show line
+          d3.selectAll('.ml-anomalies-annotation-line').style('opacity', '1');
+        })
+        .on('mousemove', function () {
+          // mouse moving over canvas
+          const mouse = d3.mouse(this);
+          const xPosition = mouse[0];
+          d3.selectAll('.ml-anomalies-annotation-line').attr('d', function () {
+            let d = 'M' + xPosition + ',' + svgHeight;
+            d += ' ' + xPosition + ',' + 0;
+            return d;
+          });
+        });
+
+      // const annotationLineData = [{ x: 0 }];
+
+      const annotationLine = lineChartGroup
+        .append('path')
+        .attr('class', 'ml-anomalies-annotation-line')
+        // .data(annotationLineData)
+        .style('stroke', 'black')
+        .style('stroke-width', '1px')
+        .style('opacity', '0');
+
+      // annotationLine.exit().remove();
     }
 
     function drawLineChartAxes() {

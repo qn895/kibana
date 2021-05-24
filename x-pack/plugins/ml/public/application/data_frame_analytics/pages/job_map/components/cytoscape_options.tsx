@@ -17,13 +17,13 @@ import regressionJobIcon from './icons/ml_regression_job.svg';
 
 const lineColor = '#C5CCD7';
 
-const MAP_SHAPES = {
+export const MAP_SHAPES = {
   ELLIPSE: 'ellipse',
   RECTANGLE: 'rectangle',
   DIAMOND: 'diamond',
   TRIANGLE: 'triangle',
 } as const;
-type MapShapes = typeof MAP_SHAPES[keyof typeof MAP_SHAPES];
+export type MapShapes = typeof MAP_SHAPES[keyof typeof MAP_SHAPES];
 
 function shapeForNode(el: cytoscape.NodeSingular, theme: EuiThemeType): MapShapes {
   const type = el.data('type');

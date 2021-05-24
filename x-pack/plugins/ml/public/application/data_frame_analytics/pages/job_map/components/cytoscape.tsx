@@ -17,14 +17,17 @@ import React, {
 import cytoscape from 'cytoscape';
 // @ts-ignore no declaration file
 import dagre from 'cytoscape-dagre';
+import spread from 'cytoscape-spread';
 import { EuiThemeType } from '../../../../components/color_range_legend';
 import { getCytoscapeOptions } from './cytoscape_options';
 
 cytoscape.use(dagre);
+cytoscape.use(spread);
 
 export const CytoscapeContext = createContext<cytoscape.Core | undefined>(undefined);
 
 interface CytoscapeProps {
+  option?: cytoscape.CytoscapeOptions;
   children?: ReactNode;
   elements: cytoscape.ElementDefinition[];
   theme: EuiThemeType;
@@ -69,6 +72,7 @@ function getLayoutOptions(width: number, height: number) {
 }
 
 export function Cytoscape({
+  option,
   children,
   elements,
   theme,
@@ -79,7 +83,7 @@ export function Cytoscape({
   width,
 }: CytoscapeProps) {
   const [ref, cy] = useCytoscape({
-    ...getCytoscapeOptions(theme),
+    ...(option ?? getCytoscapeOptions(theme)),
     elements,
   });
 

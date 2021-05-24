@@ -27,10 +27,15 @@ import { getFieldTypeFromMapping } from '../../services/mapping_service';
 import { ml } from '../../services/ml_api_service';
 import { mlJobService } from '../../services/job_service';
 import { getUrlForRecord, openCustomUrlWindow } from '../../util/custom_url_utils';
-import { formatHumanReadableDateTimeSeconds } from '../../../../common/util/date_utils';
+import {
+  formatHumanReadableDateTimeSeconds,
+  timeFormatter,
+} from '../../../../common/util/date_utils';
 import { getIndexPatternIdFromName } from '../../util/index_utils';
 import { replaceStringTokens } from '../../util/string_utils';
 import { ML_APP_URL_GENERATOR, ML_PAGES } from '../../../../common/constants/ml_url_generator';
+import { DISCOVER_APP_URL_GENERATOR } from '../../../../../../../src/plugins/discover/public';
+
 /*
  * Component for rendering the links menu inside a cell in the anomalies table.
  */
@@ -52,6 +57,51 @@ class LinksMenuUI extends Component {
       toasts: [],
     };
   }
+
+  generateCustomDrillDownUrls = () => {
+    const items = [];
+
+    const {
+      services: {
+        share: {
+          urlGenerators: { getUrlGenerator },
+        },
+      },
+    } = this.props.kibana;
+
+    const job = mlJobService.getJob(this.props.anomaly.jobId);
+
+    const index = job.datafeed_config.indices[0];
+    const indexPatternId = getIndexPatternIdFromName(index) || index;
+
+    const record = this.props.anomaly.source;
+    const from = timeFormatter(record.timestamp); // e.g. 2016-02-08T16:00:00.000Z
+    const to = timeFormatter(record.timestamp + record.bucket_span * 1000);
+    const basePath = this.props.kibana.services.http.basePath.get();
+
+    let luceneQuery = '';
+    if (record.influencers) {
+      luceneQuery = record.influencers
+        .map((i) => `${i.influencer_field_name}:${i.influencer_field_values[0]}`)
+        .join(' AND ');
+    }
+    const discoverUrl = `${basePath}/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'${from}',to:'${to}'))&_a=(columns:!(),filters:!(),index:'${indexPatternId}',interval:auto,query:(language:lucene,query:'${luceneQuery}'),sort:!(!('@timestamp',asc)))`;
+
+    items.push(
+      <EuiContextMenuItem
+        key={`custom_url_${index}`}
+        icon="popout"
+        onClick={() => {
+          this.closePopover();
+          window.open(discoverUrl);
+        }}
+        data-test-subj={`mlAnomaliesListRowActionCustomUrlButton_${index}`}
+      >
+        {'Raw data'}
+      </EuiContextMenuItem>
+    );
+    return items;
+  };
 
   openCustomUrl = (customUrl) => {
     const { anomaly, interval, isAggregatedData } = this.props;
@@ -232,6 +282,7 @@ class LinksMenuUI extends Component {
     }
     const categorizationFieldName = job.analysis_config.categorization_field_name;
     const datafeedIndices = job.datafeed_config.indices;
+    console.log('job.datafeed_config', job.datafeed_config.indices);
     // Find the type of the categorization field i.e. text (preferred) or keyword.
     // Uses the first matching field found in the list of indices in the datafeed_config.
     // attempt to load the field type using each index. we have to do it this way as _field_caps
@@ -412,6 +463,9 @@ class LinksMenuUI extends Component {
           </EuiContextMenuItem>
         );
       });
+    } else {
+      const drilldown = this.generateCustomDrillDownUrls();
+      items.push(drilldown);
     }
 
     if (showViewSeriesLink === true && anomaly.isTimeSeriesViewRecord === true) {

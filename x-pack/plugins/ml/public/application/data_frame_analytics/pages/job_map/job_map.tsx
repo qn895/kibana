@@ -58,6 +58,9 @@ export const JobMap: FC<Props> = ({ analyticsId, modelId }) => {
     setError,
   } = useFetchAnalyticsMapData();
 
+  console.log('nodeDetails', nodeDetails);
+  console.log('elements', elements);
+
   const {
     services: {
       notifications,

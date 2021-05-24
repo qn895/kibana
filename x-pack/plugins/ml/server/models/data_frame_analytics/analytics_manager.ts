@@ -570,6 +570,7 @@ export class AnalyticsManager {
       }
       // Include model and index pattern nodes in result elements now that all other nodes have been created
       result.elements.push(...modelElements, ...indexPatternElements);
+      console.log('result', JSON.stringify(result));
       return result;
     } catch (error) {
       result.error = error.message || 'An error occurred fetching map';

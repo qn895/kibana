@@ -74,7 +74,7 @@ export class ExplorerChartDistribution extends React.Component {
     }
 
     const fieldFormat = mlFieldFormatService.getFieldFormat(config.jobId, config.detectorIndex);
-
+    let svg = undefined;
     let vizWidth = 0;
     const chartHeight = 170;
     const LINE_CHART_ANOMALY_RADIUS = 7;
@@ -112,7 +112,7 @@ export class ExplorerChartDistribution extends React.Component {
       const svgWidth = $el.width();
       const svgHeight = chartHeight + margin.top + margin.bottom;
 
-      const svg = chartElement
+      svg = chartElement
         .append('svg')
         .classed('ml-explorer-chart-svg', true)
         .attr('width', svgWidth)
@@ -256,6 +256,7 @@ export class ExplorerChartDistribution extends React.Component {
 
       drawRareChartAxes();
       drawRareChartHighlightedSpan();
+      drawRareChartAnnotationLine(vizWidth, chartHeight);
       drawRareChartDots(data, lineChartGroup, lineChartValuesLine);
       drawRareChartMarkers(data);
     }
@@ -437,6 +438,50 @@ export class ExplorerChartDistribution extends React.Component {
           'y',
           (d) => lineChartYScale(d[CHART_Y_ATTRIBUTE]) - SCHEDULED_EVENT_MARKER_HEIGHT / 2
         );
+    }
+
+    function drawRareChartAnnotationLine(svgWidth, svgHeight) {
+      const mouseG = lineChartGroup.append('g').attr('class', 'mouse-over-effects');
+
+      mouseG
+        .append('rect') // append a rect to catch mouse movements on canvas
+        .attr('width', svgWidth) // can't catch mouse events on a g element
+        .attr('height', svgHeight)
+        .attr('fill', 'none')
+        .style('opacity', '0')
+        .attr('pointer-events', 'all')
+        .on('mouseout', function () {
+          // on mouse out hide line
+          d3.selectAll('.ml-anomalies-annotation-line').style('opacity', '0');
+        })
+        .on('mouseover', function () {
+          // on mouse in show line
+          d3.selectAll('.ml-anomalies-annotation-line')
+            .transition() // First fade to green.
+            .style('opacity', '1');
+        })
+        .on('mousemove', function () {
+          // mouse moving over canvas
+          const mouse = d3.mouse(this);
+          const xPosition = mouse[0];
+          d3.selectAll('.ml-anomalies-annotation-line').attr('d', function () {
+            let d = 'M' + xPosition + ',' + svgHeight;
+            d += ' ' + xPosition + ',' + 0;
+            return d;
+          });
+        });
+
+      // const annotationLineData = [{ x: 0 }];
+
+      const annotationLine = lineChartGroup
+        .append('path')
+        .attr('class', 'ml-anomalies-annotation-line')
+        // .data(annotationLineData)
+        .style('stroke', 'black')
+        .style('stroke-width', '1px')
+        .style('opacity', '0');
+
+      // annotationLine.exit().remove();
     }
 
     function showLineChartTooltip(marker, circle) {

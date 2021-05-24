@@ -78,6 +78,7 @@ import { ANOMALY_DETECTION_DEFAULT_TIME_RANGE } from '../../../common/constants/
 import { withKibana } from '../../../../../../src/plugins/kibana_react/public';
 import { ML_APP_URL_GENERATOR } from '../../../common/constants/ml_url_generator';
 import { AnomalyContextMenu } from './anomaly_context_menu';
+import { AnomaliesVisualizer } from '../components/anomalies_table/anomalies_visualizer';
 
 const ExplorerPage = ({
   children,
@@ -520,9 +521,6 @@ export class ExplorerUI extends React.Component {
                     </EuiFlexItem>
                   )}
                 </EuiFlexGroup>
-
-                <EuiSpacer size="m" />
-
                 <div className="euiText explorer-charts">
                   {showCharts && (
                     <ExplorerChartsContainer
@@ -543,6 +541,9 @@ export class ExplorerUI extends React.Component {
                   tableData={tableData}
                   influencerFilter={this.applyFilter}
                 />
+                <EuiSpacer size="m" />
+
+                <AnomaliesVisualizer bounds={bounds} tableData={tableData} />
               </EuiPanel>
             )}
           </div>
