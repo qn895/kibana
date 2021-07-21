@@ -62,11 +62,7 @@ export class DataVisualizerPlugin
     }
 
     if (plugins.share) {
-      this.locator = plugins.share.url.locators.create(
-        new IndexDataVisualizerLocatorDefinition({
-          useHash: core.uiSettings.get('state:storeInSessionStorage'),
-        })
-      );
+      this.locator = plugins.share.url.locators.create(new IndexDataVisualizerLocatorDefinition());
     }
   }
 

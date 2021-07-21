@@ -52,7 +52,13 @@ export interface IndexDataVisualizerLocatorParams extends SerializableState {
    * whether to hash the data in the url to avoid url length issues.
    */
   useHash?: boolean;
+  /**
+   * Optionally set visible field names.
+   */
   visibleFieldNames?: string[];
+  /**
+   * Optionally set visible field types.
+   */
   visibleFieldTypes?: string[];
 }
 
