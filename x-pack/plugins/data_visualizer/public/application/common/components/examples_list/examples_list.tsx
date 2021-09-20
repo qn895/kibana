@@ -42,6 +42,7 @@ export const ExamplesList: FC<Props> = ({ examples }) => {
 
   return (
     <ExpandedRowPanel
+      grow={false}
       dataTestSubj="dataVisualizerFieldDataExamplesList"
       className="dataVisualizerTextContent dataVisualizerPanelWrapper"
     >
