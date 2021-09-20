@@ -9,7 +9,7 @@ import React, { FC, Fragment } from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiProgress, EuiSpacer, EuiText } from '@elastic/eui';
 
 import { FormattedMessage } from '@kbn/i18n/react';
-
+import { EuiFlexItemProps } from '@elastic/eui/src/components/flex/flex_item';
 import classNames from 'classnames';
 import { roundToDecimalPlace, kibanaFieldFormat } from '../utils';
 import { ExpandedRowFieldHeader } from '../stats_table/components/expanded_row_field_header';
@@ -20,6 +20,7 @@ interface Props {
   stats: FieldVisStats | undefined;
   fieldFormat?: any;
   barColor?: 'primary' | 'secondary' | 'danger' | 'subdued' | 'accent';
+  grow?: EuiFlexItemProps['grow'];
   compressed?: boolean;
 }
 
@@ -32,7 +33,7 @@ function getPercentLabel(docCount: number, topValuesSampleSize: number): string 
   }
 }
 
-export const TopValues: FC<Props> = ({ stats, fieldFormat, barColor, compressed }) => {
+export const TopValues: FC<Props> = ({ stats, fieldFormat, barColor, grow, compressed }) => {
   if (stats === undefined) return null;
   const {
     topValues,
@@ -44,6 +45,7 @@ export const TopValues: FC<Props> = ({ stats, fieldFormat, barColor, compressed 
   const progressBarMax = isTopValuesSampled === true ? topValuesSampleSize : count;
   return (
     <ExpandedRowPanel
+      grow={grow}
       dataTestSubj={'dataVisualizerFieldDataTopValues'}
       className={classNames('dataVisualizerPanelWrapper', compressed ? 'compressed' : undefined)}
     >
@@ -67,20 +69,15 @@ export const TopValues: FC<Props> = ({ stats, fieldFormat, barColor, compressed 
                   max={progressBarMax}
                   color={barColor}
                   size="xs"
+                  valueText={
+                    progressBarMax !== undefined
+                      ? getPercentLabel(value.doc_count, progressBarMax)
+                      : undefined
+                  }
                   label={kibanaFieldFormat(value.key, fieldFormat)}
                   className={classNames('eui-textTruncate', 'topValuesValueLabelContainer')}
                 />
               </EuiFlexItem>
-              {progressBarMax !== undefined && (
-                <EuiFlexItem
-                  grow={false}
-                  className={classNames('eui-textTruncate', 'topValuesPercentLabelContainer')}
-                >
-                  <EuiText size="xs" textAlign="left" color="subdued">
-                    {getPercentLabel(value.doc_count, progressBarMax)}
-                  </EuiText>
-                </EuiFlexItem>
-              )}
             </EuiFlexGroup>
           ))}
         {isTopValuesSampled === true && (

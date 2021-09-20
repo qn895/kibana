@@ -19,7 +19,6 @@ const metaTableColumns = [
     field: 'function',
     name: '',
     render: (_: string, metaItem: { display: ReactNode }) => metaItem.display,
-    width: '25px',
     align: RIGHT_ALIGNMENT as HorizontalAlignment,
   },
   {
@@ -80,6 +79,7 @@ export const DocumentStatsTable: FC<FieldDataRowProps> = ({ config }) => {
 
   return (
     <ExpandedRowPanel
+      grow={false}
       dataTestSubj={'dataVisualizerDocumentStatsContent'}
       className={'dataVisualizerSummaryTableWrapper dataVisualizerPanelWrapper'}
     >

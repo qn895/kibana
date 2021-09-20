@@ -90,7 +90,6 @@ export const NumberContent: FC<FieldDataRowProps> = ({ config }) => {
     {
       name: '',
       render: (summaryItem: { display: ReactNode }) => summaryItem.display,
-      width: '25px',
       align: RIGHT_ALIGNMENT as HorizontalAlignment,
     },
     {
@@ -111,7 +110,7 @@ export const NumberContent: FC<FieldDataRowProps> = ({ config }) => {
       <DocumentStatsTable config={config} />
       <ExpandedRowPanel
         className={'dataVisualizerSummaryTableWrapper dataVisualizerPanelWrapper'}
-        grow={1}
+        grow={false}
       >
         <ExpandedRowFieldHeader>{summaryTableTitle}</ExpandedRowFieldHeader>
         <EuiBasicTable<SummaryTableItem>

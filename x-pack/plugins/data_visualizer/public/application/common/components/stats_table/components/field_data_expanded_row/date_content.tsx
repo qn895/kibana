@@ -77,7 +77,10 @@ export const DateContent: FC<FieldDataRowProps> = ({ config }) => {
   return (
     <ExpandedRowContent dataTestSubj={'dataVisualizerDateContent'}>
       <DocumentStatsTable config={config} />
-      <ExpandedRowPanel className={'dataVisualizerSummaryTableWrapper dataVisualizerPanelWrapper'}>
+      <ExpandedRowPanel
+        grow={false}
+        className={'dataVisualizerSummaryTableWrapper dataVisualizerPanelWrapper'}
+      >
         <ExpandedRowFieldHeader>{summaryTableTitle}</ExpandedRowFieldHeader>
         <EuiBasicTable<SummaryTableItem>
           className={'dataVisualizerSummaryTable'}

@@ -72,7 +72,6 @@ export const BooleanContent: FC<FieldDataRowProps> = ({ config }) => {
       field: 'function',
       name: '',
       render: (_: string, summaryItem: { display: ReactNode }) => summaryItem.display,
-      width: '25px',
       align: RIGHT_ALIGNMENT as HorizontalAlignment,
     },
     {
@@ -93,7 +92,10 @@ export const BooleanContent: FC<FieldDataRowProps> = ({ config }) => {
     <ExpandedRowContent dataTestSubj={'dataVisualizerBooleanContent'}>
       <DocumentStatsTable config={config} />
 
-      <ExpandedRowPanel className={'dataVisualizerSummaryTableWrapper dataVisualizerPanelWrapper'}>
+      <ExpandedRowPanel
+        grow={false}
+        className={'dataVisualizerSummaryTableWrapper dataVisualizerPanelWrapper'}
+      >
         <ExpandedRowFieldHeader>{summaryTableTitle}</ExpandedRowFieldHeader>
         <EuiBasicTable
           className={'dataVisualizerSummaryTable'}

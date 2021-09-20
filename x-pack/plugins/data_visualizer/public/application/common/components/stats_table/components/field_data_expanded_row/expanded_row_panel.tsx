@@ -6,7 +6,7 @@
  */
 
 import React, { FC, ReactNode } from 'react';
-import { EuiPanel } from '@elastic/eui';
+import { EuiFlexItem, EuiPanel } from '@elastic/eui';
 import { EuiFlexItemProps } from '@elastic/eui/src/components/flex/flex_item';
 
 interface Props {
@@ -17,15 +17,17 @@ interface Props {
 }
 export const ExpandedRowPanel: FC<Props> = ({ children, dataTestSubj, grow, className }) => {
   return (
-    <EuiPanel
-      data-test-subj={dataTestSubj}
-      hasShadow={false}
-      hasBorder={true}
-      grow={!!grow}
-      className={className ?? ''}
-      paddingSize={'s'}
-    >
-      {children}
-    </EuiPanel>
+    <EuiFlexItem grow={grow}>
+      <EuiPanel
+        data-test-subj={dataTestSubj}
+        hasShadow={false}
+        hasBorder={true}
+        grow={false}
+        className={className ?? ''}
+        paddingSize={'s'}
+      >
+        {children}
+      </EuiPanel>
+    </EuiFlexItem>
   );
 };

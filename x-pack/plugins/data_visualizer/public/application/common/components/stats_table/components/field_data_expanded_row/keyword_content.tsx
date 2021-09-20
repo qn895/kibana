@@ -44,7 +44,7 @@ export const KeywordContent: FC<FieldDataRowProps> = ({ config }) => {
   return (
     <ExpandedRowContent dataTestSubj={'dataVisualizerKeywordContent'}>
       <DocumentStatsTable config={config} />
-      <TopValues stats={stats} fieldFormat={fieldFormat} barColor="secondary" />
+      <TopValues grow={false} stats={stats} fieldFormat={fieldFormat} barColor="secondary" />
       {EMSSuggestion && stats && <ChoroplethMap stats={stats} suggestion={EMSSuggestion} />}
     </ExpandedRowContent>
   );
