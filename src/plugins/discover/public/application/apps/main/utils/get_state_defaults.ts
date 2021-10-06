@@ -47,21 +47,13 @@ export function getStateDefaults({
     interval: 'auto',
     filters: cloneDeep(searchSource.getOwnField('filter')),
     hideChart: undefined,
-    viewMode: undefined,
-    hideAggregatedPreview: undefined,
+    savedQuery: undefined,
   } as AppState;
   if (savedSearch.grid) {
     defaultState.grid = savedSearch.grid;
   }
   if (savedSearch.hideChart) {
     defaultState.hideChart = savedSearch.hideChart;
-  }
-  if (savedSearch.viewMode) {
-    defaultState.viewMode = savedSearch.viewMode;
-  }
-
-  if (savedSearch.hideAggregatedPreview) {
-    defaultState.hideAggregatedPreview = savedSearch.hideAggregatedPreview;
   }
 
   return defaultState;
