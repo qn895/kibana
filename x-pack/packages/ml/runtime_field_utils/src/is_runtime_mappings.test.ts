@@ -20,6 +20,7 @@ describe('isRuntimeMappings()', () => {
   it('does not allow empty objects', () => {
     expect(isRuntimeMappings({})).toBe(false);
   });
+
   it('does not allow objects with non-object inner structure', () => {
     expect(isRuntimeMappings({ someAttribute: 'someValue' })).toBe(false);
   });
@@ -53,6 +54,27 @@ describe('isRuntimeMappings()', () => {
   it('allows object with most basic runtime field', () => {
     expect(isRuntimeMappings({ fieldName: { type: 'keyword' } })).toBe(true);
   });
+
+  // @todo: Check if we want to support this
+  // it('allows type null for removal', () => {
+  //   // https://www.elastic.co/guide/en/elasticsearch/reference/8.3/runtime-mapping-fields.html#runtime-updating-scripts
+  //   expect(isRuntimeMappings({ fieldName: { type: null } })).toBe(true);
+  // });
+
+  it('allows lookup type', () => {
+    expect(
+      isRuntimeMappings({
+        fieldName: {
+          type: 'lookup',
+          target_index: 'ip_location',
+          input_field: 'host',
+          target_field: 'ip',
+          fetch_fields: ['country', 'city'],
+        },
+      })
+    ).toBe(true);
+  });
+
   it('allows object with multiple most basic runtime fields', () => {
     expect(
       isRuntimeMappings({ fieldName1: { type: 'keyword' }, fieldName2: { type: 'keyword' } })
