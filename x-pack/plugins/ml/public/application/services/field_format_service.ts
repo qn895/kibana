@@ -35,7 +35,9 @@ class FieldFormatService {
           const jobObj = mlJobService.getJob(jobId);
           return {
             jobId,
-            dataViewId: await getDataViewIdFromName(jobObj.datafeed_config.indices.join(',')),
+            dataViewId: Array.isArray(jobObj.datafeed_config?.indices)
+              ? await getDataViewIdFromName(jobObj.datafeed_config.indices.join(','))
+              : null,
           };
         })
       )
