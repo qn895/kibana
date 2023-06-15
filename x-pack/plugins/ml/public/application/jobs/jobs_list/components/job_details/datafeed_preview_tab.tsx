@@ -28,20 +28,22 @@ export const DatafeedPreviewPane: FC<Props> = ({ job }) => {
   const [previewJson, setPreviewJson] = useState<string | null>('');
 
   useEffect(() => {
-    setLoading(true);
-    datafeedPreview(job.datafeed_config.datafeed_id).then((resp) => {
-      if (Array.isArray(resp)) {
-        if (resp.length === 0) {
-          setPreviewJson(null);
+    if (job.datafeed_config?.datafeed_id) {
+      setLoading(true);
+      datafeedPreview(job.datafeed_config.datafeed_id).then((resp) => {
+        if (Array.isArray(resp)) {
+          if (resp.length === 0) {
+            setPreviewJson(null);
+          } else {
+            setPreviewJson(JSON.stringify(resp.slice(0, ML_DATA_PREVIEW_COUNT), null, 2));
+          }
         } else {
-          setPreviewJson(JSON.stringify(resp.slice(0, ML_DATA_PREVIEW_COUNT), null, 2));
+          setPreviewJson('');
         }
-      } else {
-        setPreviewJson('');
-      }
 
-      setLoading(false);
-    });
+        setLoading(false);
+      });
+    }
   }, [datafeedPreview, job]);
 
   if (canPreviewDatafeed === false) {
