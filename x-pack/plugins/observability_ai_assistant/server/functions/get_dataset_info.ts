@@ -169,21 +169,23 @@ export function registerGetDatasetInfoFunction({
 
           return chunkResponse.message?.function_call?.arguments
             ? (
-                JSON.parse(chunkResponse.message.function_call.arguments) as {
-                  fields: string[];
-                }
-              ).fields
-                .filter((field) => fieldsInChunk.includes(field))
-                .map((field) => {
-                  const fieldDescriptors = groupedFields[field];
-                  return `${field}:${fieldDescriptors
-                    .map((descriptor) => descriptor.type)
-                    .join(',')}`;
-                })
+              JSON.parse(chunkResponse.message.function_call.arguments) as {
+                fields: string[];
+              }
+            ).fields
+              .filter((field) => fieldsInChunk.includes(field))
+              .map((field) => {
+                const fieldDescriptors = groupedFields[field];
+                return `${field}:${fieldDescriptors
+                  .map((descriptor) => descriptor.type)
+                  .join(',')}`;
+              })
             : [chunkResponse.message?.content ?? ''];
         })
       );
 
+      // @TODO: remove
+      console.log(`--@@relevantFields`, relevantFields);
       return {
         content: {
           indices: response.indices,
