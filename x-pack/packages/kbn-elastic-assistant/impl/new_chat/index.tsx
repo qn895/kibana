@@ -37,6 +37,8 @@ const NewChatComponent: React.FC<Props> = ({
   suggestedUserPrompt,
   tooltip,
 }) => {
+  // @TODO: remove
+  console.log(`--@@NewChatComponent`, category);
   const { showAssistantOverlay } = useAssistantOverlay(
     category,
     conversationId ?? null,

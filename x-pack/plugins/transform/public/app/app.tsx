@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import React, { type FC } from 'react';
+import React, { useState, type FC } from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -15,6 +15,7 @@ import { Router, Routes, Route } from '@kbn/shared-ux-router';
 import { ScopedHistory } from '@kbn/core/public';
 import { KibanaContextProvider, KibanaThemeProvider } from '@kbn/kibana-react-plugin/public';
 
+import { AssistantProvider, type CodeBlockDetails } from '@kbn/elastic-assistant';
 import { SECTION_SLUG } from './common/constants';
 import { AppDependencies } from './app_dependencies';
 import { CloneTransformSection } from './sections/clone_transform';
@@ -64,7 +65,35 @@ export const renderApp = (
           <KibanaContextProvider services={appDependencies}>
             <I18nContext>
               <EnabledFeaturesContextProvider enabledFeatures={enabledFeatures}>
-                <App history={appDependencies.history} />
+                <AssistantProvider
+                  actionTypeRegistry={appDependencies.triggersActionsUi.actionTypeRegistry}
+                  getInitialConversations={() => ({})}
+                  assistantAvailability={{
+                    hasAssistantPrivilege: true,
+                    hasConnectorsAllPrivilege: true,
+                    hasConnectorsReadPrivilege: true,
+                    isAssistantEnabled: true,
+                  }}
+                  augmentMessageCodeBlocks={() => [] as CodeBlockDetails[]}
+                  baseAllow={[]}
+                  baseAllowReplacement={[]}
+                  basePath={'https://localhost:5601/abc'}
+                  defaultAllow={[]}
+                  defaultAllowReplacement={[]}
+                  // showAssistantOverlay={show}
+                  // setShowAssistantOverlay={setShowAssistantOverlay}
+                  // assistantContextShowOverlay={true}
+                  // docLinks={{
+                  //   ELASTIC_WEBSITE_URL: 'https://www.elastic.co/',
+                  //   DOC_LINK_VERSION: 'current',
+                  // }}
+                  // getComments={() => {}}
+                  // setConversations={jest.fn()}
+                  // setDefaultAllow={jest.fn()}
+                  // setDefaultAllowReplacement={jest.fn()}
+                >
+                  <App history={appDependencies.history} />
+                </AssistantProvider>
               </EnabledFeaturesContextProvider>
             </I18nContext>
           </KibanaContextProvider>

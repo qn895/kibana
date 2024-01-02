@@ -17,8 +17,9 @@ import { WELCOME_CONVERSATION_TITLE } from '../use_conversation/translations';
 
 const isMac = navigator.platform.toLowerCase().indexOf('mac') >= 0;
 
+// @todo
 const StyledEuiModal = styled(EuiModal)`
-  ${({ theme }) => `margin-top: ${theme.eui.euiSizeXXL};`}
+  ${({ theme }) => `margin-top: 16px;`}
   min-width: 95vw;
   min-height: 25vh;
 `;
