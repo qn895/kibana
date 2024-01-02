@@ -5,8 +5,12 @@
  * 2.0.
  */
 
-import type { CoreStart, Plugin } from '@kbn/core/public';
+import type { CoreStart } from '@kbn/core/public';
+import { Plugin } from '@kbn/core/public';
+
+
 import { type CoreSetup } from '@kbn/core/public';
+import { LazyAssistantProvider } from './lazy_loaded_assistant_provider';
 import type {
   ElasticAssistantPublicPluginSetup,
   ElasticAssistantPublicPluginSetupDeps,
@@ -19,7 +23,7 @@ export type ElasticAssistantCoreSetup = CoreSetup<
   ElasticAssistantPublicPluginStart
 >;
 
-export class ElasticAssistantPlugin
+export class ElasticAssistantPublicPlugin
   implements
   Plugin<
   ElasticAssistantPublicPluginSetup,
@@ -29,47 +33,18 @@ export class ElasticAssistantPlugin
   >
 {
   public setup(
-    core: ElasticAssistantCoreSetup,
-    pluginSetupDeps: ElasticAssistantPublicPluginSetupDeps
-  ) {
-    // Promise.all([
-    //   // firstValueFrom(licensing.license$),
-    //   // import('./embeddable/register_embeddable'),
-    //   // import('./ui_actions'),
-    //   // import('./cases/register_change_point_charts_attachment'),
-    //   core.getStartServices(),
-    // ]).then(
-    //   ([
-    //     // license,
-    //     // { registerEmbeddable },
-    //     // { registerElasticAssistantUiActions },
-    //     // { registerChangePointChartsAttachment },
-    //     [coreStart, pluginStart],
-    //   ]) => {
-    //     // @TODO: remove
-    //     console.log(`--@@pluginStart`, pluginStart);
-    //     // if (license.hasAtLeast('platinum')) {
-    //     //   if (embeddable) {
-    //     //     registerEmbeddable(core, embeddable);
-    //     //   }
-    //     //   if (uiActions) {
-    //     //     registerElasticAssistantUiActions(uiActions, coreStart, pluginStart);
-    //     //   }
-    //     //   if (cases) {
-    //     //     registerChangePointChartsAttachment(cases, coreStart, pluginStart);
-    //     //   }
-    //     // }
-    //   }
-    // );
+    core: CoreSetup<ElasticAssistantPublicPluginStartDeps, ElasticAssistantPublicPluginStart>,
+    plugins: ElasticAssistantPublicPluginSetupDeps
+  ): ElasticAssistantPublicPluginSetup {
     return {};
   }
+  public start(core: CoreStart) {
+    return {
+      'test': 'test',
+      // AssistantProvider: LazyAssistantProvider
 
-  public start(
-    core: CoreStart,
-    plugins: ElasticAssistantPublicPluginStartDeps
-  ): ElasticAssistantPublicPluginStart {
-    return {};
+    };
   }
+  public stop(): void { }
 
-  public stop() { }
 }

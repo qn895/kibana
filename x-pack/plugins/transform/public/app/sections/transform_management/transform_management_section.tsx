@@ -6,7 +6,7 @@
  */
 
 import React, { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { NewChat } from '@kbn/elastic-assistant';
+// import { NewChat } from '@kbn/elastic-assistant';
 
 import {
   EuiAvatar,
@@ -24,8 +24,7 @@ import { i18n } from '@kbn/i18n';
 import { FormattedMessage } from '@kbn/i18n-react';
 import type { IHttpFetchError } from '@kbn/core-http-browser';
 
-import { AssistantOverlay, useAssistantContext } from '@kbn/elastic-assistant';
-import { useChatSend } from '@kbn/elastic-assistant/impl/assistant/chat_send/use_chat_send';
+// import { AssistantOverlay, useAssistantContext } from '@kbn/elastic-assistant';
 import { useAppDependencies } from '../../app_dependencies';
 import type { TransformListRow } from '../../common';
 import { isTransformStats } from '../../../../common/types/transform_stats';
@@ -78,152 +77,18 @@ const ErrorMessageCallout: FC<{
     </>
   );
 };
-export const getComments = ({
-  amendMessage,
-  currentConversation,
-  isFetchingResponse,
-  regenerateMessage,
-  showAnonymizedValues,
-}: {
-  amendMessage: ({ conversationId, content }: { conversationId: string; content: string }) => void;
-  currentConversation: Conversation;
-  isFetchingResponse: boolean;
-  regenerateMessage: (conversationId: string) => void;
-  showAnonymizedValues: boolean;
-}): EuiCommentProps[] => {
-  const amendMessageOfConversation = (content: string) => {
-    amendMessage({
-      conversationId: currentConversation.id,
-      content,
-    });
-  };
 
-  const regenerateMessageOfConversation = () => {
-    regenerateMessage(currentConversation.id);
-  };
-
-  const connectorTypeTitle = currentConversation.apiConfig.connectorTypeTitle ?? '';
-
-  const extraLoadingComment = isFetchingResponse
-    ? [
-        {
-          username: i18n.ASSISTANT,
-          timelineAvatar: <EuiLoadingSpinner size="xl" />,
-          timestamp: '...',
-          children: (
-            <StreamComment
-              amendMessage={amendMessageOfConversation}
-              connectorTypeTitle={connectorTypeTitle}
-              content=""
-              regenerateMessage={regenerateMessageOfConversation}
-              isLastComment
-              transformMessage={() => ({ content: '' } as unknown as ContentMessage)}
-              isFetching
-              // we never need to append to a code block in the loading comment, which is what this index is used for
-              index={999}
-            />
-          ),
-        },
-      ]
-    : [];
-
-  return [
-    ...currentConversation.messages.map((message, index) => {
-      const isLastComment = index === currentConversation.messages.length - 1;
-      const isUser = message.role === 'user';
-      const replacements = currentConversation.replacements;
-
-      const messageProps = {
-        timelineAvatar: isUser ? (
-          <EuiAvatar name="user" size="l" color="subdued" iconType="userAvatar" />
-        ) : (
-          <EuiAvatar name="machine" size="l" color="subdued" iconType={AssistantAvatar} />
-        ),
-        timestamp: i18n.AT(
-          message.timestamp.length === 0 ? new Date().toLocaleString() : message.timestamp
-        ),
-        username: isUser ? i18n.YOU : i18n.ASSISTANT,
-        eventColor: message.isError ? 'danger' : undefined,
-      };
-
-      const transformMessage = (content: string) =>
-        transformMessageWithReplacements({
-          message,
-          content,
-          showAnonymizedValues,
-          replacements,
-        });
-
-      // message still needs to stream, no actions returned and replacements handled by streamer
-      if (!(message.content && message.content.length)) {
-        return {
-          ...messageProps,
-          children: (
-            <StreamComment
-              amendMessage={amendMessageOfConversation}
-              connectorTypeTitle={connectorTypeTitle}
-              index={index}
-              isLastComment={isLastComment}
-              isError={message.isError}
-              reader={message.reader}
-              regenerateMessage={regenerateMessageOfConversation}
-              transformMessage={transformMessage}
-            />
-          ),
-        };
-      }
-
-      // transform message here so we can send correct message to CommentActions
-      const transformedMessage = transformMessage(message.content ?? '');
-
-      return {
-        ...messageProps,
-        actions: <CommentActions message={transformedMessage} />,
-        children: (
-          <StreamComment
-            amendMessage={amendMessageOfConversation}
-            connectorTypeTitle={connectorTypeTitle}
-            content={transformedMessage.content}
-            index={index}
-            isLastComment={isLastComment}
-            // reader is used to determine if streaming controls are shown
-            reader={transformedMessage.reader}
-            regenerateMessage={regenerateMessageOfConversation}
-            transformMessage={transformMessage}
-          />
-        ),
-      };
-    }),
-    ...extraLoadingComment,
-  ];
-};
-
-export const TransformManagement: FC = () => {
+const ElasticAssistantChat = ({ assistantAvailable }: { assistantAvailable: true }) => {};
+export const TransformManagement: FC = (props) => {
   const { esTransform } = useDocumentationLinks();
   const { showNodeInfo } = useEnabledFeatures();
   const { dataViewEditor } = useAppDependencies();
 
-  const {
-    handleButtonSendMessage,
-    handleOnChatCleared,
-    handlePromptChange,
-    handleSendMessage,
-    handleRegenerateResponse,
-    isLoading: isLoadingChatSend,
-  } = useChatSend({
-    allSystemPrompts,
-    currentConversation,
-    setPromptTextPreview,
-    setUserPrompt,
-    editingSystemPromptId,
-    http,
-    setEditingSystemPromptId,
-    selectedPromptContexts,
-    setSelectedPromptContexts,
-  });
-
   // @TODO: remove
-  console.log(`--@@useAppDependencies`, useAppDependencies());
+  console.log(`--@@TransformManagement props`, props);
+  // const test = useAssistantContext();
+  // console.log(`--@@TransformManagement useAssistantContext`, test);
+
   const deleteTransforms = useDeleteTransforms();
 
   const {
@@ -372,7 +237,7 @@ export const TransformManagement: FC = () => {
 
   return (
     <>
-      <AssistantOverlay />
+      {/* <AssistantOverlay /> */}
 
       <EuiPageTemplate.Header
         pageTitle={
@@ -403,7 +268,7 @@ export const TransformManagement: FC = () => {
         )}
         {!isInitialLoading && (
           <>
-            <EuiFlexItem grow={false}>
+            {/* <EuiFlexItem grow={false}>
               <NewChat
                 category="transform"
                 conversationId={'ml.transform'}
@@ -412,7 +277,7 @@ export const TransformManagement: FC = () => {
                 suggestedUserPrompt={'Write out what you want to create transform for'}
                 tooltip={'Write out what you want to create transform for'}
               />
-            </EuiFlexItem>
+            </EuiFlexItem> */}
 
             {unauthorizedTransformsWarning}
 
@@ -533,7 +398,7 @@ export const TransformManagement: FC = () => {
   );
 };
 
-export const TransformManagementSection: FC = () => {
+export const TransformManagementSection: FC = (props) => {
   // Set breadcrumb and page title
   useEffect(() => {
     breadcrumbService.setBreadcrumbs(BREADCRUMB_SECTION.HOME);
@@ -542,7 +407,7 @@ export const TransformManagementSection: FC = () => {
 
   return (
     <CapabilitiesWrapper requiredCapabilities={'canGetTransform'}>
-      <TransformManagement />
+      <TransformManagement {...props} />
     </CapabilitiesWrapper>
   );
 };

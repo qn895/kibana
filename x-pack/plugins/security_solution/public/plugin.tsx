@@ -124,7 +124,13 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
    */
   private _store?: SecurityAppStore;
   private _actionsRegistered?: boolean = false;
+  private tempStore?: SecurityAppStore;
 
+  private async getStore(coreStart, startPlugins) {
+    const subPlugins = await this.startSubPlugins(this.storage, coreStart, startPlugins);
+    const store = await this.store(coreStart, startPlugins, subPlugins);
+    return store;
+  }
   public setup(
     core: CoreSetup<StartPluginsDependencies, PluginStart>,
     plugins: SetupPlugins
@@ -232,6 +238,9 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
         const [coreStart, startPlugins] = await core.getStartServices();
         const subPlugins = await this.startSubPlugins(this.storage, coreStart, startPlugins);
         const store = await this.store(coreStart, startPlugins, subPlugins);
+
+        this.tempStore = store;
+
         const services = await startServices(params);
         await this.registerActions(store, params.history, services);
 
@@ -342,7 +351,7 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
     // Not using await to prevent blocking start execution
     this.registerAppLinks(core, plugins);
 
-    return this.contract.getStartContract();
+    return this.contract.getStartContract(this.getStore(core, plugins));
   }
 
   public stop() {

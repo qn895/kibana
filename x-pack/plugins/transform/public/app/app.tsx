@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import React, { useState, type FC } from 'react';
+import React, { useState, type FC, useEffect } from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -17,7 +17,7 @@ import { KibanaContextProvider, KibanaThemeProvider } from '@kbn/kibana-react-pl
 
 import { AssistantProvider, type CodeBlockDetails } from '@kbn/elastic-assistant';
 import { SECTION_SLUG } from './common/constants';
-import { AppDependencies } from './app_dependencies';
+import { AppDependencies, useAppDependencies } from './app_dependencies';
 import { CloneTransformSection } from './sections/clone_transform';
 import { CreateTransformSection } from './sections/create_transform';
 import { TransformManagementSection } from './sections/transform_management';
@@ -26,21 +26,52 @@ import {
   type TransformEnabledFeatures,
 } from './serverless_context';
 
-export const App: FC<{ history: ScopedHistory }> = ({ history }) => (
-  <Router history={history}>
-    <Routes>
-      <Route
-        path={`/${SECTION_SLUG.CLONE_TRANSFORM}/:transformId`}
-        component={CloneTransformSection}
-      />
-      <Route
-        path={`/${SECTION_SLUG.CREATE_TRANSFORM}/:savedObjectId`}
-        component={CreateTransformSection}
-      />
-      <Route path={`/`} component={TransformManagementSection} />
-    </Routes>
-  </Router>
-);
+export const App: FC<{ history: ScopedHistory }> = ({ history }) => {
+  const [ElasticAssistantProvider, setAssistantProvider] = useState<React.FC>(React.Fragment);
+  const [assistantAvailable, setAssistantAvailable] = useState<boolean>(false);
+
+  const { securitySolution } = useAppDependencies();
+  useEffect(() => {
+    let unmounted = false;
+    const getAssistantProvider = async () => {
+      const Component = await securitySolution.getAssistantProvider;
+      // @TODO: remove
+      console.log(`--@@Component`, Component);
+      if (!unmounted) {
+        setAssistantProvider(Component);
+        setAssistantAvailable(true);
+      }
+    };
+
+    getAssistantProvider();
+    return () => {
+      unmounted = true;
+    };
+  }, [securitySolution]);
+  // const AssistantProvider = appDependencies.securitySolution.AssistantProvider;
+  // @TODO: remove
+  console.log(`--@@TransformApp assistantAvailable`, assistantAvailable);
+
+  return (
+    <ElasticAssistantProvider>
+      <Router history={history}>
+        <Routes>
+          <Route
+            path={`/${SECTION_SLUG.CLONE_TRANSFORM}/:transformId`}
+            component={CloneTransformSection}
+          />
+          <Route
+            path={`/${SECTION_SLUG.CREATE_TRANSFORM}/:savedObjectId`}
+            component={CreateTransformSection}
+          />
+          <Route path={`/`}>
+            <TransformManagementSection assistantAvailable={assistantAvailable} />
+          </Route>
+        </Routes>
+      </Router>
+    </ElasticAssistantProvider>
+  );
+};
 
 export const renderApp = (
   element: HTMLElement,
@@ -65,35 +96,7 @@ export const renderApp = (
           <KibanaContextProvider services={appDependencies}>
             <I18nContext>
               <EnabledFeaturesContextProvider enabledFeatures={enabledFeatures}>
-                <AssistantProvider
-                  actionTypeRegistry={appDependencies.triggersActionsUi.actionTypeRegistry}
-                  getInitialConversations={() => ({})}
-                  assistantAvailability={{
-                    hasAssistantPrivilege: true,
-                    hasConnectorsAllPrivilege: true,
-                    hasConnectorsReadPrivilege: true,
-                    isAssistantEnabled: true,
-                  }}
-                  augmentMessageCodeBlocks={() => [] as CodeBlockDetails[]}
-                  baseAllow={[]}
-                  baseAllowReplacement={[]}
-                  basePath={'https://localhost:5601/abc'}
-                  defaultAllow={[]}
-                  defaultAllowReplacement={[]}
-                  // showAssistantOverlay={show}
-                  // setShowAssistantOverlay={setShowAssistantOverlay}
-                  // assistantContextShowOverlay={true}
-                  // docLinks={{
-                  //   ELASTIC_WEBSITE_URL: 'https://www.elastic.co/',
-                  //   DOC_LINK_VERSION: 'current',
-                  // }}
-                  // getComments={() => {}}
-                  // setConversations={jest.fn()}
-                  // setDefaultAllow={jest.fn()}
-                  // setDefaultAllowReplacement={jest.fn()}
-                >
-                  <App history={appDependencies.history} />
-                </AssistantProvider>
+                <App history={appDependencies.history} />
               </EnabledFeaturesContextProvider>
             </I18nContext>
           </KibanaContextProvider>

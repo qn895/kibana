@@ -26,6 +26,8 @@ import type { SavedSearchPublicPluginStart } from '@kbn/saved-search-plugin/publ
 import type { PluginInitializerContext } from '@kbn/core/public';
 import type { DataViewEditorStart } from '@kbn/data-view-editor-plugin/public';
 import type { ElasticAssistantPluginStart } from '@kbn/elastic-assistant-plugin/server';
+import type { PluginStart as SecuritySolutionPluginStart } from '@kbn/security-solution-plugin/public';
+
 import type { ActionTypeRegistryContract } from '@kbn/actions-plugin/server/types';
 import { registerFeature } from './register_feature';
 import { getTransformHealthRuleType } from './alerting';
@@ -47,8 +49,9 @@ export interface PluginsDependencies {
   fieldFormats: FieldFormatsStart;
   savedObjectsManagement: SavedObjectsManagementPluginStart;
   contentManagement: ContentManagementPublicStart;
-  elasticAssistant?: ElasticAssistantPluginStart;
+  elasticAssistant: ElasticAssistantPluginStart;
   actionTypeRegistry: ActionTypeRegistryContract;
+  securitySolution: SecuritySolutionPluginStart;
 }
 
 export class TransformUiPlugin {

@@ -35,9 +35,11 @@ import type { TriggersAndActionsUIPublicPluginStart } from '@kbn/triggers-action
 import type { UsageCollectionStart } from '@kbn/usage-collection-plugin/public';
 import { ChartsPluginStart } from '@kbn/charts-plugin/public';
 import type { FieldFormatsStart } from '@kbn/field-formats-plugin/public';
-import { SavedObjectsManagementPluginStart } from '@kbn/saved-objects-management-plugin/public';
+import type { SavedObjectsManagementPluginStart } from '@kbn/saved-objects-management-plugin/public';
 import type { SettingsStart } from '@kbn/core-ui-settings-browser';
 import type { DataViewEditorStart } from '@kbn/data-view-editor-plugin/public';
+import type { ElasticAssistantPublicPluginStart } from '@kbn/elastic-assistant-plugin/public';
+import type { PluginStart as SecuritySolutionPluginStart } from '@kbn/security-solution-plugin/public';
 import type { GetMlSharedImportsReturnType } from '../shared_imports';
 
 export interface AppDependencies {
@@ -70,6 +72,8 @@ export interface AppDependencies {
   savedObjectsManagement: SavedObjectsManagementPluginStart;
   settings: SettingsStart;
   contentManagement: ContentManagementPublicStart;
+  elasticAssistant: ElasticAssistantPublicPluginStart;
+  securitySolution: SecuritySolutionPluginStart;
 }
 
 export const useAppDependencies = () => {

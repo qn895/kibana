@@ -6,8 +6,12 @@
   "plugin": {
     "id": "elasticAssistant",
     "server": true,
-    "browser": false,
+    "browser": true,
     "requiredPlugins": [
+      "cases",
+      "stackConnectors",
+      "kibanaReact",
+      "triggersActionsUi",
       "actions",
       "data",
       "ml"

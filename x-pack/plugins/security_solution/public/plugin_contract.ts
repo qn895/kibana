@@ -15,6 +15,8 @@ import type { ExperimentalFeatures } from '../common/experimental_features';
 import { navLinks$ } from './common/links/nav_links';
 import { breadcrumbsNav$ } from './common/breadcrumbs';
 import { ContractComponentsService } from './contract_components';
+import { getAssistantProvider } from './assistant/lazy_loaded_assistant_provider';
+import type { SecurityAppStore } from './common/store';
 
 export class PluginContract {
   public componentsService: ContractComponentsService;
@@ -51,7 +53,9 @@ export class PluginContract {
     };
   }
 
-  public getStartContract(): PluginStart {
+  public getStartContract(getStore: Promise<SecurityAppStore>): PluginStart {
+    // @TODO: remove
+    console.log(`--@@getStartContract store`, getStore);
     return {
       getNavLinks$: () => navLinks$,
       setExtraRoutes: (extraRoutes) => this.extraRoutes$.next(extraRoutes),
@@ -60,6 +64,7 @@ export class PluginContract {
       },
       getBreadcrumbsNav$: () => breadcrumbsNav$,
       getUpselling: () => this.upsellingService,
+      getAssistantProvider: getAssistantProvider(getStore),
     };
   }
 
