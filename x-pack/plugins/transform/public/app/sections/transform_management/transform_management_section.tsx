@@ -7,12 +7,14 @@
 
 import React, { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 // import { NewChat } from '@kbn/elastic-assistant';
+import { type Message, MessageRole } from '@kbn/observability-ai-assistant-plugin/public';
 
 import {
   EuiAvatar,
   EuiButton,
   EuiButtonEmpty,
   EuiCallOut,
+  EuiFlexGroup,
   EuiFlexItem,
   EuiModal,
   EuiPageTemplate,
@@ -54,6 +56,13 @@ import {
   TransformAlertFlyoutWrapper,
 } from '../../../alerting/transform_alerting_flyout';
 
+const explainProcessMessageTitle = i18n.translate(
+  'xpack.infra.hostFlyout.explainProcessMessageTitle',
+  {
+    defaultMessage: 'Use AI to create Transforms',
+  }
+);
+
 const ErrorMessageCallout: FC<{
   text: JSX.Element;
   errorMessage: IHttpFetchError<unknown> | null;
@@ -78,14 +87,52 @@ const ErrorMessageCallout: FC<{
   );
 };
 
-const ElasticAssistantChat = ({ assistantAvailable }: { assistantAvailable: true }) => {};
+const helpCreateTransformCommand = `You are a helpful assistant who's knowledgeable in Elasticsearch transforms. Introduce yourself to the user in one sentence, include that you can help them with creating transforms.`;
+const ElasticAssistantChat = ({ command = helpCreateTransformCommand }) => {
+  const {
+    observabilityAIAssistant: { ObservabilityAIAssistantContextualInsight },
+  } = useAppDependencies();
+
+  const explainProcessMessages = useMemo<Message[] | undefined>(() => {
+    if (!command) {
+      return undefined;
+    }
+    const now = new Date().toISOString();
+    return [
+      {
+        '@timestamp': now,
+        message: {
+          role: MessageRole.User,
+          content: helpCreateTransformCommand,
+        },
+      },
+    ];
+  }, [command]);
+
+  return (
+    <>
+      {ObservabilityAIAssistantContextualInsight && explainProcessMessages ? (
+        <EuiFlexGroup>
+          <EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <ObservabilityAIAssistantContextualInsight
+                title={explainProcessMessageTitle}
+                messages={explainProcessMessages}
+              />
+            </EuiFlexItem>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      ) : null}
+    </>
+  );
+};
 export const TransformManagement: FC = (props) => {
   const { esTransform } = useDocumentationLinks();
   const { showNodeInfo } = useEnabledFeatures();
   const { dataViewEditor } = useAppDependencies();
 
   // @TODO: remove
-  console.log(`--@@TransformManagement props`, props);
+  console.log(`--@@TransformManagement useAppDependencies()`, useAppDependencies());
   // const test = useAssistantContext();
   // console.log(`--@@TransformManagement useAssistantContext`, test);
 
@@ -130,9 +177,6 @@ export const TransformManagement: FC = (props) => {
       return { ...t, stats };
     });
   }, [transformsStats, transformsWithoutStats]);
-
-  // Assistant integration for using selected rules as prompt context
-  const hasAssistantPrivilege = true; // @todo: useAssistantAvailability();
 
   const isInitialLoading = transformNodesInitialLoading || transformsInitialLoading;
 
@@ -181,8 +225,6 @@ export const TransformManagement: FC = (props) => {
 
   const [isSearchSelectionVisible, setIsSearchSelectionVisible] = useState(false);
   const [savedObjectId, setSavedObjectId] = useState<string | null>(null);
-
-  const getPromptContext = useCallback(async () => '', []);
 
   const onCloseModal = useCallback(() => setIsSearchSelectionVisible(false), []);
   const onOpenModal = () => setIsSearchSelectionVisible(true);
@@ -237,8 +279,9 @@ export const TransformManagement: FC = (props) => {
 
   return (
     <>
-      {/* <AssistantOverlay /> */}
+      <ElasticAssistantChat />
 
+      <EuiSpacer size="s" />
       <EuiPageTemplate.Header
         pageTitle={
           <span data-test-subj="transformAppTitle">

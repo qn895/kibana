@@ -48,5 +48,5 @@ export const getAssistantProvider = async (getStore: Promise<SecurityAppStore>) 
   );
   console.log(`--@@getAssistantProvider React.Fragment`, React.Fragment);
 
-  return store ? withStore(ElasticAssistantProvider, store) : React.Fragment;
+  return store ? React.Fragment : React.Fragment;
 };
