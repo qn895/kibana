@@ -121,6 +121,7 @@ const ElasticAssistantChat = ({ command = helpCreateTransformCommand }) => {
               />
             </EuiFlexItem>
           </EuiFlexItem>
+          <EuiSpacer size="m" />
         </EuiFlexGroup>
       ) : null}
     </>

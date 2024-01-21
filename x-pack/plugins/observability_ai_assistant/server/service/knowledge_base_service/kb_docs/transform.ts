@@ -127,13 +127,7 @@ export function addTransformDocsToKb({
     {
       id: 'transform_put',
       texts: [
-        `There can only be either 'pivot' or 'latest' parameter in a transform. If both are specified, the transform will fail.
-
-        Creating, editing, and cloning transform requires the following privileges:
-
-        * cluster: manage_transform (the transform_admin built-in role grants this privilege)
-        * source indices: read, view_index_metadata
-        * destination index: read, create_index, index. If a retention_policy is configured, the delete privilege is also required.
+        `To retry the transforms indefinitely in case of an error so that the transform never fails, set 'unattended' to true. If 'unattended' is set to true, set 'num_failure_retries' to -1. Omit this parameter by default unless specified by user..
       `,
       ],
     },
