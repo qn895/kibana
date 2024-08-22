@@ -15,7 +15,7 @@ import {
 import { monaco } from '../../monaco_imports';
 import type { ESQLWorker } from '../worker/esql_worker';
 import { wrapAsMonacoMessages } from './converters/positions';
-import { getHoverItem } from './hover/hover';
+import { getHoverItem, getInlayHints } from './hover/hover';
 import { monacoPositionToOffset, offsetRangeToMonacoRange } from './shared/utils';
 import { getSignatureHelp } from './signature';
 import { SuggestionRawDefinitionWithMonacoRange } from './types';
@@ -61,6 +61,15 @@ export class ESQLAstAdapter {
   ) {
     const getAstFn = await this.getAstWorker(model);
     return getHoverItem(model, position, token, getAstFn, this.callbacks);
+  }
+
+  async getInlayHints(
+    model: monaco.editor.ITextModel,
+    range: monaco.Range,
+    token: monaco.CancellationToken
+  ) {
+    const getAstFn = await this.getAstWorker(model);
+    return getInlayHints(model, range, token, getAstFn, this.callbacks);
   }
 
   async autocomplete(

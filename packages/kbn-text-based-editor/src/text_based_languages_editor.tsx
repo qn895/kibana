@@ -496,6 +496,11 @@ export const TextBasedLanguagesEditor = memo(function TextBasedLanguagesEditor({
     [esqlCallbacks]
   );
 
+  const inlayHintsProvider = useMemo(
+    () => ESQLLang.getInlayHintsProvider?.(esqlCallbacks),
+    [esqlCallbacks]
+  );
+
   const onErrorClick = useCallback(({ startLineNumber, startColumn }: MonacoMessage) => {
     if (!editor1.current) {
       return;
@@ -635,6 +640,7 @@ export const TextBasedLanguagesEditor = memo(function TextBasedLanguagesEditor({
                     },
                   }}
                   codeActions={codeActionProvider}
+                  inlayHintsProvider={inlayHintsProvider}
                   onChange={onQueryUpdate}
                   editorDidMount={(editor) => {
                     editor1.current = editor;

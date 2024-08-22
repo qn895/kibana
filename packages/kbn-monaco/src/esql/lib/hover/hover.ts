@@ -18,9 +18,36 @@ import {
   type ESQLCallbacks,
   getPolicyHelper,
 } from '@kbn/esql-validation-autocomplete';
-import type { monaco } from '../../../monaco_imports';
+import { monaco } from '../../../monaco_imports';
 import { monacoPositionToOffset } from '../shared/utils';
 
+export async function getInlayHints(
+  model: monaco.editor.ITextModel,
+  range: monaco.Range,
+  token: monaco.CancellationToken,
+  astProvider: AstProviderFn,
+  resourceRetriever?: ESQLCallbacks
+) {
+  // @TODO: remove
+  console.log(`--@@model`, model);
+  console.log(`--@@range`, range);
+  console.log(`--@@token`, token);
+  // const innerText = model.getValue();
+  // const offset = monacoPositionToOffset(innerText, position);
+
+  // const { ast } = await astProvider(innerText);
+  // const astContext = getAstContext(innerText, ast, offset);
+
+  return {
+    hints: [
+      {
+        kind: 1,
+        position: { column: 3, lineNumber: 0 },
+        label: `: Number`,
+      },
+    ],
+  };
+}
 export async function getHoverItem(
   model: monaco.editor.ITextModel,
   position: monaco.Position,
