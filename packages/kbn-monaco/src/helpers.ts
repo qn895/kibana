@@ -29,6 +29,16 @@ export function registerLanguage(language: LangModuleType | CustomLangModuleType
     if ('onLanguage' in language) {
       await language.onLanguage();
     }
+
+    // if ('getInlayHintsProvider' in language && language.getInlayHintsProvider) {
+    //   const inlayHintsProvider = language.getInlayHintsProvider();
+    //   // /@TODO: remove
+    //   if (inlayHintsProvider) {
+    //     console.log(`--@@inlayHintsProvider`, ID, inlayHintsProvider);
+
+    //     monaco.languages.registerInlayHintsProvider(ID, inlayHintsProvider);
+    //   }
+    // }
   });
 }
 

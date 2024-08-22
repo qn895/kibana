@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import uniqBy from 'lodash/uniqBy';
+import { uniq, uniqBy } from 'lodash';
 import type {
   AstProviderFn,
   ESQLAstItem,
@@ -16,8 +16,7 @@ import type {
   ESQLLiteral,
   ESQLSingleAstItem,
 } from '@kbn/esql-ast';
-import { partition } from 'lodash';
-import { ESQL_NUMBER_TYPES, compareTypesWithLiterals, isNumericType } from '../shared/esql_types';
+import { ESQL_NUMBER_TYPES, isNumericType } from '../shared/esql_types';
 import type { EditorContext, SuggestionRawDefinition } from './types';
 import {
   lookupColumn,
@@ -76,6 +75,7 @@ import {
   buildValueDefinitions,
   getDateLiterals,
   buildFieldsDefinitionsWithMetadata,
+  TIME_SYSTEM_PARAMS,
 } from './factories';
 import { EDITOR_MARKER, SINGLE_BACKTICK, METADATA_FIELDS } from '../shared/constants';
 import { getAstContext, removeMarkerArgFromArgsList } from '../shared/context';
@@ -89,12 +89,14 @@ import { ESQLCallbacks } from '../shared/types';
 import {
   getFunctionsToIgnoreForStats,
   getOverlapRange,
-  getParamAtPosition,
   getQueryForFields,
   getSourcesFromCommands,
   getSupportedTypesForBinaryOperators,
   isAggFunctionUsedAlready,
+  getCompatibleTypesToSuggestNext,
   removeQuoteForSuggestedSources,
+  getValidFunctionSignaturesForPreviousArgs,
+  strictlyGetParamAtPosition,
 } from './helper';
 import { FunctionParameter, FunctionReturnType, SupportedDataType } from '../definitions/types';
 
@@ -438,7 +440,7 @@ function areCurrentArgsValid(
   return true;
 }
 
-function extractFinalTypeFromArg(
+export function extractFinalTypeFromArg(
   arg: ESQLAstItem,
   references: Pick<ReferenceMaps, 'fields' | 'variables'>
 ):
@@ -1220,6 +1222,24 @@ async function getFunctionArgsSuggestions(
     return [];
   }
   const fieldsMap: Map<string, ESQLRealField> = await getFieldsMap();
+  const anyVariables = collectVariables(commands, fieldsMap, innerText);
+
+  const references = {
+    fields: fieldsMap,
+    variables: anyVariables,
+  };
+
+  const enrichedArgs = node.args.map((nodeArg) => {
+    let esType = extractFinalTypeFromArg(nodeArg, references);
+
+    // For named system time parameters ?start and ?end, make sure it's compatiable
+    if (isLiteralItem(nodeArg) && TIME_SYSTEM_PARAMS.includes(nodeArg.text)) {
+      esType = 'date';
+    }
+
+    return { ...nodeArg, esType } as ESQLAstItem & { esType: string };
+  });
+
   const variablesExcludingCurrentCommandOnes = excludeVariablesFromCurrentCommand(
     commands,
     command,
@@ -1233,6 +1253,8 @@ async function getFunctionArgsSuggestions(
     argIndex -= 1;
   }
 
+  // Wehther to prepend comma to suggestion string
+  // E.g. if true, "fieldName" -> "fieldName, "
   const arg = node.args[argIndex];
 
   // the first signature is used as reference
@@ -1249,28 +1271,16 @@ async function getFunctionArgsSuggestions(
 
   const shouldAddComma = hasMoreMandatoryArgs && fnDefinition.type !== 'builtin';
 
-  const suggestedConstants = Array.from(
-    new Set(
-      fnDefinition.signatures.reduce<string[]>((acc, signature) => {
-        const p = signature.params[argIndex];
-        if (!p) {
-          return acc;
-        }
-
-        const _suggestions: string[] = p.literalSuggestions
-          ? p.literalSuggestions
-          : p.literalOptions
-          ? p.literalOptions
-          : [];
-
-        return acc.concat(_suggestions);
-      }, [] as string[])
-    )
-  );
+  const suggestedConstants = uniq(
+    typesToSuggestNext
+      .map((d) => d.literalSuggestions || d.literalOptions)
+      .filter((d) => d)
+      .flat()
+  ) as string[];
 
   if (suggestedConstants.length) {
     return buildValueDefinitions(suggestedConstants, {
-      addComma: hasMoreMandatoryArgs,
+      addComma: shouldAddComma,
       advanceCursorAndOpenSuggestions: hasMoreMandatoryArgs,
     });
   }
@@ -1315,35 +1325,6 @@ async function getFunctionArgsSuggestions(
           : [])
       );
     }
-
-    const existingTypes = node.args
-      .map((nodeArg) =>
-        extractFinalTypeFromArg(nodeArg, {
-          fields: fieldsMap,
-          variables: variablesExcludingCurrentCommandOnes,
-        })
-      )
-      .filter(nonNullable);
-
-    const validSignatures = fnDefinition.signatures
-      // if existing arguments are preset already, use them to filter out incompatible signatures
-      .filter((signature) => {
-        if (existingTypes.length) {
-          return existingTypes.every((type, index) =>
-            compareTypesWithLiterals(signature.params[index].type, type)
-          );
-        }
-        return true;
-      });
-
-    /**
-     * Get all parameter definitions across all function signatures
-     * for the current parameter position in the given function definition,
-     */
-    const allParamDefinitionsForThisPosition = validSignatures
-      .map((signature) => getParamAtPosition(signature, argIndex))
-      .filter(nonNullable);
-
     // Separate the param definitions into two groups:
     // fields should only be suggested if the param isn't constant-only,
     // and constant suggestions should only be given if it is.
@@ -1354,9 +1335,8 @@ async function getFunctionArgsSuggestions(
     // (e.g. if func1's first parameter is constant-only, any nested functions should
     // inherit that constraint: func1(func2(shouldBeConstantOnly)))
     //
-    const [constantOnlyParamDefs, paramDefsWhichSupportFields] = partition(
-      allParamDefinitionsForThisPosition,
-      (paramDef) => paramDef.constantOnly || /_literal$/.test(paramDef.type as string)
+    const constantOnlyParamDefs = typesToSuggestNext.filter(
+      (p) => p.constantOnly || /_literal/.test(p.type as string)
     );
 
     const getTypesFromParamDefs = (paramDefs: FunctionParameter[]) => {
@@ -1376,20 +1356,24 @@ async function getFunctionArgsSuggestions(
     // Fields
     suggestions.push(
       ...pushItUpInTheList(
-        await getFieldsByType(getTypesFromParamDefs(paramDefsWhichSupportFields) as string[], [], {
-          addComma: shouldAddComma,
-          advanceCursorAndOpenSuggestions: hasMoreMandatoryArgs,
-        }),
+        await getFieldsByType(
+          // @TODO: have a way to better suggest constant only params
+          getTypesFromParamDefs(typesToSuggestNext.filter((d) => !d.constantOnly)) as string[],
+          [],
+          {
+            addComma: shouldAddComma,
+            advanceCursorAndOpenSuggestions: hasMoreMandatoryArgs,
+          }
+        ),
         true
       )
     );
-
     // Functions
     suggestions.push(
       ...getCompatibleFunctionDefinition(
         command.name,
         option?.name,
-        getTypesFromParamDefs(paramDefsWhichSupportFields) as string[],
+        getTypesFromParamDefs(typesToSuggestNext) as string[],
         fnToIgnore
       ).map((suggestion) => ({
         ...suggestion,
@@ -1399,8 +1383,10 @@ async function getFunctionArgsSuggestions(
 
     // could also be in stats (bucket) but our autocomplete is not great yet
     if (
-      getTypesFromParamDefs(paramDefsWhichSupportFields).includes('date') &&
-      ['where', 'eval'].includes(command.name)
+      (getTypesFromParamDefs(typesToSuggestNext).includes('date') &&
+        ['where', 'eval'].includes(command.name)) ||
+      (command.name === 'stats' &&
+        typesToSuggestNext.some((t) => t && t.type === 'date' && t.constantOnly === true))
     )
       suggestions.push(
         ...getDateLiterals({
@@ -1409,7 +1395,6 @@ async function getFunctionArgsSuggestions(
         })
       );
   }
-
   // for eval and row commands try also to complete numeric literals with time intervals where possible
   if (arg) {
     if (command.name !== 'stats') {

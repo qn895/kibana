@@ -40,6 +40,7 @@ export interface CustomLangModuleType<Deps = unknown>
   extends Omit<LangModuleType, 'getSuggestionProvider'>,
     LanguageProvidersModule<Deps> {
   onLanguage: () => void;
+  getInlayHintsProvider?: (callbacks?: Deps) => monaco.languages.InlayHintsProvider;
 }
 
 export interface MonacoEditorError {

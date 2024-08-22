@@ -129,4 +129,36 @@ export const ESQLLang: CustomLangModuleType<ESQLCallbacks> = {
       },
     };
   },
+
+  getInlayHintsProvider: (callbacks?: ESQLCallbacks): monaco.languages.InlayHintsProvider => {
+    // @TODO: remove
+    console.log(`--@@monaco.languages.InlayHintKind.Type`, monaco.languages.InlayHintKind.Type);
+    return {
+      async provideInlayHints(
+        model: monaco.editor.ITextModel,
+        range: monaco.Range,
+        token: monaco.CancellationToken
+      ): Promise<ProviderResult<InlayHintList>> {
+        console.log(`--@@getInlayHintsProvider provideInlayHints`);
+
+        // const astAdapter = new ESQLAstAdapter(
+        //   (...uris) => workerProxyService.getWorker(uris),
+        //   callbacks
+        // );
+        // // @TODO: remove
+        // console.log(`--@@astAdapter`, astAdapter);
+        // const inlayHints = await astAdapter.getInlayHints(model, range, token);
+        return {
+          hints: [
+            {
+              kind: monaco.languages.InlayHintKind.Type,
+              position: { column: 0, lineNumber: 0 },
+              label: `: Number`,
+            },
+          ],
+          dispose: () => {},
+        };
+      },
+    };
+  },
 };

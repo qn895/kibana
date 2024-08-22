@@ -21,6 +21,11 @@ import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding.js'; // Need
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController.js'; // Needed for suggestions
 import 'monaco-editor/esm/vs/editor/contrib/hover/browser/hover.js'; // Needed for hover
 import 'monaco-editor/esm/vs/editor/contrib/parameterHints/browser/parameterHints.js'; // Needed for signature
+
+import 'monaco-editor/esm/vs/editor/contrib/inlayHints/browser/inlayHintsController.js'; // Needed for inlay hints
+import 'monaco-editor/esm/vs/editor/contrib/inlayHints/browser/inlayHintsLocations.js'; // Needed for inlay hints
+import 'monaco-editor/esm/vs/editor/contrib/inlayHints/browser/inlayHints.js'; // Needed for inlay hints
+
 import 'monaco-editor/esm/vs/editor/contrib/bracketMatching/browser/bracketMatching.js'; // Needed for brackets matching highlight
 
 import 'monaco-editor/esm/vs/editor/contrib/codeAction/browser/codeAction.js';
@@ -52,4 +57,6 @@ export {
   language as yamlLanguage,
 } from 'monaco-editor/esm/vs/basic-languages/yaml/yaml';
 
+// @TODO: remove
+console.log(`--@@monaco`, monaco);
 export { monaco };

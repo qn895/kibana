@@ -84,6 +84,13 @@ export interface CodeEditorProps {
   hoverProvider?: monaco.languages.HoverProvider;
 
   /**
+   * Inlay hints provider for inlay hints
+   * Documentation for the provider can be found here:
+   * https://microsoft.github.io/monaco-editor/docs.html#interfaces/languages.InlayHintsProvider.html
+   */
+  inlayHintsProvider?: monaco.languages.InlayHintsProvider;
+
+  /**
    * Language config provider for bracket
    * Documentation for the provider can be found here:
    * https://microsoft.github.io/monaco-editor/docs.html#interfaces/languages.LanguageConfiguration.html
@@ -183,6 +190,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   placeholder,
   languageConfiguration,
   codeActions,
+  inlayHintsProvider,
   'aria-label': ariaLabel = i18n.translate('sharedUXPackages.codeEditor.ariaLabel', {
     defaultMessage: 'Code Editor',
   }),
@@ -349,6 +357,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   const _editorWillMount = useCallback<NonNullable<ReactMonacoEditorProps['editorWillMount']>>(
     (__monaco) => {
+      console.log(`--@@__monaco`, __monaco);
       if (__monaco !== monaco) {
         throw new Error('react-monaco-editor is using a different version of monaco');
       }
@@ -361,6 +370,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       editorWillMount?.();
 
       monaco.languages.onLanguage(languageId, () => {
+        // @TODO: remove
+        console.log(`--@@suggestionProvider`, suggestionProvider);
+
         if (suggestionProvider) {
           monaco.languages.registerCompletionItemProvider(languageId, suggestionProvider);
         }
@@ -380,6 +392,22 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         if (codeActions) {
           monaco.languages.registerCodeActionProvider(languageId, codeActions);
         }
+
+        if (true) {
+          console.log(
+            `--@@monaco.languages.registerInlayHintsProvider(languageId, inlayHintsProvider)`,
+            languageId,
+            inlayHintsProvider
+          );
+          try {
+            monaco.languages.registerInlayHintsProvider(languageId, inlayHintsProvider);
+          } catch (error) {
+            console.error(
+              `--@@error monaco.languages.registerInlayHintsProvider(languageId, inlayHintsProvider)`,
+              error
+            );
+          }
+        }
       });
 
       monaco.editor.addKeybindingRule({
@@ -398,6 +426,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       codeActions,
       languageConfiguration,
       enableFindAction,
+      inlayHintsProvider,
     ]
   );
 
@@ -561,6 +590,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
               // @ts-expect-error, see https://github.com/microsoft/monaco-editor/issues/3829
               'bracketPairColorization.enabled': false,
               ...options,
+              inlayHints: {
+                enabled: 'on',
+                fontSize: 12,
+              },
             }}
           />
         </UseBug177756ReBroadcastMouseDown>
