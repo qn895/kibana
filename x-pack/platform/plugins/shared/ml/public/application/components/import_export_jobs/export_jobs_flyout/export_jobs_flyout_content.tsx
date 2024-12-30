@@ -117,8 +117,6 @@ export const ExportJobsFlyoutContent = ({
   const [loadingDFAJobs, setLoadingDFAJobs] = useState(true);
 
   const [exporting, setExporting] = useState(false);
-  const [switchTabConfirmVisible, setSwitchTabConfirmVisible] = useState(false);
-  const [switchTabNextTab, setSwitchTabNextTab] = useState<JobType>(currentTab);
   const [selectedJobDependencies, setSelectedJobDependencies] = useState<JobDependencies>([]);
 
   async function onExport() {
@@ -162,12 +160,6 @@ export const ExportJobsFlyoutContent = ({
     }
   }
 
-  function switchTab(jobType: JobType) {
-    setSwitchTabConfirmVisible(false);
-    setSelectedJobIds([]);
-    setSelectedJobType(jobType);
-  }
-
   function onSelectAll() {
     const ids = selectedJobType === 'anomaly-detector' ? adJobIds : dfaJobIds;
     if (selectedJobIds.length === ids.length) {
@@ -176,25 +168,6 @@ export const ExportJobsFlyoutContent = ({
       setSelectedJobIds([...ids]);
     }
   }
-
-  const attemptTabSwitch = useCallback(
-    (jobType: JobType) => {
-      if (jobType === selectedJobType) {
-        return;
-      }
-      // if the user has already selected some jobs, open a confirm modal
-      // rather than changing tabs
-      if (selectedJobIds.length > 0) {
-        setSwitchTabNextTab(jobType);
-        setSwitchTabConfirmVisible(true);
-        return;
-      }
-
-      switchTab(jobType);
-    },
-
-    [selectedJobIds, selectedJobType]
-  );
 
   useEffect(() => {
     setSelectedJobDependencies(
@@ -207,7 +180,6 @@ export const ExportJobsFlyoutContent = ({
       setLoadingADJobs(true);
       setLoadingDFAJobs(true);
       setExporting(false);
-      setSwitchTabConfirmVisible(false);
       setAdJobIds([]);
       setSelectedJobIds([]);
       setSelectedJobType(currentTab);
@@ -416,13 +388,6 @@ export const ExportJobsFlyoutContent = ({
           </EuiFlexGroup>
         </EuiFlyoutFooter>
       </EuiFlyout>
-
-      {switchTabConfirmVisible === true ? (
-        <SwitchTabsConfirm
-          onCancel={setSwitchTabConfirmVisible.bind(null, false)}
-          onConfirm={() => switchTab(switchTabNextTab)}
-        />
-      ) : null}
     </>
   );
 };
