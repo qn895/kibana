@@ -21,7 +21,7 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import type { FC } from 'react';
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useMemo } from 'react';
 import React, { useState } from 'react';
 
 import { FormattedMessage } from '@kbn/i18n-react';
@@ -252,13 +252,13 @@ export const ExportJobsFlyoutContent = ({
             <h2>
               <FormattedMessage
                 id="xpack.ml.importExport.exportFlyout.flyoutHeader"
-                defaultMessage="Export {selectedMLType}"
+                defaultMessage="Export {selectedMLType} jobs"
                 values={{
                   selectedMLType:
                     currentTab === 'anomaly-detector' ? (
                       <FormattedMessage
                         id="xpack.ml.importExport.exportFlyout.adTab"
-                        defaultMessage="Anomaly detection jobs"
+                        defaultMessage="Anomaly detection"
                       />
                     ) : (
                       <FormattedMessage
