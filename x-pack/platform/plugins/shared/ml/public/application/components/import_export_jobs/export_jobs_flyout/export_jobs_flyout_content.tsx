@@ -18,8 +18,6 @@ import {
   EuiFlyoutHeader,
   EuiLoadingSpinner,
   EuiSpacer,
-  EuiTab,
-  EuiTabs,
   EuiTitle,
 } from '@elastic/eui';
 import type { FC } from 'react';
@@ -282,41 +280,27 @@ export const ExportJobsFlyoutContent = ({
             <h2>
               <FormattedMessage
                 id="xpack.ml.importExport.exportFlyout.flyoutHeader"
-                defaultMessage="Export jobs"
+                defaultMessage="Export {selectedMLType}"
+                values={{
+                  selectedMLType:
+                    currentTab === 'anomaly-detector' ? (
+                      <FormattedMessage
+                        id="xpack.ml.importExport.exportFlyout.adTab"
+                        defaultMessage="Anomaly detection jobs"
+                      />
+                    ) : (
+                      <FormattedMessage
+                        id="xpack.ml.importExport.exportFlyout.dfaTab"
+                        defaultMessage="Analytics"
+                      />
+                    ),
+                }}
               />
             </h2>
           </EuiTitle>
         </EuiFlyoutHeader>
         <EuiFlyoutBody>
           <ExportJobDependenciesWarningCallout jobs={selectedJobDependencies} />
-          <EuiTabs size="s">
-            {isADEnabled === true ? (
-              <EuiTab
-                isSelected={selectedJobType === 'anomaly-detector'}
-                onClick={() => attemptTabSwitch('anomaly-detector')}
-                disabled={exporting}
-                data-test-subj="mlJobMgmtExportJobsADTab"
-              >
-                <FormattedMessage
-                  id="xpack.ml.importExport.exportFlyout.adTab"
-                  defaultMessage="Anomaly detection"
-                />
-              </EuiTab>
-            ) : null}
-            {isDFAEnabled === true ? (
-              <EuiTab
-                isSelected={selectedJobType === 'data-frame-analytics'}
-                onClick={() => attemptTabSwitch('data-frame-analytics')}
-                disabled={exporting}
-                data-test-subj="mlJobMgmtExportJobsDFATab"
-              >
-                <FormattedMessage
-                  id="xpack.ml.importExport.exportFlyout.dfaTab"
-                  defaultMessage="Analytics"
-                />
-              </EuiTab>
-            ) : null}
-          </EuiTabs>
           <EuiSpacer size="s" />
           <>
             {isADEnabled === true && selectedJobType === 'anomaly-detector' && (
