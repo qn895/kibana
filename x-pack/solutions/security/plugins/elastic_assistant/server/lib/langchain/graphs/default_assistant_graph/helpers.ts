@@ -26,8 +26,6 @@ interface StreamGraphParams {
   apmTracer: APMTracer;
   assistantGraph: DefaultAssistantGraph;
   inputs: GraphInputs;
-  inferenceChatModelEnabled?: boolean;
-  isEnabledKnowledgeBase: boolean;
   logger: Logger;
   onLlmResponse?: OnLlmResponse;
   request: KibanaRequest<unknown, unknown, ExecuteConnectorRequestBody>;
@@ -56,9 +54,11 @@ export const streamGraph = async ({
   inputs,
   inferenceChatModelEnabled = false,
   isEnabledKnowledgeBase,
+  isEnabledKnowledgeBase,
   logger,
   onLlmResponse,
   request,
+  telemetry,
   telemetry,
   telemetryTracer,
   traceOptions,
