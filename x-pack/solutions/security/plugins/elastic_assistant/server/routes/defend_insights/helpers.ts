@@ -159,7 +159,6 @@ export function getAssistantToolParams({
     telemetryMetadata: {
       pluginId: 'security_defend_insights',
     },
-    model: apiConfig.model,
   });
 
   return {
@@ -472,7 +471,6 @@ export const invokeDefendInsightsGraph = async ({
     telemetryMetadata: {
       pluginId: 'security_defend_insights',
     },
-    model,
   });
 
   if (llm == null) {
