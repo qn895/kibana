@@ -41,6 +41,7 @@
     "@kbn/tracing",
     "@kbn/safer-lodash-set",
     "@kbn/std",
-    "@kbn/ml-is-populated-object"
+    "@kbn/ml-is-populated-object",
+    "@kbn/ml-is-defined"
   ]
 }
