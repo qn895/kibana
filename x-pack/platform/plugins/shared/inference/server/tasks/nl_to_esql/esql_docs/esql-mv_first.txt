@@ -1,29 +1,51 @@
 # MV_FIRST
 
-Converts a multivalued expression into a single-valued column containing the first value. This is particularly useful when working with functions like `SPLIT` that produce multivalued columns in a known order.
+Converts a multivalued expression into a single valued column containing the first value. This is most useful when reading from a function that emits multivalued columns in a known order like `SPLIT`.
+The order that multivalued fields are read from
+underlying storage is not guaranteed. It is
 
-## Syntax
-
+**Syntax**
 `MV_FIRST(field)`
 
 ### Parameters
 
 #### `field`
 
-A multivalued expression.
+Multivalue expression.
 
-## Examples
+**frequently** ascending, but don’t
+rely on that. If you need the minimum value use `MV_MIN` instead of
+`MV_FIRST`. `MV_MIN` has optimizations for sorted values so there isn’t a
+performance benefit to `MV_FIRST`.
+**Supported types**
 
-Extracting the first value from a multivalued column
+| field           | result          |
+|-----------------|-----------------|
+| boolean         | boolean         |
+| cartesian_point | cartesian_point |
+| cartesian_shape | cartesian_shape |
+| date            | date            |
+| date_nanos      | date_nanos      |
+| double          | double          |
+| geo_point       | geo_point       |
+| geo_shape       | geo_shape       |
+| geohash         | geohash         |
+| geohex          | geohex          |
+| geotile         | geotile         |
+| integer         | integer         |
+| ip              | ip              |
+| keyword         | keyword         |
+| long            | long            |
+| text            | keyword         |
+| unsigned_long   | unsigned_long   |
+| version         | version         |
 
+**Example**
 ```esql
 ROW a="foo;bar;baz"
 | EVAL first_a = MV_FIRST(SPLIT(a, ";"))
 ```
 
-This example splits the string `a` into multiple values using the `SPLIT` function and extracts the first value, resulting in `first_a = "foo"`.
-
-## Notes
-
-- The order in which multivalued fields are read from underlying storage is not guaranteed. While it is often ascending, this behavior should not be relied upon.
-- If you need the minimum value, use `MV_MIN` instead of `MV_FIRST`. The `MV_MIN` function is optimized for sorted values and offers no performance disadvantage compared to `MV_FIRST`.
+| a:keyword   | first_a:keyword |
+|-------------|-----------------|
+| foo;bar;baz | "foo"           |

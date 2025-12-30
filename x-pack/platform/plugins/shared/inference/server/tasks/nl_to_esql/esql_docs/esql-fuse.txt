@@ -1,6 +1,8 @@
-The `FUSE` [processing command](https://www.elastic.co/docs/reference/query-languages/esql/commands/processing-commands) merges rows from multiple result sets and assigns
+# FUSE
+
+The `FUSE` processing command merges rows from multiple result sets and assigns
 new relevance scores.
-`FUSE` enables [hybrid search](/docs/reference/query-languages/esql/esql-search-tutorial#perform-hybrid-search) to combine and score results from multiple queries, together with the [`FORK`](https://www.elastic.co/docs/reference/query-languages/esql/commands/fork) command.
+`FUSE` enables hybrid search to combine and score results from multiple queries, together with the `FORK` command.
 `FUSE` works by:
 1. Merging rows with matching `<key_columns>` values
 2. Assigning new relevance scores using the specified `<fuse_method>` algorithm
@@ -8,9 +10,8 @@ new relevance scores.
 
 <tip>
   `FUSE` is for search use cases: it merges ranked result sets and computes relevance.
-  Learn more about [how search works in ES|QL](https://www.elastic.co/docs/solutions/search/esql-for-search#how-search-works-in-esql).
+  Learn more about how search works in ES|QL.
 </tip>
-
 
 ## Syntax
 
@@ -24,65 +25,69 @@ Specify custom parameters:
 FUSE <fuse_method> SCORE BY <score_column> GROUP BY <group_column> KEY BY <key_columns> WITH <options>
 ```
 
-
 ## Parameters
 
-<definitions>
-  <definition term="fuse_method">
-    Defaults to `RRF`. Can be one of `RRF` (for [Reciprocal Rank Fusion](https://cormack.uwaterloo.ca/cormacksigir09-rrf.pdf)) or `LINEAR` (for linear combination of scores).
-    Designates which method to use to assign new relevance scores.
-  </definition>
-  <definition term="options">
-    Options for the `fuse_method`.
-  </definition>
-</definitions>
+### Parameters
+
+#### `fuse_method`
+
+Defaults to `RRF`. Can be one of `RRF` (for Reciprocal Rank Fusion) or `LINEAR` (for linear combination of scores).
+ Designates which method to use to assign new relevance scores.
+
+#### `options`
+
+Options for the `fuse_method`.
 
 <tab-set>
   <tab-item title="RRF">
     When `fuse_method` is `RRF`, `options` supports the following parameters:
-    <definitions>
-      <definition term="rank_constant">
-        Defaults to `60`. Represents the `rank_constant` used in the RRF formula.
-      </definition>
-      <definition term="weights">
-        Defaults to `{}`. Allows you to set different weights for RRF scores based on `group_column` values. Refer to the [Set custom weights](#set-custom-weights) example.
-      </definition>
-    </definitions>
+    ### Parameters
+
+#### `rank_constant`
+
+Defaults to `60`. Represents the `rank_constant` used in the RRF formula.
+
+#### `weights`
+
+Defaults to `{}`. Allows you to set different weights for RRF scores based on `group_column` values. Refer to the Set custom weights example.
+
   </tab-item>
 
   <tab-item title="LINEAR">
     When `fuse_method` is `LINEAR`, `options` supports the following parameters:
-    <definitions>
-      <definition term="normalizer">
-        Defaults to `none`. Can be one of `none` or `minmax`. Specifies which score normalization method to apply.
-      </definition>
-      <definition term="weights">
-        Defaults to `{}`. Allows you to different weights for scores based on `group_column` values. Refer to the [Set custom weights](#set-custom-weights) example.
-      </definition>
-    </definitions>
+    ### Parameters
+
+#### `normalizer`
+
+Defaults to `none`. Can be one of `none` or `minmax`. Specifies which score normalization method to apply.
+
+#### `weights`
+
+Defaults to `{}`. Allows you to different weights for scores based on `group_column` values. Refer to the Set custom weights example.
+
   </tab-item>
 </tab-set>
 
-<definitions>
-  <definition term="score_column">
-    Defaults to `_score`. Designates which column to use to retrieve the relevance scores of the input row
-    and where to output the new relevance scores of the merged rows.
-  </definition>
-  <definition term="group_column">
-    Defaults to `_fork`. Designates which column represents the result set.
-  </definition>
-  <definition term="key_columns">
-    Defaults to `_id, _index`. Rows with matching `key_columns` values are merged.
-  </definition>
-</definitions>
+### Parameters
 
+#### `score_column`
+
+Defaults to `_score`. Designates which column to use to retrieve the relevance scores of the input row
+ and where to output the new relevance scores of the merged rows.
+
+#### `group_column`
+
+Defaults to `_fork`. Designates which column represents the result set.
+
+#### `key_columns`
+
+Defaults to `_id, _index`. Rows with matching `key_columns` values are merged.
 
 ## Examples
 
-
 ### Use RRF
 
-In the following example, we use the [`FORK`](https://www.elastic.co/docs/reference/query-languages/esql/commands/fork) command to run two different queries: a lexical and a semantic query.
+In the following example, we use the `FORK` command to run two different queries: a lexical and a semantic query.
 We then use `FUSE` to merge the results (applies `RRF` by default):
 ```esql
 FROM books METADATA _id, _index, _score 
@@ -90,7 +95,6 @@ FROM books METADATA _id, _index, _score
        (WHERE semantic_title:"Shakespeare" | SORT _score DESC) 
 | FUSE 
 ```
-
 
 ### Use linear combination
 
@@ -101,7 +105,6 @@ FROM books METADATA _id, _index, _score
        (WHERE semantic_title:"Shakespeare" | SORT _score DESC) 
 | FUSE LINEAR 
 ```
-
 
 ### Normalize scores
 
@@ -115,7 +118,6 @@ FROM books METADATA _id, _index, _score
 | FUSE LINEAR WITH { "normalizer": "minmax" } 
 ```
 
-
 ### Set custom weights
 
 `FUSE` allows you to specify different weights to scores, based on the `_fork` column values, enabling you to control the relative importance of each query branch in the final results.
@@ -126,12 +128,11 @@ FROM books METADATA _id, _index, _score
 | FUSE LINEAR WITH { "weights": { "fork1": 0.7, "fork2": 0.3 }, "normalizer": "minmax" } 
 ```
 
-
 ## Limitations
 
 These limitations can be present either when:
-- `FUSE` is not combined with [`FORK`](https://www.elastic.co/docs/reference/query-languages/esql/commands/fork)
-- `FUSE` doesn't use the default  [metadata](https://www.elastic.co/docs/reference/query-languages/esql/esql-metadata-fields) columns `_id`, `_index`, `_score` and `_fork`
+- `FUSE` is not combined with `FORK`
+- `FUSE` doesn't use the default  metadata columns `_id`, `_index`, `_score` and `_fork`
   1. `FUSE` assumes that `key_columns` are single valued. When `key_columns` are multivalued, `FUSE` can produce unreliable relevance scores.
 2. `FUSE` automatically assigns a score value of `NULL` if the `<score_column>` or `<group_column>` are multivalued.
 3. `FUSE` assumes that the combination of `key_columns` and `group_column` is unique. If not, `FUSE` can produce unreliable relevance scores.

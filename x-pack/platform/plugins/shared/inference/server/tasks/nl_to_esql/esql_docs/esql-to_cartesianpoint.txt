@@ -1,27 +1,32 @@
 # TO_CARTESIANPOINT
 
-Converts an input value to a `cartesian_point` value. A string will only be successfully converted if it adheres to the WKT Point format.
+Converts an input value to a `cartesian_point` value. A string will only be successfully converted if it respects the WKT Point format.
 
-## Syntax
-
+**Syntax**
 `TO_CARTESIANPOINT(field)`
 
 ### Parameters
 
 #### `field`
 
-The input value to be converted. This can be a single- or multi-valued column or an expression.
+Input value. The input can be a single- or multi-valued column or an expression.
 
-## Examples
+**Supported types**
 
-Convert WKT-formatted strings to `cartesian_point` values:
+| field           | result          |
+|-----------------|-----------------|
+| cartesian_point | cartesian_point |
+| keyword         | cartesian_point |
+| text            | cartesian_point |
 
+**Example**
 ```esql
 ROW wkt = ["POINT(4297.11 -1475.53)", "POINT(7580.93 2272.77)"]
 | MV_EXPAND wkt
 | EVAL pt = TO_CARTESIANPOINT(wkt)
 ```
 
-## Limitations
-
-- The input string must strictly follow the WKT Point format for successful conversion.
+| wkt:keyword               | pt:cartesian_point      |
+|---------------------------|-------------------------|
+| "POINT(4297.11 -1475.53)" | POINT(4297.11 -1475.53) |
+| "POINT(7580.93 2272.77)"  | POINT(7580.93 2272.77)  |

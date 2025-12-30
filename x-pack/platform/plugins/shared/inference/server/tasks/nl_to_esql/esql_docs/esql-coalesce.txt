@@ -1,9 +1,8 @@
 # COALESCE
 
-Returns the first argument that is not null. If all arguments are null, it returns `null`.
+Returns the first of its arguments that is not null. If all arguments are null, it returns `null`.
 
-## Syntax
-
+**Syntax**
 `COALESCE(first, rest)`
 
 ### Parameters
@@ -14,26 +13,41 @@ Expression to evaluate.
 
 #### `rest`
 
-Other expressions to evaluate.
+Other expression to evaluate.
 
-## Examples
+**Supported types**
 
-Returning the first non-null value
+| first                 | rest                  | result                |
+|-----------------------|-----------------------|-----------------------|
+| boolean               | boolean               | boolean               |
+| boolean               |                       | boolean               |
+| cartesian_point       | cartesian_point       | cartesian_point       |
+| cartesian_shape       | cartesian_shape       | cartesian_shape       |
+| date                  | date                  | date                  |
+| date_nanos            | date_nanos            | date_nanos            |
+| exponential_histogram | exponential_histogram | exponential_histogram |
+| geo_point             | geo_point             | geo_point             |
+| geo_shape             | geo_shape             | geo_shape             |
+| geohash               | geohash               | geohash               |
+| geohex                | geohex                | geohex                |
+| geotile               | geotile               | geotile               |
+| integer               | integer               | integer               |
+| integer               |                       | integer               |
+| ip                    | ip                    | ip                    |
+| keyword               | keyword               | keyword               |
+| keyword               |                       | keyword               |
+| long                  | long                  | long                  |
+| long                  |                       | long                  |
+| text                  | text                  | keyword               |
+| text                  |                       | keyword               |
+| version               | version               | version               |
 
+**Example**
 ```esql
 ROW a=null, b="b"
 | EVAL COALESCE(a, b)
 ```
 
-#### Result
-
-| a    | b   | EVAL_COALESCE_a_b |
-|------|-----|-------------------|
-| null | "b" | "b"               |
-
-COALESCE supports any number of rest parameters:
-
-```esql
-ROW x=null, y=null, z="z"
-| EVAL first_non_null = COALESCE(x, y, z)
-```
+| a:null | b:keyword | COALESCE(a, b):keyword |
+|--------|-----------|------------------------|
+| null   | b         | b                      |

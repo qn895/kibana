@@ -1,25 +1,27 @@
-## NOW
+# NOW
 
-Returns the current date and time.
+Returns current date and time.
 
-## Syntax
-
+**Syntax**
 `NOW()`
 
-### Parameters
+**Parameters**
+**Supported types**
 
-This function does not take any parameters.
+| result |
+|--------|
+| date   |
 
-## Examples
-
-#Retrieve the current date and time
-
+**Examples**
 ```esql
 ROW current_date = NOW()
 ```
 
-#Retrieve logs from the last hour
+| y:keyword |
+|-----------|
+| 20        |
 
+To retrieve logs from the last hour:
 ```esql
 FROM sample_data
 | WHERE @timestamp > NOW() - 1 hour

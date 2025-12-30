@@ -1,62 +1,93 @@
-## COUNT
+# COUNT
 
-The `COUNT` function returns the total number of input values. If no field is specified, it counts the number of rows.
+Returns the total number (count) of input values.
 
-## Syntax
-
+**Syntax**
 `COUNT(field)`
 
 ### Parameters
 
 #### `field`
 
-An expression that outputs values to be counted. If omitted, the function is equivalent to `COUNT(*)`, which counts the number of rows.
+Expression that outputs values to be counted. If omitted, equivalent to `COUNT(*)` (the number of rows).
 
-## Examples
+**Supported types**
 
-### Count specific field values
+| field                   | result |
+|-------------------------|--------|
+| aggregate_metric_double | long   |
+| boolean                 | long   |
+| cartesian_point         | long   |
+| cartesian_shape         | long   |
+| date                    | long   |
+| date_nanos              | long   |
+| double                  | long   |
+| geo_point               | long   |
+| geo_shape               | long   |
+| geohash                 | long   |
+| geohex                  | long   |
+| geotile                 | long   |
+| integer                 | long   |
+| ip                      | long   |
+| keyword                 | long   |
+| long                    | long   |
+| text                    | long   |
+| unsigned_long           | long   |
+| version                 | long   |
 
+**Examples**
 ```esql
 FROM employees
 | STATS COUNT(height)
 ```
 
-Count the number of non-null values in the `height` field.
+| COUNT(height):long |
+|--------------------|
+| 100                |
 
-### Count the number of rows
-
+To count the number of rows, use `COUNT()` or `COUNT(*)`
 ```esql
 FROM employees
 | STATS count = COUNT(*) BY languages
 | SORT languages DESC
 ```
 
-Count the total number of rows grouped by the `languages` field and sort the results in descending order.
+| count:long | languages:integer |
+|------------|-------------------|
+| 10         | null              |
+| 21         | 5                 |
+| 18         | 4                 |
+| 17         | 3                 |
+| 19         | 2                 |
+| 15         | 1                 |
 
-### Count values using inline functions
-
+The expression can use inline functions. This example splits a string into multiple values using the `SPLIT` function and counts the values
 ```esql
 ROW words="foo;bar;baz;qux;quux;foo"
 | STATS word_count = COUNT(SPLIT(words, ";"))
 ```
 
-Count the number of elements in a string split by the `;` delimiter.
+| word_count:long |
+|-----------------|
+| 6               |
 
-### Count values based on a condition
-
+To count the number of times an expression returns `TRUE` use a `WHERE` command to remove rows that shouldn’t be included
 ```esql
 ROW n=1
 | WHERE n < 0
 | STATS COUNT(n)
 ```
 
-Count the number of rows where the value of `n` is less than 0.
+| COUNT(n):long |
+|---------------|
+| 0             |
 
-### Count based on two different expressions
-
+To count the same stream of data based on two different expressions use the pattern `COUNT(<expression> OR NULL)`. This builds on the three-valued logic (3VL) of the language: `TRUE OR NULL` is `TRUE`, but `FALSE OR NULL` is `NULL`, plus the way COUNT handles `NULL`s: `COUNT(TRUE)` and `COUNT(FALSE)` are both 1, but `COUNT(NULL)` is 0.
 ```esql
 ROW n=1
 | STATS COUNT(n > 0 OR NULL), COUNT(n < 0 OR NULL)
 ```
 
-Count the number of rows where `n > 0` and `n < 0` separately.
+| COUNT(n > 0 OR NULL):long | COUNT(n < 0 OR NULL):long |
+|---------------------------|---------------------------|
+| 1                         | 0                         |

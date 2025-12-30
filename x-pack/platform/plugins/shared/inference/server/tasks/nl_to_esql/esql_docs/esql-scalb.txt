@@ -1,0 +1,42 @@
+# SCALB
+
+Returns the result of `d * 2 ^ scaleFactor`, Similar to Java's `scalb` function. Result is rounded as if performed by a single correctly rounded floating-point multiply to a member of the double value set.
+
+```
+stack: ga 9.1.0
+```
+
+**Syntax**
+`SCALB(d, scaleFactor)`
+
+### Parameters
+
+#### `d`
+
+Numeric expression for the multiplier. If `null`, the function returns `null`.
+
+#### `scaleFactor`
+
+Numeric expression for the scale factor. If `null`, the function returns `null`.
+
+**Supported types**
+
+| d             | scaleFactor | result |
+|---------------|-------------|--------|
+| double        | integer     | double |
+| double        | long        | double |
+| integer       | integer     | double |
+| integer       | long        | double |
+| long          | integer     | double |
+| long          | long        | double |
+| unsigned_long | integer     | double |
+| unsigned_long | long        | double |
+
+**Example**
+```esql
+row x = 3.0, y = 10 | eval z = scalb(x, y)
+```
+
+| x:double | y:integer | z:double |
+|----------|-----------|----------|
+| 3.0      | 10        | 3072.0   |

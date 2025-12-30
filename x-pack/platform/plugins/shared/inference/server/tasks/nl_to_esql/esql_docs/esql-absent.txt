@@ -1,0 +1,80 @@
+# ABSENT
+
+Returns true if the input expression yields no non-null values within the current aggregation context. Otherwise it returns false.
+
+```
+stack: ga 9.2.0
+```
+
+**Syntax**
+`ABSENT(field)`
+
+### Parameters
+
+#### `field`
+
+Expression that outputs values to be checked for absence.
+
+**Supported types**
+
+| field                   | result  |
+|-------------------------|---------|
+| aggregate_metric_double | boolean |
+| boolean                 | boolean |
+| cartesian_point         | boolean |
+| cartesian_shape         | boolean |
+| date                    | boolean |
+| date_nanos              | boolean |
+| double                  | boolean |
+| exponential_histogram   | boolean |
+| geo_point               | boolean |
+| geo_shape               | boolean |
+| geohash                 | boolean |
+| geohex                  | boolean |
+| geotile                 | boolean |
+| histogram               | boolean |
+| integer                 | boolean |
+| ip                      | boolean |
+| keyword                 | boolean |
+| long                    | boolean |
+| tdigest                 | boolean |
+| text                    | boolean |
+| unsigned_long           | boolean |
+| version                 | boolean |
+
+**Examples**
+```esql
+FROM employees
+| WHERE emp_no == 10020
+| STATS is_absent = ABSENT(languages)
+```
+
+| is_absent:boolean |
+|-------------------|
+| true              |
+
+To check for the absence inside a group use `ABSENT()` and `BY` clauses
+```esql
+FROM employees
+| STATS is_absent = ABSENT(salary) BY languages
+```
+
+| is_absent:boolean | languages:integer |
+|-------------------|-------------------|
+| false             | 1                 |
+| false             | 2                 |
+| false             | 3                 |
+| false             | 4                 |
+| false             | 5                 |
+| false             | null              |
+
+To check for the absence and return 1 when it's true and 0 when it's false you can use to_integer()
+```esql
+FROM employees
+| WHERE emp_no == 10020
+| STATS is_absent = TO_INTEGER(ABSENT(languages))
+```
+
+| is_absent:integer |
+|-------------------|
+| 1                 |

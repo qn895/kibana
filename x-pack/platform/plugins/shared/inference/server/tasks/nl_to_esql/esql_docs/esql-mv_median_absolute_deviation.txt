@@ -1,29 +1,34 @@
 # MV_MEDIAN_ABSOLUTE_DEVIATION
 
-Converts a multivalued field into a single-valued field containing the median absolute deviation. The median absolute deviation is calculated as the median of each data point’s deviation from the median of the entire sample. For a random variable `X`, it is defined as `median(|median(X) - X|)`.
+Converts a multivalued field into a single valued field containing the median absolute deviation.  It is calculated as the median of each data point’s deviation from the median of the entire sample. That is, for a random variable `X`, the median absolute deviation is `median(|median(X) - X|)`.
+<note>
+  If the field has an even number of values, the medians will be calculated as the average of the middle two values. If the value is not a floating point number, the averages are rounded towards 0.
+</note>
 
-## Syntax
-
+**Syntax**
 `MV_MEDIAN_ABSOLUTE_DEVIATION(number)`
 
 ### Parameters
 
 #### `number`
 
-A multivalue expression.
+Multivalue expression.
 
-## Examples
+**Supported types**
 
-Calculating the median absolute deviation and median
+| number        | result        |
+|---------------|---------------|
+| double        | double        |
+| integer       | integer       |
+| long          | long          |
+| unsigned_long | unsigned_long |
 
+**Example**
 ```esql
 ROW values = [0, 2, 5, 6]
 | EVAL median_absolute_deviation = MV_MEDIAN_ABSOLUTE_DEVIATION(values), median = MV_MEDIAN(values)
 ```
 
-This example calculates the median absolute deviation and the median for the multivalued field `values`.
-
-## Notes
-
-- If the field contains an even number of values, the medians are calculated as the average of the middle two values.
-- If the values are not floating-point numbers, the averages are rounded towards 0.
+| values:integer | median_absolute_deviation:integer | median:integer |
+|----------------|-----------------------------------|----------------|
+| [0, 2, 5, 6]   | 2                                 | 3              |

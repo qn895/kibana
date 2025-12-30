@@ -1,0 +1,79 @@
+# PRESENT
+
+Returns true if the input expression yields any non-null values within the current aggregation context. Otherwise it returns false.
+
+```
+stack: ga 9.2.0
+```
+
+**Syntax**
+`PRESENT(field)`
+
+### Parameters
+
+#### `field`
+
+Expression that outputs values to be checked for presence.
+
+**Supported types**
+
+| field                   | result  |
+|-------------------------|---------|
+| aggregate_metric_double | boolean |
+| boolean                 | boolean |
+| cartesian_point         | boolean |
+| cartesian_shape         | boolean |
+| date                    | boolean |
+| date_nanos              | boolean |
+| double                  | boolean |
+| exponential_histogram   | boolean |
+| geo_point               | boolean |
+| geo_shape               | boolean |
+| geohash                 | boolean |
+| geohex                  | boolean |
+| geotile                 | boolean |
+| histogram               | boolean |
+| integer                 | boolean |
+| ip                      | boolean |
+| keyword                 | boolean |
+| long                    | boolean |
+| tdigest                 | boolean |
+| text                    | boolean |
+| unsigned_long           | boolean |
+| version                 | boolean |
+
+**Examples**
+```esql
+FROM employees
+| STATS is_present = PRESENT(languages)
+```
+
+| is_present:boolean |
+|--------------------|
+| true               |
+
+To check for the presence inside a group use `PRESENT()` and `BY` clauses
+```esql
+FROM employees
+| STATS is_present = PRESENT(salary) BY languages
+```
+
+| is_present:boolean | languages:integer |
+|--------------------|-------------------|
+| true               | 1                 |
+| true               | 2                 |
+| true               | 3                 |
+| true               | 4                 |
+| true               | 5                 |
+| true               | null              |
+
+To check for the presence and return 1 when it's true and 0 when it's false
+```esql
+FROM employees
+| WHERE emp_no == 10020
+| STATS is_present = TO_INTEGER(PRESENT(languages))
+```
+
+| is_present:integer |
+|--------------------|
+| 0                  |

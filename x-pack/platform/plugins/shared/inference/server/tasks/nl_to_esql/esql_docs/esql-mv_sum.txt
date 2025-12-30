@@ -1,22 +1,31 @@
 # MV_SUM
 
-Converts a multivalued field into a single-valued field containing the sum of all its values.
+Converts a multivalued field into a single valued field containing the sum of all of the values.
 
-## Syntax
-
+**Syntax**
 `MV_SUM(number)`
 
 ### Parameters
 
 #### `number`
 
-A multivalued expression.
+Multivalue expression.
 
-## Examples
+**Supported types**
 
+| number        | result        |
+|---------------|---------------|
+| double        | double        |
+| integer       | integer       |
+| long          | long          |
+| unsigned_long | unsigned_long |
+
+**Example**
 ```esql
 ROW a=[3, 5, 6]
 | EVAL sum_a = MV_SUM(a)
 ```
 
-This example calculates the sum of the values in the multivalued column `a`.
+| a:integer | sum_a:integer |
+|-----------|---------------|
+| [3, 5, 6] | 14            |

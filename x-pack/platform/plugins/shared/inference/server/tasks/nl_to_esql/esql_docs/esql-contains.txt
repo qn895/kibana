@@ -1,0 +1,39 @@
+# CONTAINS
+
+Returns a boolean that indicates whether a keyword substring is within another string. Returns `null` if either parameter is null.
+
+```
+stack: ga 9.2.0
+```
+
+**Syntax**
+`CONTAINS(string, substring)`
+
+### Parameters
+
+#### `string`
+
+String expression: input string to check against. If `null`, the function returns `null`.
+
+#### `substring`
+
+String expression: A substring to find in the input string. If `null`, the function returns `null`.
+
+**Supported types**
+
+| string  | substring | result  |
+|---------|-----------|---------|
+| keyword | keyword   | boolean |
+| keyword | text      | boolean |
+| text    | keyword   | boolean |
+| text    | text      | boolean |
+
+**Example**
+```esql
+ROW a = "hello"
+| EVAL has_ll = CONTAINS(a, "ll")
+```
+
+| a:keyword | has_ll:boolean |
+|-----------|----------------|
+| hello     | true           |

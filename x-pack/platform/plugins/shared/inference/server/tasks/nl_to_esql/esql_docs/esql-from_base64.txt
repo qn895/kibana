@@ -1,15 +1,29 @@
-## FROM_BASE64
+# FROM_BASE64
 
-Decodes a base64 string.
+Decode a base64 string.
 
-### Examples
+**Syntax**
+`FROM_BASE64(string)`
 
+### Parameters
+
+#### `string`
+
+A base64 string.
+
+**Supported types**
+
+| string  | result  |
+|---------|---------|
+| keyword | keyword |
+| text    | keyword |
+
+**Example**
 ```esql
 ROW a = "ZWxhc3RpYw=="
 | EVAL d = FROM_BASE64(a)
 ```
 
-```esql
-ROW encoded = "U29tZSBzYW1wbGUgdGV4dA=="
-| EVAL decoded = FROM_BASE64(encoded)
-```
+| a:keyword    | d:keyword |
+|--------------|-----------|
+| ZWxhc3RpYw== | elastic   |

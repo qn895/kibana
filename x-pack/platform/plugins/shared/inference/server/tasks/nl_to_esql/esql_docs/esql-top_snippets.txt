@@ -1,0 +1,83 @@
+# TOP_SNIPPETS
+
+Use `TOP_SNIPPETS` to extract the best snippets for a given query string from a text field.
+TopSnippets can be used on fields from the text famiy like text and semantic_text.
+TopSnippets will extract the best snippets for a given query string.
+
+```
+stack: preview 9.3.0
+serverless: preview
+```
+
+**Syntax**
+`TOP_SNIPPETS(field, query, options, num_words, num_snippets)`
+
+### Parameters
+
+#### `field`
+
+The input to chunk.
+
+#### `query`
+
+The input text containing only query terms for snippet extraction. Lucene query syntax, operators, and wildcards are not allowed.
+
+#### `options`
+
+(Optional) TopSnippets additional options as function named parameters.
+
+**Supported types**
+
+| field   | query   | options          | result  |
+|---------|---------|------------------|---------|
+| keyword | keyword | named parameters | keyword |
+| keyword | keyword |                  | keyword |
+| text    | keyword | named parameters | keyword |
+| text    | keyword |                  | keyword |
+
+**Supported function named parameters**
+### Parameters
+
+#### `num_words`
+
+(integer) The maximum number of words to return in each snippet.
+ This allows better control of inference costs by limiting the size of tokens per snippet.
+
+#### `num_snippets`
+
+(integer) The maximum number of matching snippets to return.
+
+**Examples**
+```
+stack: preview 9.3.0
+```
+
+```esql
+FROM books
+| EVAL snippets = TOP_SNIPPETS(description, "Tolkien")
+```
+
+| book_no:keyword | title:text                                            | snippets:keyword                                                                                                                                                                                                                                                         |
+|-----------------|-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1211            | The brothers Karamazov                                | null                                                                                                                                                                                                                                                                     |
+| 1463            | Realms of Tolkien: Images of Middle-earth             | Twenty new and familiar Tolkien artists are represented in this fabulous volume, breathing an extraordinary variety of life into 58 different scenes, each of which is accompanied by appropriate passage from The Hobbit and The Lord of the Rings and The Silmarillion |
+| 1502            | Selected Passages from Correspondence with Friends    | null                                                                                                                                                                                                                                                                     |
+| 1937            | The Best Short Stories of Dostoevsky (Modern Library) | null                                                                                                                                                                                                                                                                     |
+| 1985            | Brothers Karamazov                                    | null                                                                                                                                                                                                                                                                     |
+
+```
+stack: preview 9.3.0
+```
+
+```esql
+FROM books
+| WHERE MATCH(title, "Return")
+| EVAL snippets = TOP_SNIPPETS(description, "Tolkien", { "num_snippets": 3, "num_words": 25 })
+```
+
+| book_no:keyword | title:text                                                       | snippets:keyword                                                                                                                                                                                                                                                                                                                                                                                                                                |
+|-----------------|------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2714            | Return of the King Being the Third Part of The Lord of the Rings | [Concluding the story begun in The Hobbit, this is the final part of Tolkien s epic masterpiece, The Lord of the Rings, featuring an exclusive, Tolkien s epic masterpiece, The Lord of the Rings, featuring an exclusive cover image from the film, the definitive text, and a detailed map of, Tolkien s classic tale of magic and adventure, begun in The Fellowship of the Ring and The Two Towers, features the definitive edition of the] |
+| 7350            | Return of the Shadow                                             | [Tolkien for long believed would be a far shorter book, 'a sequel to The Hobbit'., In The Return of the Shadow (an abandoned title for the first volume) Christopher Tolkien describes, with full citation of the earliest notes, outline plans, ) Christopher Tolkien describes, with full citation of the earliest notes, outline plans, and narrative drafts, the intricate evolution of The Fellowship of the Ring and]                     |
+
+lists/search-functions.md

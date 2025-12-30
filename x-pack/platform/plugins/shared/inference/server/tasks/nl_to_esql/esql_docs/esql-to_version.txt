@@ -2,20 +2,28 @@
 
 Converts an input string to a version value.
 
-## Syntax
-
+**Syntax**
 `TO_VERSION(field)`
 
 ### Parameters
 
 #### `field`
 
-The input value to be converted. This can be a single- or multi-valued column or an expression.
+Input value. The input can be a single- or multi-valued column or an expression.
 
-## Examples
+**Supported types**
 
+| field   | result  |
+|---------|---------|
+| keyword | version |
+| text    | version |
+| version | version |
+
+**Example**
 ```esql
 ROW v = TO_VERSION("1.2.3")
 ```
 
-Convert the string `"1.2.3"` into a version value.
+| v:version |
+|-----------|
+| 1.2.3     |

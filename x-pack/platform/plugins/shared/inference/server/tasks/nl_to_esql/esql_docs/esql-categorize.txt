@@ -1,34 +1,59 @@
 # CATEGORIZE
 
 Groups text messages into categories of similarly formatted text values.
+`CATEGORIZE` has the following limitations:
+- can’t be used within other expressions
+- can’t be used more than once in the groupings
+- can’t be used or referenced within aggregate functions and it has to be the first grouping
 
-## Syntax
+```
+stack: preview 9.0, ga 9.1
+```
 
-`CATEGORIZE(field)`
+**Syntax**
+`CATEGORIZE(field, options, output_format, similarity_threshold, analyzer)`
 
 ### Parameters
 
 #### `field`
 
-Expression to categorize.
+Expression to categorize
 
-## Examples
+#### `options`
 
-Categorizing server log messages
+(Optional) Categorize additional options as function named parameters. `stack: ga 9.2`}
 
-Categorizes server log messages into categories and aggregates their counts.
+**Supported types**
 
+| field   | options | result  |
+|---------|---------|---------|
+| keyword |         | keyword |
+| text    |         | keyword |
+
+**Supported function named parameters**
+### Parameters
+
+#### `output_format`
+
+(keyword) The output format of the categories. Defaults to regex.
+
+#### `similarity_threshold`
+
+(integer) The minimum percentage of token weight that must match for text to be added to the category bucket. Must be between 1 and 100. The larger the value the narrower the categories. Larger values will increase memory usage and create narrower categories. Defaults to 70.
+
+#### `analyzer`
+
+(keyword) Analyzer used to convert the field into tokens for text categorization.
+
+**Example**
+This example categorizes server logs messages into categories and aggregates their counts.
 ```esql
 FROM sample_data
-| STATS count = COUNT() BY category=CATEGORIZE(message)
+| STATS count=COUNT() BY category=CATEGORIZE(message)
 ```
 
-## Limitations
-
-- Cannot be used within other expressions.
-- Cannot be used with multiple groupings.
-- Cannot be used or referenced within aggregate functions.
-
-## Additional Notes
-
-- The `CATEGORIZE` function requires a platinum license.
+| count:long | category:keyword         |
+|------------|--------------------------|
+| 3          | .*?Connected.+?to.*?     |
+| 3          | .*?Connection.+?error.*? |
+| 1          | .*?Disconnected.*?       |

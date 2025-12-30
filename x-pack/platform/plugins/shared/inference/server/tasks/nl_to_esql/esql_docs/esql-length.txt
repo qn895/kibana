@@ -1,9 +1,11 @@
-## LENGTH
+# LENGTH
 
 Returns the character length of a string.
+<note>
+  All strings are in UTF-8, so a single character can use multiple bytes.
+</note>
 
-## Syntax
-
+**Syntax**
 `LENGTH(string)`
 
 ### Parameters
@@ -12,8 +14,14 @@ Returns the character length of a string.
 
 String expression. If `null`, the function returns `null`.
 
-## Examples
+**Supported types**
 
+| string  | result  |
+|---------|---------|
+| keyword | integer |
+| text    | integer |
+
+**Example**
 ```esql
 FROM airports
 | WHERE country == "India"
@@ -21,4 +29,8 @@ FROM airports
 | EVAL fn_length = LENGTH(city)
 ```
 
-This example calculates the character length of the `city` field for airports located in India.
+| city:keyword | fn_length:integer |
+|--------------|-------------------|
+| Agwār        | 5                 |
+| Ahmedabad    | 9                 |
+| Bangalore    | 9                 |

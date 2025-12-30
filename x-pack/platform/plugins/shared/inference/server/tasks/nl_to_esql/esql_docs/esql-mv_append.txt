@@ -1,35 +1,51 @@
 # MV_APPEND
 
-Concatenates the values of two multi-value fields into a single field.
+Concatenates values of two multi-value fields.
 
-## Syntax
-
+**Syntax**
 `MV_APPEND(field1, field2)`
 
 ### Parameters
 
 #### `field1`
 
-The first multi-value field to concatenate.
-
 #### `field2`
 
-The second multi-value field to concatenate.
+**Supported types**
 
-## Examples
+| field1          | field2          | result          |
+|-----------------|-----------------|-----------------|
+| boolean         | boolean         | boolean         |
+| cartesian_point | cartesian_point | cartesian_point |
+| cartesian_shape | cartesian_shape | cartesian_shape |
+| date            | date            | date            |
+| date_nanos      | date_nanos      | date_nanos      |
+| double          | double          | double          |
+| geo_point       | geo_point       | geo_point       |
+| geo_shape       | geo_shape       | geo_shape       |
+| geohash         | geohash         | geohash         |
+| geohex          | geohex          | geohex          |
+| geotile         | geotile         | geotile         |
+| integer         | integer         | integer         |
+| ip              | ip              | ip              |
+| keyword         | keyword         | keyword         |
+| keyword         | text            | keyword         |
+| long            | long            | long            |
+| text            | keyword         | keyword         |
+| text            | text            | keyword         |
+| unsigned_long   | unsigned_long   | unsigned_long   |
+| version         | version         | version         |
 
+**Example**
 ```esql
-ROW a = ["foo", "bar"], b = ["baz", "qux"]
-| EVAL c = MV_APPEND(a, b)
-| KEEP a, b, c
+FROM employees
+| WHERE emp_no == 10039 OR emp_no == 10040
+| SORT emp_no
+| EVAL dates = MV_APPEND(birth_date, hire_date)
+| KEEP emp_no, birth_date, hire_date, dates
 ```
 
-```esql
-ROW x = [1, 2, 3], y = [4, 5, 6]
-| EVAL z = MV_APPEND(x, y)
-| KEEP x, y, z
-```
-
-## Limitations
-
-No specific limitations are mentioned in the source documentation.
+| emp_no:integer | birth_date:date      | hire_date:date       | dates:date                                   |
+|----------------|----------------------|----------------------|----------------------------------------------|
+| 10039          | 1959-10-01T00:00:00Z | 1988-01-19T00:00:00Z | [1959-10-01T00:00:00Z, 1988-01-19T00:00:00Z] |
+| 10040          | null                 | 1993-02-14T00:00:00Z | null                                         |

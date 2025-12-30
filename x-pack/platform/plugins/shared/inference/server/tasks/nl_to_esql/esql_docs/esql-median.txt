@@ -1,36 +1,49 @@
 # MEDIAN
 
-The `MEDIAN` function calculates the value that is greater than half of all values and less than half of all values, also known as the 50th percentile. The result is usually approximate.
+The value that is greater than half of all values and less than half of all values, also known as the 50% `PERCENTILE`.
+<note>
+  Like `PERCENTILE`, `MEDIAN` is usually approximate.
+</note>
 
-## Syntax
-
+**Syntax**
 `MEDIAN(number)`
 
 ### Parameters
 
 #### `number`
 
-The input numeric value for which the median is calculated.
+Expression that outputs values to calculate the median of.
 
-## Examples
+**Supported types**
 
-Calculating the median and 50th percentile of salaries
+| number                | result |
+|-----------------------|--------|
+| double                | double |
+| exponential_histogram | double |
+| integer               | double |
+| long                  | double |
 
+**Examples**
 ```esql
 FROM employees
 | STATS MEDIAN(salary), PERCENTILE(salary, 50)
 ```
 
-Calculating the median of maximum values in a multivalued column
+| MEDIAN(salary):double | PERCENTILE(salary, 50):double |
+|-----------------------|-------------------------------|
+| 47003                 | 47003                         |
 
-To calculate the median of the maximum values of a multivalued column, first use `MV_MAX` to get the maximum value per row, and then use the result with the `MEDIAN` function:
-
+The expression can use inline functions. For example, to calculate the median of the maximum values of a multivalued column, first use `MV_MAX` to get the maximum value per row, and use the result with the `MEDIAN` function
 ```esql
 FROM employees
 | STATS median_max_salary_change = MEDIAN(MV_MAX(salary_change))
 ```
 
-## Limitations
+| median_max_salary_change:double |
+|---------------------------------|
+| 7.69                            |
 
-- The `MEDIAN` function is non-deterministic, meaning you may get slightly different results when using the same data.
-- Like the `PERCENTILE` function, the `MEDIAN` function provides approximate results.
+<warning>
+  `MEDIAN` is also non-deterministic.
+  This means you can get slightly different results using the same data.
+</warning>

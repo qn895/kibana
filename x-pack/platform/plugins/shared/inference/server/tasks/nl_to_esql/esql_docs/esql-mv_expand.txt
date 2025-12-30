@@ -1,3 +1,5 @@
+# MV_EXPAND
+
 The `MV_EXPAND` processing command expands multivalued columns into one row per
 value, duplicating other columns.
 **Syntax**
@@ -5,12 +7,11 @@ value, duplicating other columns.
 MV_EXPAND column
 ```
 
-**Parameters**
-<definitions>
-  <definition term="column">
-    The multivalued column to expand.
-  </definition>
-</definitions>
+### Parameters
+
+#### `column`
+
+The multivalued column to expand.
 
 <warning>
   The output rows produced by `MV_EXPAND` can be in any order and may not respect
@@ -23,7 +24,6 @@ MV_EXPAND column
 ROW a=[1,2,3], b="b", j=["a","b"]
 | MV_EXPAND a
 ```
-
 
 | a:integer | b:keyword | j:keyword  |
 |-----------|-----------|------------|

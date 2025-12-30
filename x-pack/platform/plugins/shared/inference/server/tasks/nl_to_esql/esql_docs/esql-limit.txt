@@ -1,18 +1,5 @@
-The `LIMIT` processing command enables you to limit the number of rows that are
-returned.
-**Syntax**
-```esql
-LIMIT max_number_of_rows
-```
+# LIMIT
 
-**Parameters**
-<definitions>
-  <definition term="max_number_of_rows">
-    The maximum number of rows to return.
-  </definition>
-</definitions>
-
-**Description**
 The `LIMIT` processing command enables you to limit the number of rows that are
 returned.
 For instance,
@@ -27,8 +14,8 @@ FROM index | WHERE field = "value" | LIMIT 1000
 
 Queries do not return more than 10,000 rows, regardless of the `LIMIT` command’s value. This is a configurable upper limit.
 To overcome this limitation:
-- Reduce the result set size by modifying the query to only return relevant data. Use [`WHERE`](https://www.elastic.co/docs/reference/query-languages/esql/commands/where) to select a smaller subset of the data.
-- Shift any post-query processing to the query itself. You can use the ES|QL [`STATS`](https://www.elastic.co/docs/reference/query-languages/esql/commands/stats-by) command to aggregate data in the query.
+- Reduce the result set size by modifying the query to only return relevant data. Use `WHERE` to select a smaller subset of the data.
+- Shift any post-query processing to the query itself. You can use the ES|QL `STATS` command to aggregate data in the query.
 
 The upper limit only applies to the number of rows that are output by the query, not to the number of documents it processes: the query runs on the full data set.
 Consider the following two queries:
@@ -47,7 +34,7 @@ The default and maximum limits can be changed using these dynamic cluster settin
 - `esql.query.result_truncation_max_size`
 
 However, doing so involves trade-offs. A larger result-set involves a higher memory pressure and increased processing times; the internode traffic within and across clusters can also increase.
-These limitations are similar to those enforced by the [search API for pagination](https://www.elastic.co/docs/reference/elasticsearch/rest-apis/paginate-search-results).
+These limitations are similar to those enforced by the search API for pagination.
 
 | Functionality                    | Search                  | ES|QL                                     |
 |----------------------------------|-------------------------|-------------------------------------------|
@@ -56,6 +43,19 @@ These limitations are similar to those enforced by the [search API for paginatio
 | Specify number of results        | `size`                  | `LIMIT`                                   |
 | Change default number of results | n/a                     | esql.query.result_truncation_default_size |
 | Change default upper limit       | index-max-result-window | esql.query.result_truncation_max_size     |
+
+The `LIMIT` processing command enables you to limit the number of rows that are
+returned.
+**Syntax**
+```esql
+LIMIT max_number_of_rows
+```
+
+### Parameters
+
+#### `max_number_of_rows`
+
+The maximum number of rows to return.
 
 **Example**
 ```esql

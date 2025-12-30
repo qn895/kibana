@@ -1,0 +1,74 @@
+# MATCH_PHRASE
+
+Use `MATCH_PHRASE` to perform a `match_phrase` on the specified field. Using `MATCH_PHRASE` is equivalent to using the `match_phrase` query in the Elasticsearch Query DSL.
+MatchPhrase can be used on text fields, as well as other field types like keyword, boolean, or date types.
+MatchPhrase is not supported for semantic_text or numeric types.
+MatchPhrase can use function named parameters to specify additional options for the
+match_phrase query.
+All `match_phrase` query parameters are supported.
+`MATCH_PHRASE` returns true if the provided query matches the row.
+
+```
+stack: ga 9.1.0
+```
+
+**Syntax**
+`MATCH_PHRASE(field, query, options, zero_terms_query, boost, analyzer, slop)`
+
+### Parameters
+
+#### `field`
+
+Field that the query will target.
+
+#### `query`
+
+Value to find in the provided field.
+
+#### `options`
+
+(Optional) MatchPhrase additional options as function named parameters. See `match_phrase` for more information.
+
+**Supported types**
+
+| field   | query   | options          | result  |
+|---------|---------|------------------|---------|
+| keyword | keyword | named parameters | boolean |
+| text    | keyword | named parameters | boolean |
+
+**Supported function named parameters**
+### Parameters
+
+#### `zero_terms_query`
+
+(keyword) Indicates whether all documents or none are returned if the analyzer removes all tokens, such as when using a stop filter. Defaults to none.
+
+#### `boost`
+
+(float) Floating point number used to decrease or increase the relevance scores of the query. Defaults to 1.0.
+
+#### `analyzer`
+
+(keyword) Analyzer used to convert the text in the query value into token. Defaults to the index-time analyzer mapped for the field. If no analyzer is mapped, the index’s default analyzer is used.
+
+#### `slop`
+
+(integer) Maximum number of positions allowed between matching tokens. Defaults to 0. Transposed terms have a slop of 2.
+
+**Example**
+```
+stack: ga 9.1.0
+```
+
+```esql
+FROM books
+| WHERE MATCH_PHRASE(author, "William Faulkner")
+```
+
+| book_no:keyword | author:text      |
+|-----------------|------------------|
+| 2713            | William Faulkner |
+| 2883            | William Faulkner |
+| 4724            | William Faulkner |
+| 4977            | William Faulkner |
+| 5119            | William Faulkner |

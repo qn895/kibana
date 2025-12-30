@@ -1,38 +1,35 @@
-## CIDR_MATCH
+# CIDR_MATCH
 
-The `CIDR_MATCH` function checks if a given IP address is contained within one or more specified CIDR blocks.
+Returns true if the provided IP is contained in one of the provided CIDR blocks.
 
-## Syntax
-
+**Syntax**
 `CIDR_MATCH(ip, blockX)`
 
 ### Parameters
 
 #### `ip`
 
-The IP address to test. Must be of type `ip` (supports both IPv4 and IPv6).
+IP address of type `ip` (both IPv4 and IPv6 are supported).
 
 #### `blockX`
 
-One or more CIDR blocks to test the IP address against.
+CIDR block to test the IP against.
 
-## Examples
+**Supported types**
 
-Filtering IP addresses
+| ip | blockX  | result  |
+|----|---------|---------|
+| ip | keyword | boolean |
+| ip | text    | boolean |
 
-```esql
-FROM hosts
-| WHERE CIDR_MATCH(ip1, "127.0.0.2/32")
-| KEEP host, ip1
-```
-
-Filtering IP addresses within specific CIDR blocks
-
-
+**Example**
 ```esql
 FROM hosts
 | WHERE CIDR_MATCH(ip1, "127.0.0.2/32", "127.0.0.3/32")
-| KEEP host, ip1
+| KEEP card, host, ip0, ip1
 ```
 
-This example filters rows where the `ip1` column contains an IP address that falls within the specified CIDR blocks (`127.0.0.2/32` or `127.0.0.3/32`). It then keeps the `card`, `host`, `ip0`, and `ip1` columns in the output.
+| card:keyword | host:keyword | ip0:ip                    | ip1:ip    |
+|--------------|--------------|---------------------------|-----------|
+| eth1         | beta         | 127.0.0.1                 | 127.0.0.2 |
+| eth0         | gamma        | fe80::cae2:65ff:fece:feb9 | 127.0.0.3 |

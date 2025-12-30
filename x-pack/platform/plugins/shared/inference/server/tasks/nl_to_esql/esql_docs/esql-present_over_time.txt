@@ -1,0 +1,62 @@
+# PRESENT_OVER_TIME
+
+Calculates the presence of a field in the output result over time range.
+
+```
+stack: preview 9.2.0
+serverless: preview
+```
+
+**Syntax**
+`PRESENT_OVER_TIME(field, window)`
+
+### Parameters
+
+#### `field`
+
+the metric field to calculate the value for
+
+#### `window`
+
+the time window over which to compute the present over time
+
+**Supported types**
+
+| field                   | window | result  |
+|-------------------------|--------|---------|
+| aggregate_metric_double |        | boolean |
+| boolean                 |        | boolean |
+| cartesian_point         |        | boolean |
+| cartesian_shape         |        | boolean |
+| date                    |        | boolean |
+| date_nanos              |        | boolean |
+| double                  |        | boolean |
+| exponential_histogram   |        | boolean |
+| geo_point               |        | boolean |
+| geo_shape               |        | boolean |
+| geohash                 |        | boolean |
+| geohex                  |        | boolean |
+| geotile                 |        | boolean |
+| histogram               |        | boolean |
+| integer                 |        | boolean |
+| ip                      |        | boolean |
+| keyword                 |        | boolean |
+| long                    |        | boolean |
+| tdigest                 |        | boolean |
+| text                    |        | boolean |
+| unsigned_long           |        | boolean |
+| version                 |        | boolean |
+
+**Example**
+```esql
+TS k8s
+| WHERE cluster == "prod" AND pod == "two"
+| STATS events_received = MAX(PRESENT_OVER_TIME(events_received)) BY pod, time_bucket = TBUCKET(2 minute)
+```
+
+| events_received:boolean | pod:keyword | time_bucket:datetime     |
+|-------------------------|-------------|--------------------------|
+| true                    | two         | 2024-05-10T00:02:00.000Z |
+| true                    | two         | 2024-05-10T00:08:00.000Z |
+| false                   | two         | 2024-05-10T00:10:00.000Z |
+| false                   | two         | 2024-05-10T00:12:00.000Z |

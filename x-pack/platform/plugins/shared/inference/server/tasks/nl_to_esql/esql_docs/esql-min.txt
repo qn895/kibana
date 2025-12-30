@@ -1,33 +1,49 @@
 # MIN
 
-The `MIN` function calculates the minimum value of a field.
+The minimum value of a field.
 
-## Syntax
-
+**Syntax**
 `MIN(field)`
 
 ### Parameters
 
 #### `field`
 
-The field for which the minimum value is calculated.
+**Supported types**
 
-## Examples
+| field                           | result        |
+|---------------------------------|---------------|
+| aggregate_metric_double         | double        |
+| boolean                         | boolean       |
+| date                            | date          |
+| date_nanos                      | date_nanos    |
+| double                          | double        |
+| exponential_histogram           | double        |
+| integer                         | integer       |
+| ip                              | ip            |
+| keyword                         | keyword       |
+| long                            | long          |
+| tdigest                         | double        |
+| text                            | keyword       |
+| unsigned_long `stack: ga 9.2.0` | unsigned_long |
+| version                         | version       |
 
-Basic Usage
-
+**Examples**
 ```esql
 FROM employees
 | STATS MIN(languages)
 ```
 
-Calculate the minimum value of the `languages` field.
+| MIN(languages):integer |
+|------------------------|
+| 1                      |
 
-Using Inline Functions
-
+The expression can use inline functions. For example, to calculate the minimum over an average of a multivalued column, use `MV_AVG` to first average the multiple values per row, and use the result with the `MIN` function
 ```esql
 FROM employees
 | STATS min_avg_salary_change = MIN(MV_AVG(salary_change))
 ```
 
-Calculate the minimum value of the average salary change by first averaging the multiple values per row using the `MV_AVG` function and then applying the `MIN` function.
+| min_avg_salary_change:double |
+|------------------------------|
+| -8.46                        |

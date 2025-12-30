@@ -1,20 +1,5 @@
-The `KEEP` processing command enables you to specify what columns are returned
-and the order in which they are returned.
-**Syntax**
-```esql
-KEEP columns
-```
+# KEEP
 
-**Parameters**
-<definitions>
-  <definition term="columns">
-    A comma-separated list of columns to keep. Supports wildcards.
-    See below for the behavior in case an existing column matches multiple
-    given wildcards or column names.
-  </definition>
-</definitions>
-
-**Description**
 The `KEEP` processing command enables you to specify what columns are returned
 and the order in which they are returned.
 Precedence rules are applied when a field name matches multiple expressions.
@@ -25,13 +10,28 @@ Fields are added in the order they appear. If one field matches multiple express
 
 If a field matches two expressions with the same precedence, the rightmost expression wins.
 Refer to the examples for illustrations of these precedence rules.
+
+The `KEEP` processing command enables you to specify what columns are returned
+and the order in which they are returned.
+**Syntax**
+```esql
+KEEP columns
+```
+
+### Parameters
+
+#### `columns`
+
+A comma-separated list of columns to keep. Supports wildcards.
+ See below for the behavior in case an existing column matches multiple
+ given wildcards or column names.
+
 **Examples**
 The columns are returned in the specified order:
 ```esql
 FROM employees
 | KEEP emp_no, first_name, last_name, height
 ```
-
 
 | emp_no:integer | first_name:keyword | last_name:keyword | height:double |
 |----------------|--------------------|-------------------|---------------|
@@ -48,7 +48,6 @@ FROM employees
 | KEEP h*
 ```
 
-
 | height:double | height.float:double | height.half_float:double | height.scaled_float:double | hire_date:date |
 |---------------|---------------------|--------------------------|----------------------------|----------------|
 
@@ -61,7 +60,6 @@ FROM employees
 | KEEP h*, *
 ```
 
-
 | height:double | height.float:double | height.half_float:double | height.scaled_float:double | hire_date:date | avg_worked_seconds:long | birth_date:date | emp_no:integer | first_name:keyword | gender:keyword | is_rehired:boolean | job_positions:keyword | languages:integer | languages.byte:integer | languages.long:long | languages.short:integer | last_name:keyword | salary:integer | salary_change:double | salary_change.int:integer | salary_change.keyword:keyword | salary_change.long:long | still_hired:boolean |
 |---------------|---------------------|--------------------------|----------------------------|----------------|-------------------------|-----------------|----------------|--------------------|----------------|--------------------|-----------------------|-------------------|------------------------|---------------------|-------------------------|-------------------|----------------|----------------------|---------------------------|-------------------------------|-------------------------|---------------------|
 
@@ -72,7 +70,6 @@ FROM employees
 | KEEP first_name, last_name, first_name*
 ```
 
-
 | first_name:keyword | last_name:keyword |
 |--------------------|-------------------|
 
@@ -81,7 +78,6 @@ Wildcard expressions have the same priority, but last one wins (despite being le
 FROM employees
 | KEEP first_name*, last_name, first_na*
 ```
-
 
 | last_name:keyword | first_name:keyword |
 |-------------------|--------------------|
@@ -92,7 +88,6 @@ Output order is determined by the other arguments:
 FROM employees
 | KEEP *, first_name
 ```
-
 
 | avg_worked_seconds:long | birth_date:date | emp_no:integer | gender:keyword | height:double | height.float:double | height.half_float:double | height.scaled_float:double | hire_date:date | is_rehired:boolean | job_positions:keyword | languages:integer | languages.byte:integer | languages.long:long | languages.short:integer | last_name:keyword | salary:integer | salary_change:double | salary_change.int:integer | salary_change.keyword:keyword | salary_change.long:long | still_hired:boolean | first_name:keyword |
 |-------------------------|-----------------|----------------|----------------|---------------|---------------------|--------------------------|----------------------------|----------------|--------------------|-----------------------|-------------------|------------------------|---------------------|-------------------------|-------------------|----------------|----------------------|---------------------------|-------------------------------|-------------------------|---------------------|--------------------|

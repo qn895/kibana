@@ -1,0 +1,43 @@
+# SUM_OVER_TIME
+
+Calculates the sum over time value of a field.
+
+```
+stack: preview 9.2.0
+serverless: preview
+```
+
+**Syntax**
+`SUM_OVER_TIME(field, window)`
+
+### Parameters
+
+#### `field`
+
+the metric field to calculate the value for
+
+#### `window`
+
+the time window over which to compute the sum over time
+
+**Supported types**
+
+| field                   | window                               | result |
+|-------------------------|--------------------------------------|--------|
+| aggregate_metric_double | time_duration `stack: preview 9.3.0` | double |
+| double                  | time_duration `stack: preview 9.3.0` | double |
+| exponential_histogram   | time_duration `stack: preview 9.3.0` | double |
+| integer                 | time_duration `stack: preview 9.3.0` | long   |
+| long                    | time_duration `stack: preview 9.3.0` | long   |
+| tdigest                 | time_duration `stack: preview 9.3.0` | double |
+
+**Example**
+```esql
+TS k8s
+| STATS sum_cost=SUM(SUM_OVER_TIME(network.cost)) BY cluster, time_bucket = TBUCKET(1minute)
+```
+
+| sum_cost:double | cluster:keyword | time_bucket:datetime     |
+|-----------------|-----------------|--------------------------|
+| 67.625          | qa              | 2024-05-10T00:17:00.000Z |
+| 65.75           | staging         | 2024-05-10T00:09:00.000Z |

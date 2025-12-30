@@ -2,8 +2,7 @@
 
 Returns the sine of an angle.
 
-## Syntax
-
+**Syntax**
 `SIN(angle)`
 
 ### Parameters
@@ -12,11 +11,21 @@ Returns the sine of an angle.
 
 An angle, in radians. If `null`, the function returns `null`.
 
-## Examples
+**Supported types**
 
+| angle         | result |
+|---------------|--------|
+| double        | double |
+| integer       | double |
+| long          | double |
+| unsigned_long | double |
+
+**Example**
 ```esql
 ROW a=1.8
-| EVAL sin = SIN(a)
+| EVAL sin=SIN(a)
 ```
 
-Calculate the sine of the angle `1.8` radians and store the result in a new column named `sin`.
+| a:double | sin:double         |
+|----------|--------------------|
+| 1.8      | 0.9738476308781951 |
