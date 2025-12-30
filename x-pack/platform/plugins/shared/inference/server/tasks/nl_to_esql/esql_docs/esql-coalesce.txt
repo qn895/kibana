@@ -17,37 +17,9 @@ Other expression to evaluate.
 
 **Supported types**
 
-| first                 | rest                  | result                |
-|-----------------------|-----------------------|-----------------------|
-| boolean               | boolean               | boolean               |
-| boolean               |                       | boolean               |
-| cartesian_point       | cartesian_point       | cartesian_point       |
-| cartesian_shape       | cartesian_shape       | cartesian_shape       |
-| date                  | date                  | date                  |
-| date_nanos            | date_nanos            | date_nanos            |
-| exponential_histogram | exponential_histogram | exponential_histogram |
-| geo_point             | geo_point             | geo_point             |
-| geo_shape             | geo_shape             | geo_shape             |
-| geohash               | geohash               | geohash               |
-| geohex                | geohex                | geohex                |
-| geotile               | geotile               | geotile               |
-| integer               | integer               | integer               |
-| integer               |                       | integer               |
-| ip                    | ip                    | ip                    |
-| keyword               | keyword               | keyword               |
-| keyword               |                       | keyword               |
-| long                  | long                  | long                  |
-| long                  |                       | long                  |
-| text                  | text                  | keyword               |
-| text                  |                       | keyword               |
-| version               | version               | version               |
-
 **Example**
 ```esql
 ROW a=null, b="b"
 | EVAL COALESCE(a, b)
 ```
 
-| a:null | b:keyword | COALESCE(a, b):keyword |
-|--------|-----------|------------------------|
-| null   | b         | b                      |

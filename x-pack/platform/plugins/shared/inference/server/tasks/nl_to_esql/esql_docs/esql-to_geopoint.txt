@@ -13,18 +13,9 @@ Input value. The input can be a single- or multi-valued column or an expression.
 
 **Supported types**
 
-| field     | result    |
-|-----------|-----------|
-| geo_point | geo_point |
-| keyword   | geo_point |
-| text      | geo_point |
-
 **Example**
 ```esql
 ROW wkt = "POINT(42.97109630194 14.7552534413725)"
 | EVAL pt = TO_GEOPOINT(wkt)
 ```
 
-| wkt:keyword                              | pt:geo_point                           |
-|------------------------------------------|----------------------------------------|
-| "POINT(42.97109630194 14.7552534413725)" | POINT(42.97109630194 14.7552534413725) |

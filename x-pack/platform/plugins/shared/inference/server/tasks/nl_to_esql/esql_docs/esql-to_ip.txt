@@ -17,12 +17,6 @@ Input value. The input can be a single- or multi-valued column or an expression.
 
 **Supported types**
 
-| field   | options | result |
-|---------|---------|--------|
-| ip      |         | ip     |
-| keyword |         | ip     |
-| text    |         | ip     |
-
 **Supported function named parameters**
 ### Parameters
 
@@ -37,10 +31,6 @@ ROW str1 = "1.1.1.1", str2 = "foo"
 | WHERE CIDR_MATCH(ip1, "1.0.0.0/8")
 ```
 
-| str1:keyword | str2:keyword | ip1:ip  | ip2:ip |
-|--------------|--------------|---------|--------|
-| 1.1.1.1      | foo          | 1.1.1.1 | null   |
-
 Note that in this example, the last conversion of the string isn’t possible.
 When this happens, the result is a `null` value. In this case a _Warning_ header is added to the response.
 The header will provide information on the source of the failure:
@@ -51,17 +41,9 @@ A following header will contain the failure reason and the offending value:
 ROW s = "1.1.010.1" | EVAL ip = TO_IP(s, {"leading_zeros":"octal"})
 ```
 
-| s:keyword | ip:ip   |
-|-----------|---------|
-| 1.1.010.1 | 1.1.8.1 |
-
 Parse v4 addresses with leading zeros as octal. Like `ping` or `ftp`.
 ```esql
 ROW s = "1.1.010.1" | EVAL ip = TO_IP(s, {"leading_zeros":"decimal"})
 ```
-
-| s:keyword | ip:ip    |
-|-----------|----------|
-| 1.1.010.1 | 1.1.10.1 |
 
 Parse v4 addresses with leading zeros as decimal. Java's `InetAddress.getByName`.

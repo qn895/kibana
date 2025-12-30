@@ -13,20 +13,11 @@ String expression. If `null`, the function returns `null`. The input can be a si
 
 **Supported types**
 
-| str     | result  |
-|---------|---------|
-| keyword | keyword |
-| text    | keyword |
-
 **Examples**
 ```esql
 ROW message = "Some Text"
 | EVAL message_lower = TO_LOWER(message)
 ```
-
-| message:keyword | message_lower:keyword |
-|-----------------|-----------------------|
-| Some Text       | some text             |
 
 ```
 stack: ga 9.1.0
@@ -36,6 +27,3 @@ stack: ga 9.1.0
 ROW v = TO_LOWER(["Some", "Text"])
 ```
 
-| v:keyword        |
-|------------------|
-| ["some", "text"] |

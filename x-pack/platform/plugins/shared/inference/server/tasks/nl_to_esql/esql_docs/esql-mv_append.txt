@@ -13,29 +13,6 @@ Concatenates values of two multi-value fields.
 
 **Supported types**
 
-| field1          | field2          | result          |
-|-----------------|-----------------|-----------------|
-| boolean         | boolean         | boolean         |
-| cartesian_point | cartesian_point | cartesian_point |
-| cartesian_shape | cartesian_shape | cartesian_shape |
-| date            | date            | date            |
-| date_nanos      | date_nanos      | date_nanos      |
-| double          | double          | double          |
-| geo_point       | geo_point       | geo_point       |
-| geo_shape       | geo_shape       | geo_shape       |
-| geohash         | geohash         | geohash         |
-| geohex          | geohex          | geohex          |
-| geotile         | geotile         | geotile         |
-| integer         | integer         | integer         |
-| ip              | ip              | ip              |
-| keyword         | keyword         | keyword         |
-| keyword         | text            | keyword         |
-| long            | long            | long            |
-| text            | keyword         | keyword         |
-| text            | text            | keyword         |
-| unsigned_long   | unsigned_long   | unsigned_long   |
-| version         | version         | version         |
-
 **Example**
 ```esql
 FROM employees
@@ -45,7 +22,3 @@ FROM employees
 | KEEP emp_no, birth_date, hire_date, dates
 ```
 
-| emp_no:integer | birth_date:date      | hire_date:date       | dates:date                                   |
-|----------------|----------------------|----------------------|----------------------------------------------|
-| 10039          | 1959-10-01T00:00:00Z | 1988-01-19T00:00:00Z | [1959-10-01T00:00:00Z, 1988-01-19T00:00:00Z] |
-| 10040          | null                 | 1993-02-14T00:00:00Z | null                                         |

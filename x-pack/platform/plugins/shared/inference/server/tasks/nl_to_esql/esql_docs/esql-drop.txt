@@ -13,7 +13,6 @@ DROP columns
 A comma-separated list of columns to remove. Supports wildcards.
 
 **Examples**
-**Examples**
 ```esql
 FROM employees
 | DROP height
@@ -21,11 +20,7 @@ FROM employees
 
 Rather than specify each column by name, you can use wildcards to drop all
 columns with a name that matches a pattern:
-Rather than specify each column by name, you can use wildcards to drop all
-columns with a name that matches a pattern:
 ```esql
 FROM employees
-| DROP height*
-```
 | DROP height*
 ```

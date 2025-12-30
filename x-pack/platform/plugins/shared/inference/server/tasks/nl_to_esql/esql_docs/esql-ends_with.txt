@@ -17,13 +17,6 @@ String expression. If `null`, the function returns `null`.
 
 **Supported types**
 
-| str     | suffix  | result  |
-|---------|---------|---------|
-| keyword | keyword | boolean |
-| keyword | text    | boolean |
-| text    | keyword | boolean |
-| text    | text    | boolean |
-
 **Example**
 ```esql
 FROM employees
@@ -31,10 +24,3 @@ FROM employees
 | EVAL ln_E = ENDS_WITH(last_name, "d")
 ```
 
-| last_name:keyword | ln_E:boolean |
-|-------------------|--------------|
-| Awdeh             | false        |
-| Azuma             | false        |
-| Baek              | false        |
-| Bamford           | true         |
-| Bernatsky         | false        |

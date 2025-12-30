@@ -46,7 +46,3 @@ FROM employees
 | SORT emp_no
 ```
 
-| emp_no:integer | _fork:keyword |
-|----------------|---------------|
-| 10001          | fork1         |
-| 10002          | fork2         |

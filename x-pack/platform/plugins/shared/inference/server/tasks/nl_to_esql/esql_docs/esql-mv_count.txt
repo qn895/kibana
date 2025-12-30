@@ -13,33 +13,9 @@ Multivalue expression.
 
 **Supported types**
 
-| field           | result  |
-|-----------------|---------|
-| boolean         | integer |
-| cartesian_point | integer |
-| cartesian_shape | integer |
-| date            | integer |
-| date_nanos      | integer |
-| double          | integer |
-| geo_point       | integer |
-| geo_shape       | integer |
-| geohash         | integer |
-| geohex          | integer |
-| geotile         | integer |
-| integer         | integer |
-| ip              | integer |
-| keyword         | integer |
-| long            | integer |
-| text            | integer |
-| unsigned_long   | integer |
-| version         | integer |
-
 **Example**
 ```esql
 ROW a=["foo", "zoo", "bar"]
 | EVAL count_a = MV_COUNT(a)
 ```
 
-| a:keyword             | count_a:integer |
-|-----------------------|-----------------|
-| ["foo", "zoo", "bar"] | 3               |

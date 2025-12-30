@@ -22,10 +22,6 @@ Identifier of an existing inference endpoint the that will generate the embeddin
 
 **Supported types**
 
-| text    | inference_id | result       |
-|---------|--------------|--------------|
-| keyword | keyword      | dense_vector |
-
 **Example**
 Generate text embeddings using the 'test_dense_inference' inference endpoint.
 ```esql

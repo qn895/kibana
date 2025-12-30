@@ -16,26 +16,11 @@ Input value. The input can be a single- or multi-valued column or an expression.
 
 **Supported types**
 
-| field         | result |
-|---------------|--------|
-| date          | date   |
-| date_nanos    | date   |
-| double        | date   |
-| integer       | date   |
-| keyword       | date   |
-| long          | date   |
-| text          | date   |
-| unsigned_long | date   |
-
 **Examples**
 ```esql
 ROW string = ["1953-09-02T00:00:00.000Z", "1964-06-02T00:00:00.000Z", "1964-06-02 00:00:00"]
 | EVAL datetime = TO_DATETIME(string)
 ```
-
-| string:keyword                                                                  | datetime:date                                        |
-|---------------------------------------------------------------------------------|------------------------------------------------------|
-| ["1953-09-02T00:00:00.000Z", "1964-06-02T00:00:00.000Z", "1964-06-02 00:00:00"] | [1953-09-02T00:00:00.000Z, 1964-06-02T00:00:00.000Z] |
 
 Note that in this example, the last value in the source multi-valued field has not been converted.
 The reason being that if the date format is not respected, the conversion will result in a `null` value.
@@ -51,6 +36,3 @@ ROW int = [0, 1]
 | EVAL dt = TO_DATETIME(int)
 ```
 
-| int:integer | dt:date                                              |
-|-------------|------------------------------------------------------|
-| [0, 1]      | [1970-01-01T00:00:00.000Z, 1970-01-01T00:00:00.001Z] |

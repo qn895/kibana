@@ -92,15 +92,6 @@ FROM employees
 | SORT languages
 ```
 
-| count:long | languages:integer |
-|------------|-------------------|
-| 15         | 1                 |
-| 19         | 2                 |
-| 17         | 3                 |
-| 18         | 4                 |
-| 21         | 5                 |
-| 10         | null              |
-
 Omitting `BY` returns one row with the aggregations applied over the entire
 dataset:
 ```esql
@@ -108,19 +99,11 @@ FROM employees
 | STATS avg_lang = AVG(languages)
 ```
 
-| avg_lang:double    |
-|--------------------|
-| 3.1222222222222222 |
-
 It’s possible to calculate multiple values:
 ```esql
 FROM employees
 | STATS avg_lang = AVG(languages), max_lang = MAX(languages)
 ```
-
-| avg_lang:double    | max_lang:integer |
-|--------------------|------------------|
-| 3.1222222222222222 | 5                |
 
 To filter the rows that go into an aggregation, use the `WHERE` clause:
 ```esql
@@ -130,11 +113,6 @@ FROM employees
         BY gender
 | SORT gender
 ```
-
-| avg50s:long | avg60s:long | gender:keyword |
-|-------------|-------------|----------------|
-| 55462       | 46637       | F              |
-| 48279       | 44879       | M              |
 
 The aggregations can be mixed, with and without a filter and grouping is
 optional as well:
@@ -146,10 +124,6 @@ FROM employees
         over_60K  = COUNT(*) WHERE 60 <= Ks,
         total     = COUNT(*)
 ```
-
-| under_40K:long | inbetween:long | over_60K:long | total:long |
-|----------------|----------------|---------------|------------|
-| 36             | 39             | 25            | 100        |
 
 It’s also possible to group by multiple values:
 ```esql
@@ -168,29 +142,11 @@ ROW price = 10, color = ["blue", "pink", "yellow"]
 | STATS SUM(price) BY color
 ```
 
-| SUM(price):long | color:keyword |
-|-----------------|---------------|
-| 10              | blue          |
-| 10              | pink          |
-| 10              | yellow        |
-
 If all the grouping keys are multivalued then the input row is in all groups:
 ```esql
 ROW price = 10, color = ["blue", "pink", "yellow"], size = ["s", "m", "l"]
 | STATS SUM(price) BY color, size
 ```
-
-| SUM(price):long | color:keyword | size:keyword |
-|-----------------|---------------|--------------|
-| 10              | blue          | l            |
-| 10              | blue          | m            |
-| 10              | blue          | s            |
-| 10              | pink          | l            |
-| 10              | pink          | m            |
-| 10              | pink          | s            |
-| 10              | yellow        | l            |
-| 10              | yellow        | m            |
-| 10              | yellow        | s            |
 
 The input **ROW** is in all groups. The entire row. All the values. Even group
 keys. That means that:
@@ -199,12 +155,6 @@ ROW color = ["blue", "pink", "yellow"]
 | STATS VALUES(color) BY color
 ```
 
-| VALUES(color):keyword | color:keyword |
-|-----------------------|---------------|
-| [blue, pink, yellow]  | blue          |
-| [blue, pink, yellow]  | pink          |
-| [blue, pink, yellow]  | yellow        |
-
 The `VALUES` function above sees the whole row - all of the values of the group
 key. If you want to send the group key to the function then `MV_EXPAND` first:
 ```esql
@@ -212,12 +162,6 @@ ROW color = ["blue", "pink", "yellow"]
 | MV_EXPAND color
 | STATS VALUES(color) BY color
 ```
-
-| VALUES(color):keyword | color:keyword |
-|-----------------------|---------------|
-| blue                  | blue          |
-| pink                  | pink          |
-| yellow                | yellow        |
 
 Refer to elasticsearch/issues/134792
 for an even more in depth explanation.
@@ -234,10 +178,6 @@ FROM employees
 | STATS avg_salary_change = ROUND(AVG(MV_AVG(salary_change)), 10)
 ```
 
-| avg_salary_change:double |
-|--------------------------|
-| 1.3904535865             |
-
 An example of grouping by an expression is grouping employees on the first
 letter of their last name:
 ```esql
@@ -245,29 +185,6 @@ FROM employees
 | STATS my_count = COUNT() BY LEFT(last_name, 1)
 | SORT `LEFT(last_name, 1)`
 ```
-
-| my_count:long | LEFT(last_name, 1):keyword |
-|---------------|----------------------------|
-| 2             | A                          |
-| 11            | B                          |
-| 5             | C                          |
-| 5             | D                          |
-| 2             | E                          |
-| 4             | F                          |
-| 4             | G                          |
-| 6             | H                          |
-| 2             | J                          |
-| 3             | K                          |
-| 5             | L                          |
-| 12            | M                          |
-| 4             | N                          |
-| 1             | O                          |
-| 7             | P                          |
-| 5             | R                          |
-| 13            | S                          |
-| 4             | T                          |
-| 2             | W                          |
-| 3             | Z                          |
 
 #### Naming
 
@@ -279,10 +196,6 @@ FROM employees
 | STATS AVG(salary)
 ```
 
-| AVG(salary):double |
-|--------------------|
-| 48248.55           |
-
 Because this name contains special characters,
 it needs to be quoted
 with backticks (```) when using it in subsequent commands:
@@ -292,6 +205,3 @@ FROM employees
 | EVAL avg_salary_rounded = ROUND(`AVG(salary)`)
 ```
 
-| AVG(salary):double | avg_salary_rounded:double |
-|--------------------|---------------------------|
-| 48248.55           | 48249.0                   |

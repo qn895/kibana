@@ -17,17 +17,9 @@ Number times to repeat.
 
 **Supported types**
 
-| string  | number  | result  |
-|---------|---------|---------|
-| keyword | integer | keyword |
-| text    | integer | keyword |
-
 **Example**
 ```esql
 ROW a = "Hello!"
 | EVAL triple_a = REPEAT(a, 3)
 ```
 
-| a:keyword | triple_a:keyword   |
-|-----------|--------------------|
-| Hello!    | Hello!Hello!Hello! |

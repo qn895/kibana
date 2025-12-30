@@ -17,11 +17,6 @@ Date expression. If `null`, the function returns `null`.
 
 **Supported types**
 
-| date       | result  |
-|------------|---------|
-| date       | keyword |
-| date_nanos | keyword |
-
 **Example**
 ```esql
 ROW dt = to_datetime("1996-03-21T00:00:00.000Z")

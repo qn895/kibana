@@ -13,19 +13,9 @@ Number between -1 and 1. If `null`, the function returns `null`.
 
 **Supported types**
 
-| number        | result |
-|---------------|--------|
-| double        | double |
-| integer       | double |
-| long          | double |
-| unsigned_long | double |
-
 **Example**
 ```esql
 ROW a=.9
 | EVAL asin=ASIN(a)
 ```
 
-| a:double | asin:double        |
-|----------|--------------------|
-| .9       | 1.1197695149986342 |

@@ -13,22 +13,9 @@ Input value. The input can be a single- or multi-valued column or an expression.
 
 **Supported types**
 
-| field         | result  |
-|---------------|---------|
-| boolean       | boolean |
-| double        | boolean |
-| integer       | boolean |
-| keyword       | boolean |
-| long          | boolean |
-| text          | boolean |
-| unsigned_long | boolean |
-
 **Example**
 ```esql
 ROW str = ["true", "TRuE", "false", "", "yes", "1"]
 | EVAL bool = TO_BOOLEAN(str)
 ```
 
-| str:keyword                               | bool:boolean                             |
-|-------------------------------------------|------------------------------------------|
-| ["true", "TRuE", "false", "", "yes", "1"] | [true, true, false, false, false, false] |

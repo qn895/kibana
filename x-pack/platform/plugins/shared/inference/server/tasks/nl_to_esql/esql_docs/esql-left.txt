@@ -17,11 +17,6 @@ The number of characters to return.
 
 **Supported types**
 
-| string  | length  | result  |
-|---------|---------|---------|
-| keyword | integer | keyword |
-| text    | integer | keyword |
-
 **Example**
 ```esql
 FROM employees
@@ -29,10 +24,3 @@ FROM employees
 | EVAL left = LEFT(last_name, 3)
 ```
 
-| last_name:keyword | left:keyword |
-|-------------------|--------------|
-| Awdeh             | Awd          |
-| Azuma             | Azu          |
-| Baek              | Bae          |
-| Bamford           | Bam          |
-| Bernatsky         | Ber          |

@@ -61,14 +61,8 @@ Use the optional `METADATA` directive to enable
 metadata fields:
 ```esql
 FROM employees METADATA _id
-FROM employees METADATA _id
 ```
 
-Use enclosing double quotes (`"`) or three enclosing double quotes (`"""`) to escape index names
-that contain special characters:
-```esql
-FROM "this=that", """this[that"""
-```
 Use enclosing double quotes (`"`) or three enclosing double quotes (`"""`) to escape index names
 that contain special characters:
 ```esql

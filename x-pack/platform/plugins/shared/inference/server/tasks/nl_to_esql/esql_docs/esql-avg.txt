@@ -13,24 +13,11 @@ Expression that outputs values to average.
 
 **Supported types**
 
-| number                  | result |
-|-------------------------|--------|
-| aggregate_metric_double | double |
-| double                  | double |
-| exponential_histogram   | double |
-| integer                 | double |
-| long                    | double |
-| tdigest                 | double |
-
 **Examples**
 ```esql
 FROM employees
 | STATS AVG(height)
 ```
-
-| AVG(height):double |
-|--------------------|
-| 1.7682             |
 
 The expression can use inline functions. For example, to calculate the average over a multivalued column, first use `MV_AVG` to average the multiple values per row, and use the result with the `AVG` function
 ```esql
@@ -38,6 +25,3 @@ FROM employees
 | STATS avg_salary_change = ROUND(AVG(MV_AVG(salary_change)), 10)
 ```
 
-| avg_salary_change:double |
-|--------------------------|
-| 1.3904535865             |

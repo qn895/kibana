@@ -21,40 +21,9 @@ The max value to clamp data into.
 
 **Supported types**
 
-| field         | max           | result        |
-|---------------|---------------|---------------|
-| boolean       | boolean       | boolean       |
-| date          | date          | date          |
-| double        | double        | double        |
-| double        | integer       | double        |
-| double        | long          | double        |
-| double        | unsigned_long | double        |
-| integer       | double        | double        |
-| integer       | integer       | integer       |
-| integer       | long          | long          |
-| integer       | unsigned_long | unsigned_long |
-| ip            | ip            | ip            |
-| keyword       | keyword       | keyword       |
-| long          | double        | double        |
-| long          | integer       | long          |
-| long          | long          | long          |
-| long          | unsigned_long | unsigned_long |
-| unsigned_long | double        | double        |
-| unsigned_long | integer       | unsigned_long |
-| unsigned_long | long          | long          |
-| unsigned_long | unsigned_long | unsigned_long |
-| version       | version       | version       |
-
 **Example**
 ```esql
 TS k8s
 | STATS full_clamped_cost=sum(clamp(network.cost, 1, 2)), clamped_cost=sum(clamp_max(network.cost, 1)), clamped_min_cost=sum(clamp_min(network.cost, 10)) BY time_bucket = bucket(@timestamp,1minute)
 ```
 
-| full_clamped_cost:double | clamped_cost:double | clamped_min_cost:double | time_bucket:datetime     |
-|--------------------------|---------------------|-------------------------|--------------------------|
-| 18.0                     | 9.0                 | 94.875                  | 2024-05-10T00:09:00.000Z |
-| 15.25                    | 8.0                 | 84.125                  | 2024-05-10T00:08:00.000Z |
-| 15.0                     | 8.0                 | 83.5                    | 2024-05-10T00:15:00.000Z |
-| 13.75                    | 7.0                 | 71.625                  | 2024-05-10T00:22:00.000Z |
-| 13.125                   | 7.5                 | 90.5                    | 2024-05-10T00:18:00.000Z |

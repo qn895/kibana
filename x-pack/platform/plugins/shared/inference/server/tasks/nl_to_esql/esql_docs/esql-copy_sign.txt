@@ -21,26 +21,9 @@ The expression providing the sign of the result. Must be a numeric type.
 
 **Supported types**
 
-| magnitude | sign    | result  |
-|-----------|---------|---------|
-| double    | double  | double  |
-| double    | integer | double  |
-| double    | long    | double  |
-| integer   | double  | integer |
-| integer   | integer | integer |
-| integer   | long    | integer |
-| long      | double  | long    |
-| long      | integer | long    |
-| long      | long    | long    |
-
 **Example**
 ```esql
 FROM employees
 | EVAL cs1 = COPY_SIGN(salary, LEAST(salary_change))
 ```
 
-| emp_no:integer | salary:integer | salary_change:double | cs1:integer |
-|----------------|----------------|----------------------|-------------|
-| 10001          | 57305          | 1.19                 | 57305       |
-| 10002          | 56371          | [-7.23, 11.17]       | -56371      |
-| 10003          | 61805          | [12.82, 14.68]       | 61805       |

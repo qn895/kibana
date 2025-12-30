@@ -17,10 +17,6 @@ It is a constant number that represents the *p* parameter in the P-Series. It im
 
 **Supported types**
 
-| number | p      | result |
-|--------|--------|--------|
-| double | double | double |
-
 **Example**
 ```esql
 ROW a = [70.0, 45.0, 21.0, 21.0, 21.0]
@@ -28,6 +24,3 @@ ROW a = [70.0, 45.0, 21.0, 21.0, 21.0]
 | KEEP sum
 ```
 
-| sum:double        |
-|-------------------|
-| 94.45465156212452 |

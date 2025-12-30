@@ -40,23 +40,6 @@ Can be one of the following:
 
 **Supported types**
 
-| field from the left index | field from the lookup index                                         |
-|---------------------------|---------------------------------------------------------------------|
-| boolean                   | boolean                                                             |
-| byte                      | byte, short, integer, long, half_float, float, double, scaled_float |
-| date                      | date                                                                |
-| date_nanos                | date_nanos                                                          |
-| double                    | half_float, float, double, scaled_float, byte, short, integer, long |
-| float                     | half_float, float, double, scaled_float, byte, short, integer, long |
-| half_float                | half_float, float, double, scaled_float, byte, short, integer, long |
-| integer                   | byte, short, integer, long, half_float, float, double, scaled_float |
-| ip                        | ip                                                                  |
-| keyword                   | keyword                                                             |
-| long                      | byte, short, integer, long, half_float, float, double, scaled_float |
-| scaled_float              | half_float, float, double, scaled_float, byte, short, integer, long |
-| short                     | byte, short, integer, long, half_float, float, double, scaled_float |
-| text                      | keyword                                                             |
-
 **Examples**
 **IP Threat correlation**: This query would allow you to see if any source
 IPs match known malicious addresses.
@@ -66,11 +49,6 @@ FROM firewall_logs
 ```
 
 To filter only for those rows that have a matching `threat_list` entry, use `WHERE ... IS NOT NULL` with a field from the lookup index:
-FROM firewall_logs
-| LOOKUP JOIN threat_list ON source.IP
-```
-
-To filter only for those rows that have a matching `threat_list` entry, use `WHERE ... IS NOT NULL` with a field from the lookup index:
 ```esql
 FROM firewall_logs
 | LOOKUP JOIN threat_list ON source.IP
@@ -79,21 +57,7 @@ FROM firewall_logs
 
 **Host metadata correlation**: This query pulls in environment or
 ownership details for each host to correlate with your metrics data.
-FROM firewall_logs
-| LOOKUP JOIN threat_list ON source.IP
-| WHERE threat_level IS NOT NULL
-```
-
-**Host metadata correlation**: This query pulls in environment or
-ownership details for each host to correlate with your metrics data.
 ```esql
-FROM system_metrics
-| LOOKUP JOIN host_inventory ON host.name
-| LOOKUP JOIN ownerships ON host.name
-```
-
-**Service ownership mapping**: This query would show logs with the owning
-team or escalation information for faster triage and incident response.
 FROM system_metrics
 | LOOKUP JOIN host_inventory ON host.name
 | LOOKUP JOIN ownerships ON host.name
@@ -113,29 +77,12 @@ The following two examples will have the same results. One has the
 `WHERE` clause before and the other after the `LOOKUP JOIN`. It does not
 matter how you write your query, our optimizer will move the filter
 before the lookup when possible.
-FROM app_logs
-| LOOKUP JOIN service_owners ON service_id
-```
-
-`LOOKUP JOIN` is generally faster when there are fewer rows to join
-with. ES|QL will try and perform any `WHERE` clause before the
-`LOOKUP JOIN` where possible.
-The following two examples will have the same results. One has the
-`WHERE` clause before and the other after the `LOOKUP JOIN`. It does not
-matter how you write your query, our optimizer will move the filter
-before the lookup when possible.
 ```esql
 FROM employees
 | EVAL language_code = languages
 | WHERE emp_no >= 10091 AND emp_no < 10094
 | LOOKUP JOIN languages_lookup ON language_code
 ```
-
-| emp_no:integer | language_code:integer | language_name:keyword |
-|----------------|-----------------------|-----------------------|
-| 10091          | 3                     | Spanish               |
-| 10092          | 1                     | English               |
-| 10093          | 3                     | Spanish               |
 
 ```esql
 FROM employees
@@ -144,8 +91,3 @@ FROM employees
 | WHERE emp_no >= 10091 AND emp_no < 10094
 ```
 
-| emp_no:integer | language_code:integer | language_name:keyword |
-|----------------|-----------------------|-----------------------|
-| 10091          | 3                     | Spanish               |
-| 10092          | 1                     | English               |
-| 10093          | 3                     | Spanish               |

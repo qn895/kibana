@@ -22,28 +22,6 @@ the time window over which to compute the count over time
 
 **Supported types**
 
-| field                   | window | result |
-|-------------------------|--------|--------|
-| aggregate_metric_double |        | long   |
-| boolean                 |        | long   |
-| cartesian_point         |        | long   |
-| cartesian_shape         |        | long   |
-| date                    |        | long   |
-| date_nanos              |        | long   |
-| double                  |        | long   |
-| geo_point               |        | long   |
-| geo_shape               |        | long   |
-| geohash                 |        | long   |
-| geohex                  |        | long   |
-| geotile                 |        | long   |
-| integer                 |        | long   |
-| ip                      |        | long   |
-| keyword                 |        | long   |
-| long                    |        | long   |
-| text                    |        | long   |
-| unsigned_long           |        | long   |
-| version                 |        | long   |
-
 **Example**
 ```esql
 TS k8s
@@ -51,8 +29,3 @@ TS k8s
   BY cluster, time_bucket = BUCKET(@timestamp,1minute)
 ```
 
-| count:long | cluster:keyword | time_bucket:datetime     |
-|------------|-----------------|--------------------------|
-| 3          | staging         | 2024-05-10T00:22:00.000Z |
-| 3          | prod            | 2024-05-10T00:20:00.000Z |
-| 3          | prod            | 2024-05-10T00:19:00.000Z |

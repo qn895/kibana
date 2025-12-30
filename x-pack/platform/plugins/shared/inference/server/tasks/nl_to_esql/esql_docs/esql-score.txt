@@ -18,10 +18,6 @@ Boolean expression that contains full text function(s) to be scored.
 
 **Supported types**
 
-| query   | result |
-|---------|--------|
-| boolean | double |
-
 **Example**
 ```esql
 FROM books METADATA _score

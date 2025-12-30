@@ -22,19 +22,9 @@ the time window over which the rate is computed
 
 **Supported types**
 
-| field           | window                               | result |
-|-----------------|--------------------------------------|--------|
-| counter_double  | time_duration `stack: preview 9.3.0` | double |
-| counter_integer | time_duration `stack: preview 9.3.0` | double |
-| counter_long    | time_duration `stack: preview 9.3.0` | double |
-
 **Example**
 ```esql
 TS k8s
 | STATS max_rate=MAX(RATE(network.total_bytes_in)) BY time_bucket = TBUCKET(5minute)
 ```
 
-| max_rate: double | time_bucket:date         |
-|------------------|--------------------------|
-| 64.5             | 2024-05-10T00:20:00.000Z |
-| 22.359074        | 2024-05-10T00:15:00.000Z |

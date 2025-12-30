@@ -8,18 +8,10 @@ Returns current date and time.
 **Parameters**
 **Supported types**
 
-| result |
-|--------|
-| date   |
-
 **Examples**
 ```esql
 ROW current_date = NOW()
 ```
-
-| y:keyword |
-|-----------|
-| 20        |
 
 To retrieve logs from the last hour:
 ```esql

@@ -21,20 +21,6 @@ Remaining rounding points. Must be constants.
 
 **Supported types**
 
-| field      | points     | result     |
-|------------|------------|------------|
-| date       | date       | date       |
-| date_nanos | date_nanos | date_nanos |
-| double     | double     | double     |
-| double     | integer    | double     |
-| double     | long       | double     |
-| integer    | double     | double     |
-| integer    | integer    | integer    |
-| integer    | long       | long       |
-| long       | double     | double     |
-| long       | integer    | long       |
-| long       | long       | long       |
-
 **Example**
 ```esql
 FROM employees
@@ -51,10 +37,3 @@ FROM employees
 | SORT birth_window ASC
 ```
 
-| COUNT(*):long | birth_window:datetime |
-|---------------|-----------------------|
-| 27            | 1950-01-01T00:00:00Z  |
-| 29            | 1955-01-01T00:00:00Z  |
-| 33            | 1960-01-01T00:00:00Z  |
-| 1             | 1965-01-01T00:00:00Z  |
-| 10            | null                  |

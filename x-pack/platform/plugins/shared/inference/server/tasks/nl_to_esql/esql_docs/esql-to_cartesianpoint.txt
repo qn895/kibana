@@ -13,12 +13,6 @@ Input value. The input can be a single- or multi-valued column or an expression.
 
 **Supported types**
 
-| field           | result          |
-|-----------------|-----------------|
-| cartesian_point | cartesian_point |
-| keyword         | cartesian_point |
-| text            | cartesian_point |
-
 **Example**
 ```esql
 ROW wkt = ["POINT(4297.11 -1475.53)", "POINT(7580.93 2272.77)"]
@@ -26,7 +20,3 @@ ROW wkt = ["POINT(4297.11 -1475.53)", "POINT(7580.93 2272.77)"]
 | EVAL pt = TO_CARTESIANPOINT(wkt)
 ```
 
-| wkt:keyword               | pt:cartesian_point      |
-|---------------------------|-------------------------|
-| "POINT(4297.11 -1475.53)" | POINT(4297.11 -1475.53) |
-| "POINT(7580.93 2272.77)"  | POINT(7580.93 2272.77)  |

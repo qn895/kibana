@@ -21,23 +21,9 @@ The start index
 
 **Supported types**
 
-| string  | substring | start   | result  |
-|---------|-----------|---------|---------|
-| keyword | keyword   | integer | integer |
-| keyword | keyword   |         | integer |
-| keyword | text      | integer | integer |
-| keyword | text      |         | integer |
-| text    | keyword   | integer | integer |
-| text    | keyword   |         | integer |
-| text    | text      | integer | integer |
-| text    | text      |         | integer |
-
 **Example**
 ```esql
 ROW a = "hello"
 | EVAL a_ll = LOCATE(a, "ll")
 ```
 
-| a:keyword | a_ll:integer |
-|-----------|--------------|
-| hello     | 3            |

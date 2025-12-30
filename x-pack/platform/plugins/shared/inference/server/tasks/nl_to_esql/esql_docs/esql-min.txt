@@ -11,32 +11,11 @@ The minimum value of a field.
 
 **Supported types**
 
-| field                           | result        |
-|---------------------------------|---------------|
-| aggregate_metric_double         | double        |
-| boolean                         | boolean       |
-| date                            | date          |
-| date_nanos                      | date_nanos    |
-| double                          | double        |
-| exponential_histogram           | double        |
-| integer                         | integer       |
-| ip                              | ip            |
-| keyword                         | keyword       |
-| long                            | long          |
-| tdigest                         | double        |
-| text                            | keyword       |
-| unsigned_long `stack: ga 9.2.0` | unsigned_long |
-| version                         | version       |
-
 **Examples**
 ```esql
 FROM employees
 | STATS MIN(languages)
 ```
-
-| MIN(languages):integer |
-|------------------------|
-| 1                      |
 
 The expression can use inline functions. For example, to calculate the minimum over an average of a multivalued column, use `MV_AVG` to first average the multiple values per row, and use the result with the `MIN` function
 ```esql
@@ -44,6 +23,3 @@ FROM employees
 | STATS min_avg_salary_change = MIN(MV_AVG(salary_change))
 ```
 
-| min_avg_salary_change:double |
-|------------------------------|
-| -8.46                        |

@@ -22,12 +22,6 @@ the time window over which to compute the delta over time
 
 **Supported types**
 
-| field   | window | result |
-|---------|--------|--------|
-| double  |        | double |
-| integer |        | double |
-| long    |        | double |
-
 **Example**
 ```esql
 TS k8s
@@ -35,9 +29,3 @@ TS k8s
 | STATS tx = SUM(DELTA(network.bytes_in)) BY cluster, time_bucket = TBUCKET(10minute)
 ```
 
-| tx:double | cluster:keyword | time_bucket:datetime     |
-|-----------|-----------------|--------------------------|
-| -351.0    | prod            | 2024-05-10T00:00:00.000Z |
-| 552.0     | qa              | 2024-05-10T00:00:00.000Z |
-| 127.0     | staging         | 2024-05-10T00:00:00.000Z |
-| 280.0     | prod            | 2024-05-10T00:10:00.000Z |

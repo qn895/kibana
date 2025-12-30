@@ -13,19 +13,9 @@ Numeric expression. If `null`, the function returns `null`.
 
 **Supported types**
 
-| number        | result |
-|---------------|--------|
-| double        | double |
-| integer       | double |
-| long          | double |
-| unsigned_long | double |
-
 **Example**
 ```esql
 ROW d = 100.0
 | EVAL s = SIGNUM(d)
 ```
 
-| d: double | s:double |
-|-----------|----------|
-| 100       | 1.0      |

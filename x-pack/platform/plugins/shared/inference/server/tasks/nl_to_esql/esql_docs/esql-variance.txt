@@ -11,18 +11,9 @@ The population variance of a numeric field.
 
 **Supported types**
 
-| number  | result |
-|---------|--------|
-| double  | double |
-| integer | double |
-| long    | double |
-
 **Example**
 ```esql
 FROM employees
 | STATS var_height = VARIANCE(height)
 ```
 
-| var_height:double |
-|-------------------|
-| 0.0425888         |

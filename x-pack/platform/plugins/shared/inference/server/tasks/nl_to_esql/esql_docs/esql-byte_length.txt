@@ -16,11 +16,6 @@ String expression. If `null`, the function returns `null`.
 
 **Supported types**
 
-| string  | result  |
-|---------|---------|
-| keyword | integer |
-| text    | integer |
-
 **Example**
 ```esql
 FROM airports
@@ -29,8 +24,3 @@ FROM airports
 | EVAL fn_length = LENGTH(city), fn_byte_length = BYTE_LENGTH(city)
 ```
 
-| city:keyword | fn_length:integer | fn_byte_length:integer |
-|--------------|-------------------|------------------------|
-| Agwār        | 5                 | 6                      |
-| Ahmedabad    | 9                 | 9                      |
-| Bangalore    | 9                 | 9                      |

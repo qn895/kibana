@@ -19,33 +19,9 @@ rely on that. If you need the maximum value use `MV_MAX` instead of
 performance benefit to `MV_LAST`.
 **Supported types**
 
-| field           | result          |
-|-----------------|-----------------|
-| boolean         | boolean         |
-| cartesian_point | cartesian_point |
-| cartesian_shape | cartesian_shape |
-| date            | date            |
-| date_nanos      | date_nanos      |
-| double          | double          |
-| geo_point       | geo_point       |
-| geo_shape       | geo_shape       |
-| geohash         | geohash         |
-| geohex          | geohex          |
-| geotile         | geotile         |
-| integer         | integer         |
-| ip              | ip              |
-| keyword         | keyword         |
-| long            | long            |
-| text            | keyword         |
-| unsigned_long   | unsigned_long   |
-| version         | version         |
-
 **Example**
 ```esql
 ROW a="foo;bar;baz"
 | EVAL last_a = MV_LAST(SPLIT(a, ";"))
 ```
 
-| a:keyword   | last_a:keyword |
-|-------------|----------------|
-| foo;bar;baz | "baz"          |

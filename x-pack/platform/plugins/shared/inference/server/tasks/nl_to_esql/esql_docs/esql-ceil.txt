@@ -16,19 +16,9 @@ Numeric expression. If `null`, the function returns `null`.
 
 **Supported types**
 
-| number        | result        |
-|---------------|---------------|
-| double        | double        |
-| integer       | integer       |
-| long          | long          |
-| unsigned_long | unsigned_long |
-
 **Example**
 ```esql
 ROW a=1.8
 | EVAL a=CEIL(a)
 ```
 
-| a:double |
-|----------|
-| 2        |

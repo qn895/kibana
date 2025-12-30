@@ -13,17 +13,8 @@ Input value. The input can be a single- or multi-valued column or an expression.
 
 **Supported types**
 
-| field   | result  |
-|---------|---------|
-| keyword | version |
-| text    | version |
-| version | version |
-
 **Example**
 ```esql
 ROW v = TO_VERSION("1.2.3")
 ```
 
-| v:version |
-|-----------|
-| 1.2.3     |

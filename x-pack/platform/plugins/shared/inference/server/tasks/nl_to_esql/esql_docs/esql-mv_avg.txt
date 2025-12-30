@@ -13,19 +13,9 @@ Multivalue expression.
 
 **Supported types**
 
-| number        | result |
-|---------------|--------|
-| double        | double |
-| integer       | double |
-| long          | double |
-| unsigned_long | double |
-
 **Example**
 ```esql
 ROW a=[3, 5, 1, 6]
 | EVAL avg_a = MV_AVG(a)
 ```
 
-| a:integer    | avg_a:double |
-|--------------|--------------|
-| [3, 5, 1, 6] | 3.75         |

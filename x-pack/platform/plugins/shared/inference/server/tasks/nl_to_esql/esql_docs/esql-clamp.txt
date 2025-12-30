@@ -25,30 +25,6 @@ The max value to clamp data into.
 
 **Supported types**
 
-| field         | min           | max           | result        |
-|---------------|---------------|---------------|---------------|
-| boolean       | boolean       | boolean       | boolean       |
-| date          | date          | date          | date          |
-| double        | double        | double        | double        |
-| double        | integer       | integer       | double        |
-| double        | long          | long          | double        |
-| double        | unsigned_long | unsigned_long | double        |
-| integer       | double        | double        | double        |
-| integer       | integer       | integer       | integer       |
-| integer       | long          | long          | long          |
-| integer       | unsigned_long | unsigned_long | unsigned_long |
-| ip            | ip            | ip            | ip            |
-| keyword       | keyword       | keyword       | keyword       |
-| long          | double        | double        | double        |
-| long          | integer       | integer       | long          |
-| long          | long          | long          | long          |
-| long          | unsigned_long | unsigned_long | unsigned_long |
-| unsigned_long | double        | double        | double        |
-| unsigned_long | integer       | integer       | unsigned_long |
-| unsigned_long | long          | long          | long          |
-| unsigned_long | unsigned_long | unsigned_long | unsigned_long |
-| version       | version       | version       | version       |
-
 **Example**
 ```esql
 TS k8s
@@ -56,10 +32,3 @@ TS k8s
 | KEEP full_clamped_cost, @timestamp
 ```
 
-| full_clamped_cost:double | @timestamp:datetime      |
-|--------------------------|--------------------------|
-| 10.0                     | 2024-05-10T00:18:33.000Z |
-| 9.0                      | 2024-05-10T00:04:49.000Z |
-| 9.0                      | 2024-05-10T00:15:51.000Z |
-| 9.0                      | 2024-05-10T00:17:12.000Z |
-| 9.0                      | 2024-05-10T00:20:46.000Z |

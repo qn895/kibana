@@ -31,11 +31,6 @@ Value to find in the provided field.
 
 **Supported types**
 
-| field   | query   | options          | result  |
-|---------|---------|------------------|---------|
-| keyword | keyword | named parameters | boolean |
-| text    | keyword | named parameters | boolean |
-
 **Supported function named parameters**
 ### Parameters
 
@@ -65,10 +60,3 @@ FROM books
 | WHERE MATCH_PHRASE(author, "William Faulkner")
 ```
 
-| book_no:keyword | author:text      |
-|-----------------|------------------|
-| 2713            | William Faulkner |
-| 2883            | William Faulkner |
-| 4724            | William Faulkner |
-| 4977            | William Faulkner |
-| 5119            | William Faulkner |

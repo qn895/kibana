@@ -22,33 +22,11 @@ Input value. The input can be a single- or multi-valued column or an expression.
 
 **Supported types**
 
-| field           | base          | result  |
-|-----------------|---------------|---------|
-| boolean         |               | integer |
-| counter_integer |               | integer |
-| date            |               | integer |
-| double          |               | integer |
-| integer         |               | integer |
-| keyword         | integer       | integer |
-| keyword         | long          | integer |
-| keyword         | unsigned_long | integer |
-| keyword         |               | integer |
-| long            |               | integer |
-| text            | integer       | integer |
-| text            | long          | integer |
-| text            | unsigned_long | integer |
-| text            |               | integer |
-| unsigned_long   |               | integer |
-
 **Examples**
 ```esql
 ROW long = [5013792, 2147483647, 501379200000]
 | EVAL int = TO_INTEGER(long)
 ```
-
-| long:long                           | int:integer           |
-|-------------------------------------|-----------------------|
-| [5013792, 2147483647, 501379200000] | [5013792, 2147483647] |
 
 Note that in this example, the last value of the multi-valued field cannot be converted as an integer.
 When this happens, the result is a `null` value. In this case a _Warning_ header is added to the response.
@@ -62,18 +40,10 @@ ROW str1 = "0x32", str2 = "31"
 | KEEP str1, int1, str2, int2
 ```
 
-| str1:keyword | int1:integer | str2:keyword | int2:integer |
-|--------------|--------------|--------------|--------------|
-| 0x32         | 50           | 31           | 40           |
-
 This example demonstrates parsing a base 16 value and a base 13 value. `stack: ga 9.3`
 ```esql
 ROW str1 = "Kona"
 | EVAL int1 = TO_INTEGER(str1, 27), fail1 = TO_INTEGER(str1, 10)
 ```
-
-| str1:keyword | int1:integer | fail1:integer |
-|--------------|--------------|---------------|
-| Kona         | 411787       | null          |
 
 This example demonstrates parsing a string that is valid in base 27 but invalid in base 10.Observe in the second case a warning is generated and null is returned. `stack: ga 9.3`

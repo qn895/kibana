@@ -13,15 +13,8 @@ Number of spaces in result.
 
 **Supported types**
 
-| number  | result  |
-|---------|---------|
-| integer | keyword |
-
 **Example**
 ```esql
 ROW message = CONCAT("Hello", SPACE(1), "World!");
 ```
 
-| message:keyword |
-|-----------------|
-| Hello World!    |

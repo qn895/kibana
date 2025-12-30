@@ -8,15 +8,8 @@ Returns the ratio of a circle’s circumference to its radius.
 **Parameters**
 **Supported types**
 
-| result |
-|--------|
-| double |
-
 **Example**
 ```esql
 ROW TAU()
 ```
 
-| TAU():double      |
-|-------------------|
-| 6.283185307179586 |

@@ -22,49 +22,6 @@ Precision threshold. Refer to `AGG-COUNT-DISTINCT-APPROXIMATE`. The maximum supp
 
 **Supported types**
 
-| field      | precision     | result |
-|------------|---------------|--------|
-| boolean    | integer       | long   |
-| boolean    | long          | long   |
-| boolean    | unsigned_long | long   |
-| boolean    |               | long   |
-| date       | integer       | long   |
-| date       | long          | long   |
-| date       | unsigned_long | long   |
-| date       |               | long   |
-| date_nanos | integer       | long   |
-| date_nanos | long          | long   |
-| date_nanos | unsigned_long | long   |
-| date_nanos |               | long   |
-| double     | integer       | long   |
-| double     | long          | long   |
-| double     | unsigned_long | long   |
-| double     |               | long   |
-| integer    | integer       | long   |
-| integer    | long          | long   |
-| integer    | unsigned_long | long   |
-| integer    |               | long   |
-| ip         | integer       | long   |
-| ip         | long          | long   |
-| ip         | unsigned_long | long   |
-| ip         |               | long   |
-| keyword    | integer       | long   |
-| keyword    | long          | long   |
-| keyword    | unsigned_long | long   |
-| keyword    |               | long   |
-| long       | integer       | long   |
-| long       | long          | long   |
-| long       | unsigned_long | long   |
-| long       |               | long   |
-| text       | integer       | long   |
-| text       | long          | long   |
-| text       | unsigned_long | long   |
-| text       |               | long   |
-| version    | integer       | long   |
-| version    | long          | long   |
-| version    | unsigned_long | long   |
-| version    |               | long   |
-
 **Example**
 ```esql
 TS k8s
@@ -73,8 +30,3 @@ TS k8s
   BY cluster, time_bucket = TBUCKET(1minute)
 ```
 
-| distincts:long | distincts_imprecise:long | cluster:keyword | time_bucket:datetime     |
-|----------------|--------------------------|-----------------|--------------------------|
-| 3              | 3                        | qa              | 2024-05-10T00:17:00.000Z |
-| 3              | 3                        | qa              | 2024-05-10T00:15:00.000Z |
-| 3              | 3                        | prod            | 2024-05-10T00:09:00.000Z |

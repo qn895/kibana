@@ -13,11 +13,6 @@ String expression. If `null`, the function returns `null`.
 
 **Supported types**
 
-| string  | result  |
-|---------|---------|
-| keyword | keyword |
-| text    | keyword |
-
 **Example**
 ```esql
 ROW message = "   some text  ",  color = " red "
@@ -25,6 +20,3 @@ ROW message = "   some text  ",  color = " red "
 | EVAL color = TRIM(color)
 ```
 
-| message:s | color:s |
-|-----------|---------|
-| some text | red     |

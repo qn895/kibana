@@ -132,12 +132,6 @@ FROM books METADATA _score
 | KEEP title, _score
 ```
 
-| title:text                                                                                  | _score:double         |
-|---------------------------------------------------------------------------------------------|-----------------------|
-| Poems from the Hobbit                                                                       | 0.0015673980815336108 |
-| A Tolkien Compass: Including J. R. R. Tolkien's Guide to the Names in The Lord of the Rings | 0.007936508394777775  |
-| Return of the King Being the Third Part of The Lord of the Rings                            | 9.960159659385681E-4  |
-
 Rerank search results using a query and multiple fields, and store the new score
 in a column named `rerank_score`:
 ```esql
@@ -150,12 +144,6 @@ FROM books METADATA _score
 | LIMIT 3
 | KEEP title, _score, rerank_score
 ```
-
-| title:text                                                       | _score:double      | rerank_score:double  |
-|------------------------------------------------------------------|--------------------|----------------------|
-| Return of the Shadow                                             | 2.8181066513061523 | 5.740527994930744E-4 |
-| Return of the King Being the Third Part of The Lord of the Rings | 3.6248698234558105 | 9.000900317914784E-4 |
-| The Lays of Beleriand                                            | 1.3002015352249146 | 9.36329597607255E-4  |
 
 Combine the original score with the reranked score:
 ```esql
@@ -170,8 +158,3 @@ FROM books METADATA _score
 | KEEP title, original_score, rerank_score, _score
 ```
 
-| title:text                                                       | _score:double      | rerank_score:double   | rerank_score:double  |
-|------------------------------------------------------------------|--------------------|-----------------------|----------------------|
-| Poems from the Hobbit                                            | 4.012462615966797  | 0.001396648003719747  | 0.001396648003719747 |
-| The Lord of the Rings - Boxed Set                                | 3.768855094909668  | 0.0010020040208473802 | 0.001396648003719747 |
-| Return of the King Being the Third Part of The Lord of the Rings | 3.6248698234558105 | 9.000900317914784E-4  | 0.001396648003719747 |

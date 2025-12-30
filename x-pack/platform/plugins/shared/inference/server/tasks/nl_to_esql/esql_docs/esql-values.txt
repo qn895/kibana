@@ -16,27 +16,6 @@ serverless: preview
 
 **Supported types**
 
-| field           | result          |
-|-----------------|-----------------|
-| boolean         | boolean         |
-| cartesian_point | cartesian_point |
-| cartesian_shape | cartesian_shape |
-| date            | date            |
-| date_nanos      | date_nanos      |
-| double          | double          |
-| geo_point       | geo_point       |
-| geo_shape       | geo_shape       |
-| geohash         | geohash         |
-| geohex          | geohex          |
-| geotile         | geotile         |
-| integer         | integer         |
-| ip              | ip              |
-| keyword         | keyword         |
-| long            | long            |
-| text            | keyword         |
-| unsigned_long   | unsigned_long   |
-| version         | version         |
-
 **Example**
 ```esql
 FROM employees
@@ -44,33 +23,6 @@ FROM employees
 | STATS first_name = MV_SORT(VALUES(first_name)) BY first_letter
 | SORT first_letter
 ```
-
-| first_name:keyword                                                                                | first_letter:keyword |
-|---------------------------------------------------------------------------------------------------|----------------------|
-| [Alejandro, Amabile, Anneke, Anoosh, Arumugam]                                                    | A                    |
-| [Basil, Berhard, Berni, Bezalel, Bojan, Breannda, Brendon]                                        | B                    |
-| [Charlene, Chirstian, Claudi, Cristinel]                                                          | C                    |
-| [Danel, Divier, Domenick, Duangkaew]                                                              | D                    |
-| [Ebbe, Eberhardt, Erez]                                                                           | E                    |
-| Florian                                                                                           | F                    |
-| [Gao, Georgi, Georgy, Gino, Guoxiang]                                                             | G                    |
-| [Heping, Hidefumi, Hilari, Hironobu, Hironoby, Hisao]                                             | H                    |
-| [Jayson, Jungsoon]                                                                                | J                    |
-| [Kazuhide, Kazuhito, Kendra, Kenroku, Kshitij, Kwee, Kyoichi]                                     | K                    |
-| [Lillian, Lucien]                                                                                 | L                    |
-| [Magy, Margareta, Mary, Mayuko, Mayumi, Mingsen, Mokhtar, Mona, Moss]                             | M                    |
-| Otmar                                                                                             | O                    |
-| [Parto, Parviz, Patricio, Prasadram, Premal]                                                      | P                    |
-| [Ramzi, Remzi, Reuven]                                                                            | R                    |
-| [Sailaja, Saniya, Sanjiv, Satosi, Shahaf, Shir, Somnath, Sreekrishna, Sudharsan, Sumant, Suzette] | S                    |
-| [Tse, Tuval, Tzvetan]                                                                             | T                    |
-| [Udi, Uri]                                                                                        | U                    |
-| [Valdiodio, Valter, Vishv]                                                                        | V                    |
-| Weiyi                                                                                             | W                    |
-| Xinglin                                                                                           | X                    |
-| [Yinghua, Yishay, Yongqiao]                                                                       | Y                    |
-| [Zhongwei, Zvonko]                                                                                | Z                    |
-| null                                                                                              | null                 |
 
 <tip>
   Use `TOP`

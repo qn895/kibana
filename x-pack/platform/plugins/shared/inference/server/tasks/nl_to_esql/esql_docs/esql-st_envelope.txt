@@ -18,13 +18,6 @@ Expression of type `geo_point`, `geo_shape`, `cartesian_point` or `cartesian_sha
 
 **Supported types**
 
-| geometry        | result          |
-|-----------------|-----------------|
-| cartesian_point | cartesian_shape |
-| cartesian_shape | cartesian_shape |
-| geo_point       | geo_shape       |
-| geo_shape       | geo_shape       |
-
 **Example**
 ```esql
 FROM airport_city_boundaries
@@ -32,10 +25,6 @@ FROM airport_city_boundaries
 | EVAL envelope = ST_ENVELOPE(city_boundary)
 | KEEP abbrev, airport, envelope
 ```
-
-| abbrev:keyword | airport:text | envelope:geo_shape                      |
-|----------------|--------------|-----------------------------------------|
-| CPH            | Copenhagen   | BBOX(12.453, 12.6398, 55.7327, 55.6318) |
 
 ### `ST_XMAX`
 
@@ -57,13 +46,6 @@ Expression of type `geo_point`, `geo_shape`, `cartesian_point` or `cartesian_sha
 Extracts the maximum value of the `x` coordinates from the supplied geometry. If the geometry is of type `geo_point` or `geo_shape` this is equivalent to extracting the maximum `longitude` value.
 **Supported types**
 
-| point           | result |
-|-----------------|--------|
-| cartesian_point | double |
-| cartesian_shape | double |
-| geo_point       | double |
-| geo_shape       | double |
-
 **Example**
 ```esql
 FROM airport_city_boundaries
@@ -72,10 +54,6 @@ FROM airport_city_boundaries
 | EVAL xmin = ST_XMIN(envelope), xmax = ST_XMAX(envelope), ymin = ST_YMIN(envelope), ymax = ST_YMAX(envelope)
 | KEEP abbrev, airport, xmin, xmax, ymin, ymax
 ```
-
-| abbrev:keyword | airport:text | xmin:double | xmax:double | ymin:double | ymax:double |
-|----------------|--------------|-------------|-------------|-------------|-------------|
-| CPH            | Copenhagen   | 12.453      | 12.6398     | 55.6318     | 55.7327     |
 
 ### `ST_XMIN`
 
@@ -97,13 +75,6 @@ Expression of type `geo_point`, `geo_shape`, `cartesian_point` or `cartesian_sha
 Extracts the minimum value of the `x` coordinates from the supplied geometry. If the geometry is of type `geo_point` or `geo_shape` this is equivalent to extracting the minimum `longitude` value.
 **Supported types**
 
-| point           | result |
-|-----------------|--------|
-| cartesian_point | double |
-| cartesian_shape | double |
-| geo_point       | double |
-| geo_shape       | double |
-
 **Example**
 ```esql
 FROM airport_city_boundaries
@@ -112,10 +83,6 @@ FROM airport_city_boundaries
 | EVAL xmin = ST_XMIN(envelope), xmax = ST_XMAX(envelope), ymin = ST_YMIN(envelope), ymax = ST_YMAX(envelope)
 | KEEP abbrev, airport, xmin, xmax, ymin, ymax
 ```
-
-| abbrev:keyword | airport:text | xmin:double | xmax:double | ymin:double | ymax:double |
-|----------------|--------------|-------------|-------------|-------------|-------------|
-| CPH            | Copenhagen   | 12.453      | 12.6398     | 55.6318     | 55.7327     |
 
 ### `ST_YMAX`
 
@@ -137,13 +104,6 @@ Expression of type `geo_point`, `geo_shape`, `cartesian_point` or `cartesian_sha
 Extracts the maximum value of the `y` coordinates from the supplied geometry. If the geometry is of type `geo_point` or `geo_shape` this is equivalent to extracting the maximum `latitude` value.
 **Supported types**
 
-| point           | result |
-|-----------------|--------|
-| cartesian_point | double |
-| cartesian_shape | double |
-| geo_point       | double |
-| geo_shape       | double |
-
 **Example**
 ```esql
 FROM airport_city_boundaries
@@ -152,10 +112,6 @@ FROM airport_city_boundaries
 | EVAL xmin = ST_XMIN(envelope), xmax = ST_XMAX(envelope), ymin = ST_YMIN(envelope), ymax = ST_YMAX(envelope)
 | KEEP abbrev, airport, xmin, xmax, ymin, ymax
 ```
-
-| abbrev:keyword | airport:text | xmin:double | xmax:double | ymin:double | ymax:double |
-|----------------|--------------|-------------|-------------|-------------|-------------|
-| CPH            | Copenhagen   | 12.453      | 12.6398     | 55.6318     | 55.7327     |
 
 ### `ST_YMIN`
 
@@ -177,13 +133,6 @@ Expression of type `geo_point`, `geo_shape`, `cartesian_point` or `cartesian_sha
 Extracts the minimum value of the `y` coordinates from the supplied geometry. If the geometry is of type `geo_point` or `geo_shape` this is equivalent to extracting the minimum `latitude` value.
 **Supported types**
 
-| point           | result |
-|-----------------|--------|
-| cartesian_point | double |
-| cartesian_shape | double |
-| geo_point       | double |
-| geo_shape       | double |
-
 **Example**
 ```esql
 FROM airport_city_boundaries
@@ -193,6 +142,3 @@ FROM airport_city_boundaries
 | KEEP abbrev, airport, xmin, xmax, ymin, ymax
 ```
 
-| abbrev:keyword | airport:text | xmin:double | xmax:double | ymin:double | ymax:double |
-|----------------|--------------|-------------|-------------|-------------|-------------|
-| CPH            | Copenhagen   | 12.453      | 12.6398     | 55.6318     | 55.7327     |

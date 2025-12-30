@@ -16,13 +16,6 @@ serverless: preview
 
 **Supported types**
 
-| field           | result          |
-|-----------------|-----------------|
-| cartesian_point | cartesian_shape |
-| cartesian_shape | cartesian_shape |
-| geo_point       | geo_shape       |
-| geo_shape       | geo_shape       |
-
 **Example**
 ```esql
 FROM airports
@@ -30,6 +23,3 @@ FROM airports
 | STATS extent = ST_EXTENT_AGG(location)
 ```
 
-| extent:geo_shape                                                               |
-|--------------------------------------------------------------------------------|
-| BBOX (70.77995480038226, 91.5882289968431, 33.9830909203738, 8.47650992218405) |

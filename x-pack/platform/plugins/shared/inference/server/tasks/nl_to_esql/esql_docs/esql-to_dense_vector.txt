@@ -18,13 +18,6 @@ multi-valued input of numbers or hexadecimal string to convert.
 
 **Supported types**
 
-| field   | result       |
-|---------|--------------|
-| double  | dense_vector |
-| integer | dense_vector |
-| keyword | dense_vector |
-| long    | dense_vector |
-
 **Example**
 ```esql
 row ints = [1, 2, 3]
@@ -32,6 +25,3 @@ row ints = [1, 2, 3]
 | keep vector
 ```
 
-| vector:dense_vector |
-|---------------------|
-| [1.0, 2.0, 3.0]     |

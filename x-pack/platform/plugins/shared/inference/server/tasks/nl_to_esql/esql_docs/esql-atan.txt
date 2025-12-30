@@ -13,19 +13,9 @@ Numeric expression. If `null`, the function returns `null`.
 
 **Supported types**
 
-| number        | result |
-|---------------|--------|
-| double        | double |
-| integer       | double |
-| long          | double |
-| unsigned_long | double |
-
 **Example**
 ```esql
 ROW a=12.9
 | EVAL atan=ATAN(a)
 ```
 
-| a:double | atan:double        |
-|----------|--------------------|
-| 12.9     | 1.4934316673669235 |

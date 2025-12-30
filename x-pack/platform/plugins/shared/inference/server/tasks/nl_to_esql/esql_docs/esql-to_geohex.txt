@@ -18,19 +18,9 @@ Input value. The input can be a single- or multi-valued column or an expression.
 
 **Supported types**
 
-| field   | result |
-|---------|--------|
-| geohex  | geohex |
-| keyword | geohex |
-| long    | geohex |
-| text    | geohex |
-
 **Example**
 ```esql
 ROW string = "841f059ffffffff"
 | EVAL geohex = TO_GEOHEX(string)
 ```
 
-| string:keyword  | geohex:geohex   |
-|-----------------|-----------------|
-| 841f059ffffffff | 841f059ffffffff |

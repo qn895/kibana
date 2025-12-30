@@ -21,19 +21,9 @@ String expression: A substring to find in the input string. If `null`, the funct
 
 **Supported types**
 
-| string  | substring | result  |
-|---------|-----------|---------|
-| keyword | keyword   | boolean |
-| keyword | text      | boolean |
-| text    | keyword   | boolean |
-| text    | text      | boolean |
-
 **Example**
 ```esql
 ROW a = "hello"
 | EVAL has_ll = CONTAINS(a, "ll")
 ```
 
-| a:keyword | has_ll:boolean |
-|-----------|----------------|
-| hello     | true           |

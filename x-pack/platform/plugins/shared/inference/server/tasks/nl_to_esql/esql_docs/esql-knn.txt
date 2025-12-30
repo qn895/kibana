@@ -26,11 +26,6 @@ Vector value to find top nearest neighbours for.
 
 **Supported types**
 
-| field        | query        | options          | result  |
-|--------------|--------------|------------------|---------|
-| dense_vector | dense_vector | named parameters | boolean |
-| text         | dense_vector | named parameters | boolean |
-
 **Supported function named parameters**
 ### Parameters
 
@@ -65,15 +60,3 @@ from colors metadata _score
 | sort _score desc, color asc
 ```
 
-| color:text | rgb_vector:dense_vector |
-|------------|-------------------------|
-| green      | [0.0, 128.0, 0.0]       |
-| black      | [0.0, 0.0, 0.0]         |
-| olive      | [128.0, 128.0, 0.0]     |
-| teal       | [0.0, 128.0, 128.0]     |
-| lime       | [0.0, 255.0, 0.0]       |
-| sienna     | [160.0, 82.0, 45.0]     |
-| maroon     | [128.0, 0.0, 0.0]       |
-| navy       | [0.0, 0.0, 128.0]       |
-| gray       | [128.0, 128.0, 128.0]   |
-| chartreuse | [127.0, 255.0, 0.0]     |

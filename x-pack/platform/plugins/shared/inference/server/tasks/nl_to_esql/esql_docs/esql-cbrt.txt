@@ -13,19 +13,9 @@ Numeric expression. If `null`, the function returns `null`.
 
 **Supported types**
 
-| number        | result |
-|---------------|--------|
-| double        | double |
-| integer       | double |
-| long          | double |
-| unsigned_long | double |
-
 **Example**
 ```esql
 ROW d = 1000.0
 | EVAL c = CBRT(d)
 ```
 
-| d: double | c:double |
-|-----------|----------|
-| 1000.0    | 10.0     |

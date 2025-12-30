@@ -17,22 +17,11 @@ Date expression. If `null`, the function returns `null`.
 
 **Supported types**
 
-| datePart | date       | result |
-|----------|------------|--------|
-| keyword  | date       | long   |
-| keyword  | date_nanos | long   |
-| text     | date       | long   |
-| text     | date_nanos | long   |
-
 **Examples**
 ```esql
 ROW date = DATE_PARSE("yyyy-MM-dd", "2022-05-06")
 | EVAL year = DATE_EXTRACT("year", date)
 ```
-
-| date:date                | year:long |
-|--------------------------|-----------|
-| 2022-05-06T00:00:00.000Z | 2022      |
 
 Find all events that occurred outside of business hours (before 9 AM or after 5PM), on any given date:
 ```esql
@@ -41,5 +30,3 @@ FROM sample_data
     AND DATE_EXTRACT("hour_of_day", @timestamp) >= 17
 ```
 
-| @timestamp:date | client_ip:ip | event_duration:long | message:keyword |
-|-----------------|--------------|---------------------|-----------------|

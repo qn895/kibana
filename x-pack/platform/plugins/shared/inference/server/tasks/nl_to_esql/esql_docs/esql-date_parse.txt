@@ -21,21 +21,6 @@ Date expression as a string. If `null` or an empty string, the function returns 
 
 **Supported types**
 
-| datePattern | dateString | options          | result |
-|-------------|------------|------------------|--------|
-| keyword     | keyword    | named parameters | date   |
-| keyword     | keyword    |                  | date   |
-| keyword     | text       | named parameters | date   |
-| keyword     | text       |                  | date   |
-| text        | keyword    | named parameters | date   |
-| text        | keyword    |                  | date   |
-| text        | text       | named parameters | date   |
-| text        | text       |                  | date   |
-|             | keyword    | named parameters | date   |
-|             | keyword    |                  | date   |
-|             | text       | named parameters | date   |
-|             | text       |                  | date   |
-
 **Supported function named parameters**
 ### Parameters
 
@@ -53,6 +38,3 @@ ROW date_string = "2022-05-06"
 | EVAL date = DATE_PARSE("yyyy-MM-dd", date_string)
 ```
 
-| date_string:keyword | date:date                |
-|---------------------|--------------------------|
-| 2022-05-06          | 2022-05-06T00:00:00.000Z |

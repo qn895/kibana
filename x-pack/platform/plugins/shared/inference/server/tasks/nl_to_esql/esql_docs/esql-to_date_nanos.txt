@@ -16,16 +16,6 @@ Input value. The input can be a single- or multi-valued column or an expression.
 
 **Supported types**
 
-| field         | result     |
-|---------------|------------|
-| date          | date_nanos |
-| date_nanos    | date_nanos |
-| double        | date_nanos |
-| keyword       | date_nanos |
-| long          | date_nanos |
-| text          | date_nanos |
-| unsigned_long | date_nanos |
-
 **Example**
 ```esql
 FROM date_nanos
@@ -34,7 +24,3 @@ FROM date_nanos
 | SORT nanos DESC
 ```
 
-| millis:date              | nanos:date_nanos               | num:long            |
-|--------------------------|--------------------------------|---------------------|
-| 2023-10-23T12:15:03.360Z | 2023-10-23T12:15:03.360103847Z | 1698063303360103847 |
-| 2023-10-23T12:15:03.360Z | 2023-10-23T12:15:03.360103847Z | 1698063303360103847 |

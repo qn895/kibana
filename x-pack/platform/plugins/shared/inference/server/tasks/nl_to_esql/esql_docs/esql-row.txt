@@ -24,10 +24,6 @@ The value for the column. Can be a literal, an expression, or a
 ROW a = 1, b = "two", c = null
 ```
 
-| a:integer | b:keyword | c:null |
-|-----------|-----------|--------|
-| 1         | "two"     | null   |
-
 Use square brackets to create multi-value columns:
 ```esql
 ROW a = [2, 1]

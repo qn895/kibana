@@ -17,17 +17,9 @@ The URL to encode.
 
 **Supported types**
 
-| string  | result  |
-|---------|---------|
-| keyword | keyword |
-| text    | keyword |
-
 **Example**
 ```esql
 ROW u = "https://example.com/?x=foo bar&y=baz"
 | EVAL u = URL_ENCODE_COMPONENT(u)
 ```
 
-| u:keyword                                              |
-|--------------------------------------------------------|
-| https%3A%2F%2Fexample.com%2F%3Fx%3Dfoo%20bar%26y%3Dbaz |

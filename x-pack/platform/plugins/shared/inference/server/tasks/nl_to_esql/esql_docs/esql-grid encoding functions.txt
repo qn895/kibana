@@ -28,11 +28,6 @@ Optional bounds to filter the grid tiles, a `geo_shape` of type `BBOX`. Use `ST_
 
 **Supported types**
 
-| geometry  | precision | bounds    | result  |
-|-----------|-----------|-----------|---------|
-| geo_point | integer   | geo_shape | geotile |
-| geo_point | integer   |           | geotile |
-
 **Example**
 ```esql
 FROM airports
@@ -45,20 +40,6 @@ FROM airports
 | SORT count DESC, geotileString ASC
 | KEEP count, centroid, geotileString
 ```
-
-| count:long | centroid:geo_point                              | geotileString:keyword |
-|------------|-------------------------------------------------|-----------------------|
-| 286        | POINT (39.31202001609169 35.149993664386415)    | 2/2/1                 |
-| 197        | POINT (-55.387361375756825 31.952955322292855)  | 2/1/1                 |
-| 136        | POINT (-110.97162496141048 36.87185255084734)   | 2/0/1                 |
-| 106        | POINT (119.35907618669827 25.46263281488791)    | 2/3/1                 |
-| 67         | POINT (-58.031108492373754 -22.624166105151065) | 2/1/2                 |
-| 46         | POINT (142.95455511274707 -20.581492295427978)  | 2/3/2                 |
-| 34         | POINT (31.38476753634784 -14.64374022804858)    | 2/2/2                 |
-| 8          | POINT (-160.0723083713092 -19.124013530672528)  | 2/0/2                 |
-| 6          | POINT (23.95813101902604 70.17537698848173)     | 2/2/0                 |
-| 3          | POINT (-133.4001641627401 72.06833167467266)    | 2/0/0                 |
-| 2          | POINT (-68.47209956031293 66.77569948369637)    | 2/1/0                 |
 
 ### `ST_GEOHEX`
 
@@ -88,11 +69,6 @@ Optional bounds to filter the grid tiles, a `geo_shape` of type `BBOX`. Use `ST_
 Calculates the `geohex`, the H3 cell-id, of the supplied geo_point at the specified precision. The result is long encoded. Use TO_STRING to convert the result to a string, TO_LONG to convert it to a `long`, or TO_GEOSHAPE to calculate the `geo_shape` bounding geometry.  These functions are related to the `geo_grid` query and the `geohex_grid` aggregation.
 **Supported types**
 
-| geometry  | precision | bounds    | result |
-|-----------|-----------|-----------|--------|
-| geo_point | integer   | geo_shape | geohex |
-| geo_point | integer   |           | geohex |
-
 **Example**
 ```esql
 FROM airports
@@ -106,20 +82,6 @@ FROM airports
 | KEEP count, centroid, geohexString
 | SORT count DESC, geohexString ASC
 ```
-
-| count:long | centroid:geo_point                             | geohexString:keyword |
-|------------|------------------------------------------------|----------------------|
-| 22         | POINT (7.250850197689777 48.21363834643059)    | 811fbffffffffff      |
-| 18         | POINT (-80.64959161449224 40.04119813675061)   | 812abffffffffff      |
-| 17         | POINT (-0.7606179875266903 52.86413913565304)  | 81197ffffffffff      |
-| 13         | POINT (22.53157936179867 41.98255742864254)    | 811efffffffffff      |
-| 13         | POINT (78.30096947387435 26.073904778951636)   | 813dbffffffffff      |
-| 12         | POINT (-76.39781514415517 45.16300531569868)   | 812bbffffffffff      |
-| 12         | POINT (-100.30120467301458 20.114154297625646) | 8149bffffffffff      |
-| 11         | POINT (18.037187419831753 48.66540593306788)   | 811e3ffffffffff      |
-| 11         | POINT (-83.42379064553164 33.18388901439241)   | 8144fffffffffff      |
-| 11         | POINT (-99.4237939513881 27.100012352774765)   | 8148bffffffffff      |
-| 10         | POINT (128.01009018346667 35.8699960866943)    | 8130fffffffffff      |
 
 ### `ST_GEOHASH`
 
@@ -149,11 +111,6 @@ Optional bounds to filter the grid tiles, a `geo_shape` of type `BBOX`. Use `ST_
 Calculates the `geohash` of the supplied geo_point at the specified precision. The result is long encoded. Use TO_STRING to convert the result to a string, TO_LONG to convert it to a `long`, or TO_GEOSHAPE to calculate the `geo_shape` bounding geometry.  These functions are related to the `geo_grid` query and the `geohash_grid` aggregation.
 **Supported types**
 
-| geometry  | precision | bounds    | result  |
-|-----------|-----------|-----------|---------|
-| geo_point | integer   | geo_shape | geohash |
-| geo_point | integer   |           | geohash |
-
 **Example**
 ```esql
 FROM airports
@@ -168,22 +125,3 @@ FROM airports
 | SORT count DESC, geohashString ASC
 ```
 
-| count:long | centroid:geo_point                             | geohashString:keyword |
-|------------|------------------------------------------------|-----------------------|
-| 118        | POINT (-77.41857436454018 26.96522968734409)   | d                     |
-| 96         | POINT (23.181679135886952 27.295384635654045)  | s                     |
-| 94         | POINT (70.94076107503807 25.691916451026547)   | t                     |
-| 90         | POINT (-104.3941700803116 30.811849871650338)  | 9                     |
-| 89         | POINT (18.71573683606942 53.165169130707305)   | u                     |
-| 85         | POINT (114.3722876966657 24.908398092505248)   | w                     |
-| 51         | POINT (-61.44522591713159 -22.87209844956284)  | 6                     |
-| 38         | POINT (-9.429514887252529 25.497624435045413)  | e                     |
-| 34         | POINT (-111.8071846965262 52.464381378993174)  | c                     |
-| 30         | POINT (28.7045472683385 -14.706001980230212)   | k                     |
-| 28         | POINT (159.52750137208827 -25.555616633001982) | r                     |
-| 22         | POINT (-4.410395708612421 54.90304926367985)   | g                     |
-| 21         | POINT (-69.40534970590046 50.93379438189523)   | f                     |
-| 17         | POINT (114.05526293222519 -10.898114638950895) | q                     |
-| 16         | POINT (147.40052131412085 21.054660080408212)  | x                     |
-| 13         | POINT (63.64716878519035 54.37333276101317)    | v                     |
-| 12         | POINT (-39.53510569408536 -11.72166372067295)  | 7                     |

@@ -13,17 +13,9 @@ String expression. If `null`, the function returns `null`. The input can be a si
 
 **Supported types**
 
-| str     | result  |
-|---------|---------|
-| keyword | keyword |
-| text    | keyword |
-
 **Example**
 ```esql
 ROW message = "Some Text"
 | EVAL message_upper = TO_UPPER(message)
 ```
 
-| message:keyword | message_upper:keyword |
-|-----------------|-----------------------|
-| Some Text       | SOME TEXT             |

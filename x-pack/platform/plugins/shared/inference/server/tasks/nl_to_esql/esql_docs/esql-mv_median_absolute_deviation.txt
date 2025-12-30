@@ -16,19 +16,9 @@ Multivalue expression.
 
 **Supported types**
 
-| number        | result        |
-|---------------|---------------|
-| double        | double        |
-| integer       | integer       |
-| long          | long          |
-| unsigned_long | unsigned_long |
-
 **Example**
 ```esql
 ROW values = [0, 2, 5, 6]
 | EVAL median_absolute_deviation = MV_MEDIAN_ABSOLUTE_DEVIATION(values), median = MV_MEDIAN(values)
 ```
 
-| values:integer | median_absolute_deviation:integer | median:integer |
-|----------------|-----------------------------------|----------------|
-| [0, 2, 5, 6]   | 2                                 | 3              |

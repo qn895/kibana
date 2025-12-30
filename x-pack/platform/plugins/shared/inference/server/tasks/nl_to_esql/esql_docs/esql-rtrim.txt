@@ -13,11 +13,6 @@ String expression. If `null`, the function returns `null`.
 
 **Supported types**
 
-| string  | result  |
-|---------|---------|
-| keyword | keyword |
-| text    | keyword |
-
 **Example**
 ```esql
 ROW message = "   some text  ",  color = " red "
@@ -27,6 +22,3 @@ ROW message = "   some text  ",  color = " red "
 | EVAL color = CONCAT("'", color, "'")
 ```
 
-| message:keyword | color:keyword |
-|-----------------|---------------|
-| '   some text'  | ' red'        |

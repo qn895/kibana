@@ -21,13 +21,6 @@ Query string in KQL query string format.
 
 **Supported types**
 
-| query   | options          | result  |
-|---------|------------------|---------|
-| keyword | named parameters | boolean |
-| keyword |                  | boolean |
-| text    | named parameters | boolean |
-| text    |                  | boolean |
-
 **Supported function named parameters**
 ### Parameters
 
@@ -53,14 +46,6 @@ Use KQL to filter by a specific field value
 FROM books
 | WHERE KQL("author: Faulkner")
 ```
-
-| book_no:keyword | author:text                                        |
-|-----------------|----------------------------------------------------|
-| 2378            | [Carol Faulkner, Holly Byers Ochoa, Lucretia Mott] |
-| 2713            | William Faulkner                                   |
-| 2847            | Colleen Faulkner                                   |
-| 2883            | William Faulkner                                   |
-| 3293            | Danny Faulkner                                     |
 
 ```
 stack: ga 9.3.0

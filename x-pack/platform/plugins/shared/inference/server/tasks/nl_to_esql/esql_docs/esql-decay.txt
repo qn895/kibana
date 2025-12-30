@@ -35,17 +35,6 @@ Distance from the origin where the function returns the decay value.
 
 **Supported types**
 
-| value           | origin          | scale         | options          | result |
-|-----------------|-----------------|---------------|------------------|--------|
-| cartesian_point | cartesian_point | double        | named parameters | double |
-| date            | date            | time_duration | named parameters | double |
-| date_nanos      | date_nanos      | time_duration | named parameters | double |
-| double          | double          | double        | named parameters | double |
-| geo_point       | geo_point       | keyword       | named parameters | double |
-| geo_point       | geo_point       | text          | named parameters | double |
-| integer         | integer         | integer       | named parameters | double |
-| long            | long            | long          | named parameters | double |
-
 **Supported function named parameters**
 ### Parameters
 
@@ -68,10 +57,3 @@ FROM employees
 | SORT decay_result DESC
 ```
 
-| decay_result:double |
-|---------------------|
-| 0.873405            |
-| 0.8703              |
-| 0.870145            |
-| 0.867845            |
-| 0.86395             |

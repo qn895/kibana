@@ -8,15 +8,8 @@ Returns Pi, the ratio of a circle’s circumference to its diameter.
 **Parameters**
 **Supported types**
 
-| result |
-|--------|
-| double |
-
 **Example**
 ```esql
 ROW PI()
 ```
 
-| PI():double       |
-|-------------------|
-| 3.141592653589793 |

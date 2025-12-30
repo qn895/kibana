@@ -21,17 +21,6 @@ Replacement string.
 
 **Supported types**
 
-| string  | regex   | newString | result  |
-|---------|---------|-----------|---------|
-| keyword | keyword | keyword   | keyword |
-| keyword | keyword | text      | keyword |
-| keyword | text    | keyword   | keyword |
-| keyword | text    | text      | keyword |
-| text    | keyword | keyword   | keyword |
-| text    | keyword | text      | keyword |
-| text    | text    | keyword   | keyword |
-| text    | text    | text      | keyword |
-
 **Examples**
 This example replaces any occurrence of the word "World" with the word "Universe":
 ```esql
@@ -39,16 +28,9 @@ ROW str = "Hello World"
 | EVAL str = REPLACE(str, "World", "Universe")
 ```
 
-| str:keyword    |
-|----------------|
-| Hello Universe |
-
 This example removes all spaces:
 ```esql
 ROW str = "Hello World"
 | EVAL str = REPLACE(str, "\\\\s+", "")
 ```
 
-| str:keyword |
-|-------------|
-| HelloWorld  |

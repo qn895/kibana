@@ -106,6 +106,41 @@ function rewriteSyntaxSection(content: string, functionName: string): string {
   });
 }
 
+function stripMarkdownTables(content: string): string {
+  // Strip markdown tables: rows with pipes and separator rows with dashes
+  // Pattern: | col1 | col2 |\n|------|------|\n| val1 | val2 |
+  const lines = content.split('\n');
+  const result: string[] = [];
+  let inTable = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmedLine = line.trim();
+
+    // Check if this is a table row (starts and ends with |)
+    const isTableRow = trimmedLine.startsWith('|') && trimmedLine.endsWith('|');
+
+    // Check if this is a separator row (contains | and dashes like |---|---|)
+    const isSeparatorRow = isTableRow && /^[\|\s\-:]+$/.test(trimmedLine);
+
+    if (isTableRow || isSeparatorRow) {
+      // This is part of a table, skip it
+      inTable = true;
+      continue;
+    } else {
+      // Not a table row
+      if (inTable) {
+        // We were in a table, now we're out - reset state
+        inTable = false;
+      }
+      // Add the line (it's not part of a table)
+      result.push(line);
+    }
+  }
+
+  return result.join('\n');
+}
+
 function stripMarkdownLinks(content: string): string {
   // Strip markdown links: [text](url) -> text
   // Pattern: [link text](url) or [link text](url "title")
@@ -197,6 +232,9 @@ function reorganizeContent(content: string, functionName: string): string {
   // Strip markdown links from the rest of the content
   reorganizedContent = stripMarkdownLinks(reorganizedContent);
 
+  // Strip markdown tables
+  reorganizedContent = stripMarkdownTables(reorganizedContent);
+
   // Clean up multiple consecutive newlines
   reorganizedContent = reorganizedContent.replace(/\n{3,}/g, '\n\n');
 
@@ -226,6 +264,9 @@ function convertDefinitionsToMarkdown(content: string): string {
 
       // Strip markdown links
       let defContent = stripMarkdownLinks(rawContent);
+
+      // Strip markdown tables
+      defContent = stripMarkdownTables(defContent);
 
       // Normalize whitespace - replace multiple spaces/newlines with single newline
       defContent = defContent.replace(/\n\s*\n\s*\n+/g, '\n\n');

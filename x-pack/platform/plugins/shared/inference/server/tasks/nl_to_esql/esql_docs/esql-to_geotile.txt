@@ -18,19 +18,9 @@ Input value. The input can be a single- or multi-valued column or an expression.
 
 **Supported types**
 
-| field   | result  |
-|---------|---------|
-| geotile | geotile |
-| keyword | geotile |
-| long    | geotile |
-| text    | geotile |
-
 **Example**
 ```esql
 ROW string = "4/8/5"
 | EVAL geotile = TO_GEOTILE(string)
 ```
 
-| string:keyword | geotile:geotile |
-|----------------|-----------------|
-| 4/8/5          | 4/8/5           |
