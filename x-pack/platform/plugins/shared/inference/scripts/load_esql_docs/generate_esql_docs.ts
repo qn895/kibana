@@ -80,10 +80,14 @@ function getCommandName(fileName: string): string {
   const baseName = Path.basename(fileName, '.md');
   return baseName;
 }
-
+/**
+ * Rewrite the Syntax section to replace ![Embedded](...) with functionName(param1, param2, ...)
+ * Extract parameter names from the Parameters section
+ * @param content
+ * @param functionName
+ * @returns
+ */
 function rewriteSyntaxSection(content: string, functionName: string): string {
-  // Rewrite the Syntax section to replace ![Embedded](...) with functionName(param1, param2, ...)
-  // Extract parameter names from the Parameters section
   const parameterRegex = /####\s+`([^`]+)`/g;
   const parameters: string[] = [];
   let paramMatch: RegExpExecArray | null;
@@ -117,20 +121,16 @@ function stripMarkdownTables(content: string): string {
     const line = lines[i];
     const trimmedLine = line.trim();
 
-    // Check if this is a table row (starts and ends with |)
     const isTableRow = trimmedLine.startsWith('|') && trimmedLine.endsWith('|');
 
     // Check if this is a separator row (contains | and dashes like |---|---|)
     const isSeparatorRow = isTableRow && /^[\|\s\-:]+$/.test(trimmedLine);
 
     if (isTableRow || isSeparatorRow) {
-      // This is part of a table, skip it
       inTable = true;
       continue;
     } else {
-      // Not a table row
       if (inTable) {
-        // We were in a table, now we're out - reset state
         inTable = false;
       }
       // Add the line (it's not part of a table)
@@ -229,11 +229,7 @@ function reorganizeContent(content: string, functionName: string): string {
     reorganizedContent = `# ${functionName}\n\n${reorganizedContent}`;
   }
 
-  // Strip markdown links from the rest of the content
-  reorganizedContent = stripMarkdownLinks(reorganizedContent);
-
-  // Strip markdown tables
-  reorganizedContent = stripMarkdownTables(reorganizedContent);
+  reorganizedContent = stripMarkdownTables(stripMarkdownLinks(reorganizedContent));
 
   // Clean up multiple consecutive newlines
   reorganizedContent = reorganizedContent.replace(/\n{3,}/g, '\n\n');
@@ -262,11 +258,8 @@ function convertDefinitionsToMarkdown(content: string): string {
       const term = defMatch[1];
       const rawContent = defMatch[2].trim();
 
-      // Strip markdown links
+      // Strip markdown links * markdown tables
       let defContent = stripMarkdownLinks(rawContent);
-
-      // Strip markdown tables
-      defContent = stripMarkdownTables(defContent);
 
       // Normalize whitespace - replace multiple spaces/newlines with single newline
       defContent = defContent.replace(/\n\s*\n\s*\n+/g, '\n\n');
