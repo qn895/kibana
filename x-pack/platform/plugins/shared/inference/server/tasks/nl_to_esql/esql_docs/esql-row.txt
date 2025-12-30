@@ -1,44 +1,38 @@
-# ROW
+The `ROW` source command produces a row with one or more columns with values
+that you specify. This can be useful for testing.
+**Syntax**
+```esql
+ROW column1 = value1[, ..., columnN = valueN]
+```
 
-The `ROW` command generates a single row with one or more columns, each assigned a specified value. This is particularly useful for testing purposes.
+**Parameters**
+<definitions>
+  <definition term="columnX">
+    The column name.
+    In case of duplicate column names, only the rightmost duplicate creates a column.
+  </definition>
+  <definition term="valueX">
+    The value for the column. Can be a literal, an expression, or a
+    [function](/docs/reference/query-languages/esql/esql-functions-operators#esql-functions).
+  </definition>
+</definitions>
 
-## Syntax
-
-`ROW column1 = value1[, ..., columnN = valueN]`
-
-### Parameters
-
-#### `columnX`
-
-The name of the column.
-If duplicate column names are provided, only the rightmost duplicate creates a column.
-
-#### `valueX`
-
-The value assigned to the column. This can be a literal, an expression, or a function.
-
-## Examples
-
-Basic usage
-
-Create a row with three columns, each assigned a specific value:
-
+**Examples**
 ```esql
 ROW a = 1, b = "two", c = null
 ```
 
-Multi-value columns
 
-Use square brackets to assign multiple values to a single column:
+| a:integer | b:keyword | c:null |
+|-----------|-----------|--------|
+| 1         | "two"     | null   |
 
+Use square brackets to create multi-value columns:
 ```esql
 ROW a = [2, 1]
 ```
 
-Using functions
-
-Generate a row where a column's value is calculated using a function:
-
+`ROW` supports the use of [functions](/docs/reference/query-languages/esql/esql-functions-operators#esql-functions):
 ```esql
 ROW a = ROUND(1.23, 0)
 ```

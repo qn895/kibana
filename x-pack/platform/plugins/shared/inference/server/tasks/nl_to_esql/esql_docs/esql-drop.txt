@@ -1,42 +1,25 @@
-# DROP
+The `DROP` processing command removes one or more columns.
+**Syntax**
+```esql
+DROP columns
+```
 
-The `DROP` command removes one or more columns from the result set.
+**Parameters**
+<definitions>
+  <definition term="columns">
+    A comma-separated list of columns to remove. Supports wildcards.
+  </definition>
+</definitions>
 
-## Syntax
-
-`DROP columns`
-
-### Parameters
-
-#### columns
-
-A comma-separated list of columns to remove. Supports wildcards.
-
-## Examples
-
-Remove a specific column:
-
+**Examples**
 ```esql
 FROM employees
 | DROP height
 ```
 
-This example shows how to drop columns that match a more complex pattern using wildcards.
-
+Rather than specify each column by name, you can use wildcards to drop all
+columns with a name that matches a pattern:
 ```esql
 FROM employees
-| DROP emp_*
+| DROP height*
 ```
-
-This example demonstrates how to use the `DROP` command in conjunction with other commands like `KEEP` and `SORT`.
-
-```esql
-FROM employees
-| KEEP first_name, last_name, height, weight
-| DROP weight
-| SORT height DESC
-```
-
-### Limitations
-- The `DROP` command does not support nested fields.
-- It cannot be used to drop columns of unsupported types as specified in the ES|QL limitations.
