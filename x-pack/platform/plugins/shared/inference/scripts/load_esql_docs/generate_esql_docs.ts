@@ -110,19 +110,19 @@ function stripMarkdownLinks(content: string): string {
   const linkRegex = /\[([^\]]+)\]\(/g;
   let match;
   const replacements: Array<{ start: number; end: number; text: string }> = [];
-  
+
   // Find all link starts
   while ((match = linkRegex.exec(result)) !== null) {
     const linkStart = match.index;
     const text = match[1];
     const urlStart = match.index + match[0].length;
-    
+
     // Find the matching closing parenthesis
     // Look for ) that's followed by space, punctuation, or end of string
     let parenCount = 1; // We already have the opening (
     let pos = urlStart;
     let urlEnd = -1;
-    
+
     while (pos < result.length && parenCount > 0) {
       if (result[pos] === '(') parenCount++;
       else if (result[pos] === ')') {
@@ -141,25 +141,25 @@ function stripMarkdownLinks(content: string): string {
       }
       pos++;
     }
-    
+
     if (urlEnd > 0) {
       replacements.push({
         start: linkStart,
         end: urlEnd + 1,
-        text: text,
+        text,
       });
     }
   }
-  
+
   // Apply replacements from right to left to maintain indices
   replacements.reverse();
   for (const repl of replacements) {
     result = result.substring(0, repl.start) + repl.text + result.substring(repl.end);
   }
-  
+
   // Fallback: handle any remaining simple links
   result = result.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
-  
+
   return result;
 }
 
