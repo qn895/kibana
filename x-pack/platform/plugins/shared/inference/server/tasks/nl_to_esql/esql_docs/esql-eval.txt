@@ -1,42 +1,29 @@
-# EVAL
+The `EVAL` processing command enables you to append new columns with calculated
+values.
+**Syntax**
+```esql
+EVAL [column1 =] value1[, ..., [columnN =] valueN]
+```
 
-The `EVAL` command allows you to add new columns with calculated values to your dataset.
+**Parameters**
+<definitions>
+  <definition term="columnX">
+    The column name.
+    If a column with the same name already exists, the existing column is dropped.
+    If a column name is used more than once, only the rightmost duplicate creates a column.
+  </definition>
+  <definition term="valueX">
+    The value for the column. Can be a literal, an expression, or a
+    [function](/docs/reference/query-languages/esql/esql-functions-operators#esql-functions).
+    Can use columns defined left of this one.
+  </definition>
+</definitions>
 
-## Syntax
-
-`EVAL [column1 =] value1[, ..., [columnN =] valueN]`
-
-### Parameters
-
-#### `columnX`
-
-- The name of the column to be added or updated.
-- If a column with the same name already exists, it will be replaced by the new column.
-- If a column name is used multiple times, only the rightmost definition is applied.
-
-#### `valueX`
-
-- The value to assign to the column. This can be a literal, an expression, or a function.
-- You can reference columns defined earlier in the same `EVAL` command.
-
-## Notes
-
-EVAL supports the following types of functions:
-- Mathematical functions
-- String functions
-- Date-time functions
-- Type conversation functions
-- Conditional functions and expressions
-- Multi-value functions
-
-Aggregation functions are NOT supported for EVAL.
-
-## Examples
-
-### Adding new calculated columns
-
-Add two new columns, `height_feet` and `height_cm`, by performing calculations on the `height` column:
-
+**Description**
+The `EVAL` processing command enables you to append new columns with calculated
+values. `EVAL` supports various functions for calculating values. Refer to
+[Functions](/docs/reference/query-languages/esql/esql-functions-operators#esql-functions) for more information.
+**Examples**
 ```esql
 FROM employees
 | SORT emp_no
@@ -44,10 +31,15 @@ FROM employees
 | EVAL height_feet = height * 3.281, height_cm = height * 100
 ```
 
-### Overwriting an existing column
 
-Replace the `height` column with a new value calculated by converting it to feet:
+| first_name:keyword | last_name:keyword | height:double | height_feet:double | height_cm:double   |
+|--------------------|-------------------|---------------|--------------------|--------------------|
+| Georgi             | Facello           | 2.03          | 6.66043            | 202.99999999999997 |
+| Bezalel            | Simmel            | 2.08          | 6.82448            | 208.0              |
+| Parto              | Bamford           | 1.83          | 6.004230000000001  | 183.0              |
 
+If the specified column already exists, the existing column will be dropped, and
+the new column will be appended to the table:
 ```esql
 FROM employees
 | SORT emp_no
@@ -55,10 +47,16 @@ FROM employees
 | EVAL height = height * 3.281
 ```
 
-### Adding a column without specifying a name
 
-If no column name is provided, the new column will be named after the expression itself. For example, this query adds a column named `height*3.281`:
+| first_name:keyword | last_name:keyword | height:double     |
+|--------------------|-------------------|-------------------|
+| Georgi             | Facello           | 6.66043           |
+| Bezalel            | Simmel            | 6.82448           |
+| Parto              | Bamford           | 6.004230000000001 |
 
+Specifying the output column name is optional. If not specified, the new column
+name is equal to the expression. The following query adds a column named
+`height*3.281`:
 ```esql
 FROM employees
 | SORT emp_no
@@ -66,25 +64,23 @@ FROM employees
 | EVAL height * 3.281
 ```
 
-### Using a column with special characters in subsequent commands
 
-When a column name contains special characters, enclose it in backticks (`) to reference it in later commands:
+| first_name:keyword | last_name:keyword | height:double | height * 3.281:double |
+|--------------------|-------------------|---------------|-----------------------|
+| Georgi             | Facello           | 2.03          | 6.66043               |
+| Bezalel            | Simmel            | 2.08          | 6.82448               |
+| Parto              | Bamford           | 1.83          | 6.004230000000001     |
 
+Because this name contains special characters,
+[it needs to be quoted](/docs/reference/query-languages/esql/esql-syntax#esql-identifiers)
+with backticks (```) when using it in subsequent commands:
 ```esql
 FROM employees
 | EVAL height * 3.281
 | STATS avg_height_feet = AVG(`height * 3.281`)
 ```
 
-Any number of evaluations can be performed in a single EVAL command
 
-```esql
-FROM triangle
-| EVAL cos = COS(angle), tan = TAN(angle), sin = SIN(angle), acos=ACOS(angle), asin=ASIN(angle)
-| SORT angle DESC
-| LIMIT 10
-```
-
-### Limitations
-- If a column with the same name already exists, the existing column is dropped.
-- If a column name is used more than once, only the rightmost duplicate creates a column.
+| avg_height_feet:double |
+|------------------------|
+| 5.801464200000001      |
