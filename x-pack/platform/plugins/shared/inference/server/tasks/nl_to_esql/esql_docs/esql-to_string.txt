@@ -2,28 +2,58 @@
 
 Converts an input value into a string.
 
-## Syntax
-
+**Syntax**
 `TO_STRING(field)`
 
 ### Parameters
 
 #### `field`
 
-The input value to be converted. This can be a single- or multi-valued column or an expression.
+Input value. The input can be a single- or multi-valued column or an expression.
 
-## Examples
+**Supported types**
 
-Converting a single value to a string
+| field                   | result  |
+|-------------------------|---------|
+| aggregate_metric_double | keyword |
+| boolean                 | keyword |
+| cartesian_point         | keyword |
+| cartesian_shape         | keyword |
+| date                    | keyword |
+| date_nanos              | keyword |
+| dense_vector            | keyword |
+| double                  | keyword |
+| exponential_histogram   | keyword |
+| geo_point               | keyword |
+| geo_shape               | keyword |
+| geohash                 | keyword |
+| geohex                  | keyword |
+| geotile                 | keyword |
+| histogram               | keyword |
+| integer                 | keyword |
+| ip                      | keyword |
+| keyword                 | keyword |
+| long                    | keyword |
+| text                    | keyword |
+| unsigned_long           | keyword |
+| version                 | keyword |
 
+**Examples**
 ```esql
 ROW a=10
 | EVAL j = TO_STRING(a)
 ```
 
-Converting a multivalued field to a string
+| a:integer | j:keyword |
+|-----------|-----------|
+| 10        | "10"      |
 
+It also works fine on multivalued fields:
 ```esql
 ROW a=[10, 9, 8]
 | EVAL j = TO_STRING(a)
 ```
+
+| a:integer  | j:keyword        |
+|------------|------------------|
+| [10, 9, 8] | ["10", "9", "8"] |

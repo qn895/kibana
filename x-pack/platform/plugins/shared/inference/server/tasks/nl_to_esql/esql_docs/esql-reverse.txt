@@ -1,9 +1,8 @@
 # REVERSE
 
-The `REVERSE` function returns a new string with the characters of the input string in reverse order.
+Returns a new string representing the input string in reverse order.
 
-## Syntax
-
+**Syntax**
 `REVERSE(str)`
 
 ### Parameters
@@ -12,32 +11,27 @@ The `REVERSE` function returns a new string with the characters of the input str
 
 String expression. If `null`, the function returns `null`.
 
-## Examples
+**Supported types**
 
-Reversing a simple string
+| str     | result  |
+|---------|---------|
+| keyword | keyword |
+| text    | keyword |
 
+**Examples**
 ```esql
-ROW message = "Some Text"
-| EVAL message_reversed = REVERSE(message);
+ROW message = "Some Text" | EVAL message_reversed = REVERSE(message);
 ```
 
-| message   | message_reversed |
-|-----------|------------------|
-| Some Text | txeT emoS        |
+| message:keyword | message_reversed:keyword |
+|-----------------|--------------------------|
+| Some Text       | txeT emoS                |
 
-Reversing a string with emojis
-
+`REVERSE` works with unicode, too! It keeps unicode grapheme clusters together during reversal.
 ```esql
-ROW bending_arts = "💧🪨🔥💨"
-| EVAL bending_arts_reversed = REVERSE(bending_arts);
+ROW bending_arts = "💧🪨🔥💨" | EVAL bending_arts_reversed = REVERSE(bending_arts);
 ```
 
-| bending_arts | bending_arts_reversed |
-|--------------|-----------------------|
-| 💧🪨🔥💨      | 💨🔥🪨💧               |
-
-`REVERSE` works with Unicode and preserves grapheme clusters during reversal.
-
-## Limitations
-
-If Elasticsearch is running with a JDK version less than 20, the function may not properly reverse grapheme clusters. For example, "👍🏽😊" might be reversed to "🏽👍😊" instead of the correct "😊👍🏽". Elastic Cloud and the JDK bundled with Elasticsearch use newer JDKs, so this issue typically arises only if an older JDK is explicitly used.
+| bending_arts:keyword | bending_arts_reversed:keyword |
+|----------------------|-------------------------------|
+| 💧🪨🔥💨             | 💨🔥🪨💧                      |

@@ -1,33 +1,49 @@
 # GREATEST
 
-Returns the maximum value from multiple columns. This function is similar to `MV_MAX` but is designed to operate on multiple columns simultaneously.
+Returns the maximum value from multiple columns. This is similar to `MV_MAX` except it is intended to run on multiple columns at once.
+<note>
+  When run on `keyword` or `text` fields, this returns the last string in alphabetical order. When run on `boolean` columns this will return `true` if any values are `true`.
+</note>
 
-## Syntax
-
+**Syntax**
 `GREATEST(first, rest)`
 
 ### Parameters
 
 #### `first`
 
-The first column to evaluate.
+First of the columns to evaluate.
 
 #### `rest`
 
-The remaining columns to evaluate.
+The rest of the columns to evaluate.
 
-## Examples
+**Supported types**
 
-Finding the maximum value between two columns
+| first      | rest       | result     |
+|------------|------------|------------|
+| boolean    | boolean    | boolean    |
+| boolean    |            | boolean    |
+| date       | date       | date       |
+| date_nanos | date_nanos | date_nanos |
+| double     | double     | double     |
+| integer    | integer    | integer    |
+| integer    |            | integer    |
+| ip         | ip         | ip         |
+| keyword    | keyword    | keyword    |
+| keyword    |            | keyword    |
+| long       | long       | long       |
+| long       |            | long       |
+| text       | text       | keyword    |
+| text       |            | keyword    |
+| version    | version    | version    |
 
+**Example**
 ```esql
 ROW a = 10, b = 20
 | EVAL g = GREATEST(a, b)
 ```
 
-This example evaluates the maximum value between columns `a` and `b`, resulting in `g = 20`.
-
-## Notes
-
-- When applied to `keyword` or `text` fields, the function returns the last string in alphabetical order.
-- When applied to `boolean` columns, the function returns `true` if any of the values are `true`.
+| a:integer | b:integer | g:integer |
+|-----------|-----------|-----------|
+| 10        | 20        | 20        |

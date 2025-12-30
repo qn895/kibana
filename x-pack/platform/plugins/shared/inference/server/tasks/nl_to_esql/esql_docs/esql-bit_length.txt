@@ -1,11 +1,11 @@
 # BIT_LENGTH
 
 Returns the bit length of a string.
+<note>
+  All strings are in UTF-8, so a single character can use multiple bytes.
+</note>
 
-**Note:** All strings are in UTF-8, so a single character can use multiple bytes.
-
-## Syntax
-
+**Syntax**
 `BIT_LENGTH(string)`
 
 ### Parameters
@@ -14,8 +14,14 @@ Returns the bit length of a string.
 
 String expression. If `null`, the function returns `null`.
 
-## Examples
+**Supported types**
 
+| string  | result  |
+|---------|---------|
+| keyword | integer |
+| text    | integer |
+
+**Example**
 ```esql
 FROM airports
 | WHERE country == "India"
@@ -23,4 +29,8 @@ FROM airports
 | EVAL fn_length = LENGTH(city), fn_bit_length = BIT_LENGTH(city)
 ```
 
-This example calculates both the character length and the bit length of city names in airports located in India.
+| city:keyword | fn_length:integer | fn_bit_length:integer |
+|--------------|-------------------|-----------------------|
+| Agwār        | 5                 | 48                    |
+| Ahmedabad    | 9                 | 72                    |
+| Bangalore    | 9                 | 72                    |

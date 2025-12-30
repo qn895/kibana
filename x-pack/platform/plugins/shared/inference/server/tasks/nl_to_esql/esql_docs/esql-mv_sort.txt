@@ -2,31 +2,40 @@
 
 Sorts a multivalued field in lexicographical order.
 
-## Syntax
-
+**Syntax**
 `MV_SORT(field, order)`
 
 ### Parameters
 
 #### `field`
 
-- Multivalue expression. If `null`, the function returns `null`.
+Multivalue expression. If `null`, the function returns `null`.
 
 #### `order`
 
-- Sort order. The valid options are `ASC` and `DESC`. The default is `ASC`.
+Sort order. The valid options are ASC and DESC, the default is ASC.
 
-## Examples
+**Supported types**
 
+| field      | order   | result     |
+|------------|---------|------------|
+| boolean    | keyword | boolean    |
+| date       | keyword | date       |
+| date_nanos | keyword | date_nanos |
+| double     | keyword | double     |
+| integer    | keyword | integer    |
+| ip         | keyword | ip         |
+| keyword    | keyword | keyword    |
+| long       | keyword | long       |
+| text       | keyword | keyword    |
+| version    | keyword | version    |
+
+**Example**
 ```esql
 ROW a = [4, 2, -3, 2]
 | EVAL sa = mv_sort(a), sd = mv_sort(a, "DESC")
 ```
 
-This example sorts the multivalued field `a` in ascending order (`sa`) and descending order (`sd`).
-
-
-```esql
-FROM bag_of_numbers
-| EVAL sorted = MV_SORT(numbers)
-```
+| a:integer     | sa:integer    | sd:integer    |
+|---------------|---------------|---------------|
+| [4, 2, -3, 2] | [-3, 2, 2, 4] | [4, 2, 2, -3] |

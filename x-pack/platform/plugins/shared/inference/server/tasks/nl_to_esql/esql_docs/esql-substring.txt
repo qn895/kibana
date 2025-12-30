@@ -1,57 +1,75 @@
 # SUBSTRING
 
-The `SUBSTRING` function extracts a portion of a string based on a specified start position and an optional length.
+Returns a substring of a string, specified by a start position and an optional length.
 
-## Syntax
-
+**Syntax**
 `SUBSTRING(string, start, length)`
 
 ### Parameters
 
 #### `string`
 
-The string expression to extract the substring from. If `null`, the function returns `null`.
+String expression. If `null`, the function returns `null`.
 
 #### `start`
 
-The starting position for the substring. A negative value is interpreted as being relative to the end of the string.
+Start position.
 
-#### `length` (Optional)
+#### `length`
 
-The length of the substring to extract, starting from the `start` position. If omitted, the function returns all characters from the `start` position to the end of the string.
+Length of the substring from the start position. Optional; if omitted, all positions after `start` are returned.
 
-## Examples
+**Supported types**
 
-Extract the first three characters of every last name
+| string  | start   | length  | result  |
+|---------|---------|---------|---------|
+| keyword | integer | integer | keyword |
+| text    | integer | integer | keyword |
 
+**Examples**
+This example returns the first three characters of every last name:
 ```esql
 FROM employees
 | KEEP last_name
 | EVAL ln_sub = SUBSTRING(last_name, 1, 3)
 ```
 
-This example extracts the first three characters from the `last_name` column.
+| last_name:keyword | ln_sub:keyword |
+|-------------------|----------------|
+| Awdeh             | Awd            |
+| Azuma             | Azu            |
+| Baek              | Bae            |
+| Bamford           | Bam            |
+| Bernatsky         | Ber            |
 
-Extract the last three characters of every last name
-
+A negative start position is interpreted as being relative to the end of the string.
+This example returns the last three characters of every last name:
 ```esql
 FROM employees
 | KEEP last_name
 | EVAL ln_sub = SUBSTRING(last_name, -3, 3)
 ```
 
-This example extracts the last three characters from the `last_name` column by using a negative start position.
+| last_name:keyword | ln_sub:keyword |
+|-------------------|----------------|
+| Awdeh             | deh            |
+| Azuma             | uma            |
+| Baek              | aek            |
+| Bamford           | ord            |
+| Bernatsky         | sky            |
 
-Extract all characters except for the first
-
+If length is omitted, substring returns the remainder of the string.
+This example returns all characters except for the first:
 ```esql
 FROM employees
 | KEEP last_name
 | EVAL ln_sub = SUBSTRING(last_name, 2)
 ```
 
-This example extracts all characters from the `last_name` column starting from the second character, as the `length` parameter is omitted.
-
-## Limitations
-
-No specific limitations are mentioned for the `SUBSTRING` function.
+| last_name:keyword | ln_sub:keyword |
+|-------------------|----------------|
+| Awdeh             | wdeh           |
+| Azuma             | zuma           |
+| Baek              | aek            |
+| Bamford           | amford         |
+| Bernatsky         | ernatsky       |

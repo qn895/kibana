@@ -1,9 +1,8 @@
 # LEFT
 
-Returns a substring that extracts a specified number of characters from the beginning of a string.
+Returns the substring that extracts *length* chars from *string* starting from the left.
 
-## Syntax
-
+**Syntax**
 `LEFT(string, length)`
 
 ### Parameters
@@ -16,14 +15,24 @@ The string from which to return a substring.
 
 The number of characters to return.
 
-## Examples
+**Supported types**
 
+| string  | length  | result  |
+|---------|---------|---------|
+| keyword | integer | keyword |
+| text    | integer | keyword |
+
+**Example**
 ```esql
 FROM employees
 | KEEP last_name
 | EVAL left = LEFT(last_name, 3)
-| SORT last_name ASC
-| LIMIT 5
 ```
 
-Extracts the first three characters from the `last_name` column, sorts the results alphabetically, and limits the output to the first five rows.
+| last_name:keyword | left:keyword |
+|-------------------|--------------|
+| Awdeh             | Awd          |
+| Azuma             | Azu          |
+| Baek              | Bae          |
+| Bamford           | Bam          |
+| Bernatsky         | Ber          |

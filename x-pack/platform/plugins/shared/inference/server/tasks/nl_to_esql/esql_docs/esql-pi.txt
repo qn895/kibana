@@ -1,19 +1,22 @@
 # PI
 
-Returns Pi, the mathematical constant representing the ratio of a circle’s circumference to its diameter.
+Returns Pi, the ratio of a circle’s circumference to its diameter.
 
-## Syntax
-
+**Syntax**
 `PI()`
 
-### Parameters
+**Parameters**
+**Supported types**
 
-This function does not take any parameters.
+| result |
+|--------|
+| double |
 
-## Examples
-
-Returning the value of Pi
-
+**Example**
 ```esql
 ROW PI()
 ```
+
+| PI():double       |
+|-------------------|
+| 3.141592653589793 |

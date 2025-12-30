@@ -1,10 +1,9 @@
-## TOP
+# TOP
 
-The `TOP` function collects the top values for a specified field, including repeated values.
+Collects the top values for a field. Includes repeated values.
 
-## Syntax
-
-`TOP(field, limit, order)`
+**Syntax**
+`TOP(field, limit, order, outputField)`
 
 ### Parameters
 
@@ -18,13 +17,55 @@ The maximum number of values to collect.
 
 #### `order`
 
-The order in which to calculate the top values. Can be either `asc` (ascending) or `desc` (descending).
+The order to calculate the top values. Either `asc` or `desc`, and defaults to `asc` if omitted.
 
-## Examples
+#### `outputField`
 
-Collecting top salaries
+The extra field that, if present, will be the output of the TOP call instead of `field`.`stack: ga 9.3`
+
+**Supported types**
+
+| field   | limit   | order   | outputField | result  |
+|---------|---------|---------|-------------|---------|
+| boolean | integer | keyword |             | boolean |
+| boolean | integer |         |             | boolean |
+| date    | integer | keyword | date        | date    |
+| date    | integer | keyword | double      | double  |
+| date    | integer | keyword | integer     | integer |
+| date    | integer | keyword | long        | long    |
+| date    | integer | keyword |             | date    |
+| date    | integer |         |             | date    |
+| double  | integer | keyword | date        | date    |
+| double  | integer | keyword | double      | double  |
+| double  | integer | keyword | integer     | integer |
+| double  | integer | keyword | long        | long    |
+| double  | integer | keyword |             | double  |
+| double  | integer |         |             | double  |
+| integer | integer | keyword | date        | date    |
+| integer | integer | keyword | double      | double  |
+| integer | integer | keyword | integer     | integer |
+| integer | integer | keyword | long        | long    |
+| integer | integer | keyword |             | integer |
+| integer | integer |         |             | integer |
+| ip      | integer | keyword |             | ip      |
+| ip      | integer |         |             | ip      |
+| keyword | integer | keyword |             | keyword |
+| keyword | integer |         |             | keyword |
+| long    | integer | keyword | date        | date    |
+| long    | integer | keyword | double      | double  |
+| long    | integer | keyword | integer     | integer |
+| long    | integer | keyword | long        | long    |
+| long    | integer | keyword |             | long    |
+| long    | integer |         |             | long    |
+| text    | integer | keyword |             | keyword |
+| text    | integer |         |             | keyword |
+
+**Example**
 ```esql
 FROM employees
 | STATS top_salaries = TOP(salary, 3, "desc"), top_salary = MAX(salary)
 ```
-This example collects the top three salaries in descending order and calculates the maximum salary.
+
+| top_salaries:integer  | top_salary:integer |
+|-----------------------|--------------------|
+| [74999, 74970, 74572] | 74999              |

@@ -1,41 +1,60 @@
 # LOG
 
-Calculates the logarithm of a numeric value to a specified base. If the base is not provided, it defaults to the natural logarithm (base e).
+Returns the logarithm of a value to a base. The input can be any numeric value, the return value is always a double.  Logs of zero, negative numbers, and base of one return `null` as well as a warning.
 
-## Syntax
-
+**Syntax**
 `LOG(base, number)`
 
 ### Parameters
 
 #### `base`
 
-- Base of the logarithm. If `null`, the function returns `null`. If not provided, the function calculates the natural logarithm (base e).
+Base of logarithm. If `null`, the function returns `null`. If not provided, this function returns the natural logarithm (base e) of a value.
 
 #### `number`
 
-- Numeric expression. If `null`, the function returns `null`.
+Numeric expression. If `null`, the function returns `null`.
 
-## Examples
+**Supported types**
 
-Logarithm with a specified base
+| base          | number        | result |
+|---------------|---------------|--------|
+| double        | double        | double |
+| double        | integer       | double |
+| double        | long          | double |
+| double        | unsigned_long | double |
+| integer       | double        | double |
+| integer       | integer       | double |
+| integer       | long          | double |
+| integer       | unsigned_long | double |
+| long          | double        | double |
+| long          | integer       | double |
+| long          | long          | double |
+| long          | unsigned_long | double |
+| unsigned_long | double        | double |
+| unsigned_long | integer       | double |
+| unsigned_long | long          | double |
+| unsigned_long | unsigned_long | double |
+|               | double        | double |
+|               | integer       | double |
+|               | long          | double |
+|               | unsigned_long | double |
 
-Calculate the logarithm of 8 to base 2:
-
+**Examples**
 ```esql
 ROW base = 2.0, value = 8.0
 | EVAL s = LOG(base, value)
 ```
 
-Natural logarithm (base e)
-
-Calculate the natural logarithm of 100:
+| base: double | value: double | s:double |
+|--------------|---------------|----------|
+| 2.0          | 8.0           | 3.0      |
 
 ```esql
 ROW value = 100
-| EVAL s = LOG(value)
+| EVAL s = LOG(value);
 ```
 
-## Limitations
-
-- Logs of zero, negative numbers, and a base of one return `null` and generate a warning.
+| value: integer | s:double          |
+|----------------|-------------------|
+| 100            | 4.605170185988092 |

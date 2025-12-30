@@ -1,9 +1,8 @@
-## TAN
+# TAN
 
-The `TAN` function calculates the tangent of a given angle.
+Returns the tangent of an angle.
 
-## Syntax
-
+**Syntax**
 `TAN(angle)`
 
 ### Parameters
@@ -12,11 +11,21 @@ The `TAN` function calculates the tangent of a given angle.
 
 An angle, in radians. If `null`, the function returns `null`.
 
-## Examples
+**Supported types**
 
-Calculate the tangent of the angle `1.8` radians:
+| angle         | result |
+|---------------|--------|
+| double        | double |
+| integer       | double |
+| long          | double |
+| unsigned_long | double |
 
+**Example**
 ```esql
 ROW a=1.8
-| EVAL tan = TAN(a)
+| EVAL tan=TAN(a)
 ```
+
+| a:double | tan:double         |
+|----------|--------------------|
+| 1.8      | -4.286261674628062 |

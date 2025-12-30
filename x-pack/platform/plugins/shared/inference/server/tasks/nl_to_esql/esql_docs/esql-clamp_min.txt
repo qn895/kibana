@@ -1,0 +1,59 @@
+# CLAMP_MIN
+
+Limits (or clamps) all input sample values to a lower bound of min. Any value below min is set to min.
+
+```
+stack: preview 9.3.0
+```
+
+**Syntax**
+`CLAMP_MIN(field, min)`
+
+### Parameters
+
+#### `field`
+
+field to clamp.
+
+#### `min`
+
+The min value to clamp data into.
+
+**Supported types**
+
+| field         | min           | result        |
+|---------------|---------------|---------------|
+| boolean       | boolean       | boolean       |
+| date          | date          | date          |
+| double        | double        | double        |
+| double        | integer       | double        |
+| double        | long          | double        |
+| double        | unsigned_long | double        |
+| integer       | double        | double        |
+| integer       | integer       | integer       |
+| integer       | long          | long          |
+| integer       | unsigned_long | unsigned_long |
+| ip            | ip            | ip            |
+| keyword       | keyword       | keyword       |
+| long          | double        | double        |
+| long          | integer       | long          |
+| long          | long          | long          |
+| long          | unsigned_long | unsigned_long |
+| unsigned_long | double        | double        |
+| unsigned_long | integer       | unsigned_long |
+| unsigned_long | long          | long          |
+| unsigned_long | unsigned_long | unsigned_long |
+| version       | version       | version       |
+
+**Example**
+```esql
+FROM k8s
+| STATS full_clamped_cost=sum(clamp(network.cost, 1, 2)), clamped_cost=sum(clamp_max(network.cost, 1)), clamped_min_cost=sum(clamp_min(network.cost, 10)) BY time_bucket = bucket(@timestamp,1minute)
+```
+
+| full_clamped_cost:double | clamped_cost:double | clamped_min_cost:double | time_bucket:datetime     |
+|--------------------------|---------------------|-------------------------|--------------------------|
+| 39.0                     | 20.0                | 206.25                  | 2024-05-10T00:09:00.000Z |
+| 29.125                   | 15.5                | 173.0                   | 2024-05-10T00:18:00.000Z |
+| 28.0                     | 14.125              | 155.625                 | 2024-05-10T00:17:00.000Z |
+| 23.25                    | 12.0                | 124.875                 | 2024-05-10T00:08:00.000Z |

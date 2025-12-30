@@ -1,38 +1,40 @@
 # TO_DATE_NANOS
 
-Converts an input to a nanosecond-resolution date value (`date_nanos`).
+Converts an input to a nanosecond-resolution date value (aka date_nanos).
+<note>
+  The range for date nanos is 1970-01-01T00:00:00.000000000Z to 2262-04-11T23:47:16.854775807Z, attempting to convert values outside of that range will result in null with a warning.  Additionally, integers cannot be converted into date nanos, as the range of integer nanoseconds only covers about 2 seconds after epoch.
+</note>
 
-## Syntax
-
+**Syntax**
 `TO_DATE_NANOS(field)`
 
 ### Parameters
 
 #### `field`
 
-The input value to be converted. This can be a single- or multi-valued column or an expression.
+Input value. The input can be a single- or multi-valued column or an expression.
 
-## Examples
+**Supported types**
 
-Converting a timestamp string to `date_nanos`
+| field         | result     |
+|---------------|------------|
+| date          | date_nanos |
+| date_nanos    | date_nanos |
+| double        | date_nanos |
+| keyword       | date_nanos |
+| long          | date_nanos |
+| text          | date_nanos |
+| unsigned_long | date_nanos |
 
+**Example**
 ```esql
-ROW timestamp = "2023-10-26T12:34:56.123456789Z"
-| EVAL nanos_date = TO_DATE_NANOS(timestamp)
+FROM date_nanos
+| WHERE MV_MIN(nanos) < TO_DATE_NANOS("2023-10-23T12:27:28.948Z")
+    AND millis > "2000-01-01"
+| SORT nanos DESC
 ```
 
-This example converts a timestamp string into a `date_nanos` value.
-
-Handling values outside the `date_nanos` range
-
-```esql
-ROW timestamp = "2500-01-01T00:00:00.000000000Z"
-| EVAL nanos_date = TO_DATE_NANOS(timestamp)
-```
-
-This example attempts to convert a timestamp outside the valid `date_nanos` range. The result will be `null` with a warning.
-
-## Limitations
-
-- The valid range for `date_nanos` is from `1970-01-01T00:00:00.000000000Z` to `2262-04-11T23:47:16.854775807Z`. Values outside this range will result in `null` and trigger a warning.
-- Integer values cannot be converted into `date_nanos` because the range of integer nanoseconds only spans approximately 2 seconds after the epoch.
+| millis:date              | nanos:date_nanos               | num:long            |
+|--------------------------|--------------------------------|---------------------|
+| 2023-10-23T12:15:03.360Z | 2023-10-23T12:15:03.360103847Z | 1698063303360103847 |
+| 2023-10-23T12:15:03.360Z | 2023-10-23T12:15:03.360103847Z | 1698063303360103847 |

@@ -1,27 +1,53 @@
-The `SAMPLE` command samples a fraction of the table rows.
-**Syntax**
-```esql
-SAMPLE probability
+# SAMPLE
+
+Collects sample values for a field.
+
+```
+stack: ga 9.1.0
 ```
 
-**Parameters**
-<definitions>
-  <definition term="probability">
-    The probability that a row is included in the sample. The value must be between 0 and 1, exclusive.
-  </definition>
-</definitions>
+**Syntax**
+`SAMPLE(field, limit)`
 
-**Examples**
+### Parameters
+
+#### `field`
+
+The field to collect sample values for.
+
+#### `limit`
+
+The maximum number of values to collect.
+
+**Supported types**
+
+| field           | limit   | result          |
+|-----------------|---------|-----------------|
+| boolean         | integer | boolean         |
+| cartesian_point | integer | cartesian_point |
+| cartesian_shape | integer | cartesian_shape |
+| date            | integer | date            |
+| date_nanos      | integer | date_nanos      |
+| double          | integer | double          |
+| geo_point       | integer | geo_point       |
+| geo_shape       | integer | geo_shape       |
+| geohash         | integer | geohash         |
+| geohex          | integer | geohex          |
+| geotile         | integer | geotile         |
+| integer         | integer | integer         |
+| ip              | integer | ip              |
+| keyword         | integer | keyword         |
+| long            | integer | long            |
+| text            | integer | keyword         |
+| unsigned_long   | integer | unsigned_long   |
+| version         | integer | version         |
+
+**Example**
 ```esql
 FROM employees
-| KEEP emp_no
-| SAMPLE 0.05
+| STATS sample = SAMPLE(gender, 5)
 ```
 
-
-| emp_no:integer |
-|----------------|
-| 10018          |
-| 10024          |
-| 10062          |
-| 10081          |
+| sample:keyword  |
+|-----------------|
+| [F, M, M, F, M] |

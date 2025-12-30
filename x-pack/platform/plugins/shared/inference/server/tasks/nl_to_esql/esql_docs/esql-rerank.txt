@@ -1,3 +1,13 @@
+# RERANK
+
+The `RERANK` command uses an inference model to compute a new relevance score
+for an initial set of documents, directly within your ES|QL queries.
+Typically, you first use a `WHERE` clause with a function like `MATCH` to
+retrieve an initial set of documents. This set is often sorted by `_score` and
+reduced to the top results (for example, 100) using `LIMIT`. The `RERANK`
+command then processes this smaller, refined subset, which is a good balance
+between performance and accuracy.
+
 The `RERANK` command uses an inference model to compute a new relevance score
 for an initial set of documents, directly within your ES|QL queries.
 <important>
@@ -42,41 +52,35 @@ for an initial set of documents, directly within your ES|QL queries.
 RERANK [column =] query ON field [, field, ...] [WITH { "inference_id" : "my_inference_endpoint" }]
 ```
 
-**Parameters**
-<definitions>
-  <definition term="column">
-    (Optional) The name of the output column containing the reranked scores.
-    If not specified, the results will be stored in a column named `_score`.
-    If the specified column already exists, it will be overwritten with the new
-    results.
-  </definition>
-  <definition term="query">
-    The query text used to rerank the documents. This is typically the same
-    query used in the initial search.
-  </definition>
-  <definition term="field">
-    One or more fields to use for reranking. These fields should contain the
-    text that the reranking model will evaluate.
-  </definition>
-  <definition term="my_inference_endpoint">
-    The ID of
-    the [inference endpoint](https://www.elastic.co/docs/explore-analyze/elastic-inference/inference-api)
-    to use for the task.
-    The inference endpoint must be configured with the `rerank` task type.
-  </definition>
-</definitions>
+### Parameters
 
-**Description**
-The `RERANK` command uses an inference model to compute a new relevance score
-for an initial set of documents, directly within your ES|QL queries.
-Typically, you first use a `WHERE` clause with a function like `MATCH` to
-retrieve an initial set of documents. This set is often sorted by `_score` and
-reduced to the top results (for example, 100) using `LIMIT`. The `RERANK`
-command then processes this smaller, refined subset, which is a good balance
-between performance and accuracy.
+#### `column`
+
+(Optional) The name of the output column containing the reranked scores.
+ If not specified, the results will be stored in a column named `_score`.
+ If the specified column already exists, it will be overwritten with the new
+ results.
+
+#### `query`
+
+The query text used to rerank the documents. This is typically the same
+ query used in the initial search.
+
+#### `field`
+
+One or more fields to use for reranking. These fields should contain the
+ text that the reranking model will evaluate.
+
+#### `my_inference_endpoint`
+
+The ID of
+ the inference endpoint
+ to use for the task.
+ The inference endpoint must be configured with the `rerank` task type.
+
 **Requirements**
 To use this command, you must deploy your reranking model in Elasticsearch as
-an [inference endpoint](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-inference-put)
+an inference endpoint
 with the
 task type `rerank`.
 
@@ -89,17 +93,17 @@ How you increase the timeout depends on your deployment type:
 <tab-set>
   <tab-item title="Elastic Cloud Hosted">
     - You can adjust Elasticsearch settings in
-      the [Elastic Cloud Console](https://www.elastic.co/docs/deploy-manage/deploy/elastic-cloud/edit-stack-settings)
+      the Elastic Cloud Console
     - You can also adjust the `search.default_search_timeout` cluster setting
-      using [Kibana's Advanced settings](https://www.elastic.co/docs/reference/kibana/advanced-settings#kibana-search-settings)
+      using Kibana's Advanced settings
   </tab-item>
 
   <tab-item title="Self-managed">
     - You can configure at the cluster level by setting
       `search.default_search_timeout` in `elasticsearch.yml` or updating
-      via [Cluster Settings API](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-cluster-put-settings)
+      via Cluster Settings API
     - You can also adjust the `search:timeout` setting
-      using [Kibana's Advanced settings](https://www.elastic.co/docs/reference/kibana/advanced-settings#kibana-search-settings)
+      using Kibana's Advanced settings
     - Alternatively, you can add timeout parameters to individual queries
   </tab-item>
 
@@ -114,7 +118,7 @@ If you don't want to increase the timeout limit, try the following:
   command
 - Split complex operations into multiple simpler queries
 - Configure your HTTP client's response timeout (Refer
-  to [HTTP client configuration](/docs/reference/elasticsearch/configuration-reference/networking-settings#_http_client_configuration))
+  to HTTP client configuration)
 
 **Examples**
 Rerank search results using a simple query and a single field:
@@ -127,7 +131,6 @@ FROM books METADATA _score
 | LIMIT 3
 | KEEP title, _score
 ```
-
 
 | title:text                                                                                  | _score:double         |
 |---------------------------------------------------------------------------------------------|-----------------------|
@@ -148,7 +151,6 @@ FROM books METADATA _score
 | KEEP title, _score, rerank_score
 ```
 
-
 | title:text                                                       | _score:double      | rerank_score:double  |
 |------------------------------------------------------------------|--------------------|----------------------|
 | Return of the Shadow                                             | 2.8181066513061523 | 5.740527994930744E-4 |
@@ -167,7 +169,6 @@ FROM books METADATA _score
 | LIMIT 3
 | KEEP title, original_score, rerank_score, _score
 ```
-
 
 | title:text                                                       | _score:double      | rerank_score:double   | rerank_score:double  |
 |------------------------------------------------------------------|--------------------|-----------------------|----------------------|

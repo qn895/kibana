@@ -2,8 +2,7 @@
 
 Removes trailing whitespaces from a string.
 
-## Syntax
-
+**Syntax**
 `RTRIM(string)`
 
 ### Parameters
@@ -12,8 +11,14 @@ Removes trailing whitespaces from a string.
 
 String expression. If `null`, the function returns `null`.
 
-## Examples
+**Supported types**
 
+| string  | result  |
+|---------|---------|
+| keyword | keyword |
+| text    | keyword |
+
+**Example**
 ```esql
 ROW message = "   some text  ",  color = " red "
 | EVAL message = RTRIM(message)
@@ -22,4 +27,6 @@ ROW message = "   some text  ",  color = " red "
 | EVAL color = CONCAT("'", color, "'")
 ```
 
-This example removes trailing whitespaces from the `message` and `color` columns, then wraps the resulting strings in single quotes.
+| message:keyword | color:keyword |
+|-----------------|---------------|
+| '   some text'  | ' red'        |

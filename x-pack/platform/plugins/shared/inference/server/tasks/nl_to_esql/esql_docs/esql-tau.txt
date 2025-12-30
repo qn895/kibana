@@ -2,18 +2,21 @@
 
 Returns the ratio of a circle’s circumference to its radius.
 
-## Syntax
-
+**Syntax**
 `TAU()`
 
-### Parameters
+**Parameters**
+**Supported types**
 
-This function does not take any parameters.
+| result |
+|--------|
+| double |
 
-## Examples
-
+**Example**
 ```esql
 ROW TAU()
 ```
 
-This example returns the mathematical constant τ (tau).
+| TAU():double      |
+|-------------------|
+| 6.283185307179586 |

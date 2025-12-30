@@ -1,0 +1,42 @@
+# IDELTA
+
+Calculates the idelta of a gauge. idelta is the absolute change between the last two data points (it ignores all but the last two data points in each time period). This function is very similar to delta, but is more responsive to recent changes.
+
+```
+stack: preview 9.2.0
+serverless: preview
+```
+
+**Syntax**
+`IDELTA(field, window)`
+
+### Parameters
+
+#### `field`
+
+the metric field to calculate the value for
+
+#### `window`
+
+the time window over which to compute the idelta over time
+
+**Supported types**
+
+| field   | window | result |
+|---------|--------|--------|
+| double  |        | double |
+| integer |        | double |
+| long    |        | double |
+
+**Example**
+```esql
+TS k8s
+| STATS events = SUM(IDELTA(events_received)) by pod, time_bucket = TBUCKET(10minute)
+```
+
+| events:double | pod:keyword | time_bucket:datetime     |
+|---------------|-------------|--------------------------|
+| 9.0           | one         | 2024-05-10T00:10:00.000Z |
+| 7.0           | three       | 2024-05-10T00:10:00.000Z |
+| 3.0           | two         | 2024-05-10T00:00:00.000Z |
+| 0.0           | two         | 2024-05-10T00:20:00.000Z |

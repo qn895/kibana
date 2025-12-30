@@ -1,32 +1,40 @@
 # DATE_FORMAT
 
-The `DATE_FORMAT` function returns a string representation of a date in the specified format.
+Returns a string representation of a date, in the provided format.
 
-## Syntax
-
+**Syntax**
 `DATE_FORMAT(dateFormat, date)`
 
 ### Parameters
 
 #### `dateFormat`
 
-- **Optional**
-- Specifies the date format. If no format is provided, the default format `yyyy-MM-dd'T'HH:mm:ss.SSSZ` is used.
-- If `null`, the function returns `null`.
+Date format (optional). If no format is specified, the `yyyy-MM-dd'T'HH:mm:ss.SSSZ` format is used. If `null`, the function returns `null`.
 
 #### `date`
 
-- A date expression.
-- If `null`, the function returns `null`.
+Date expression. If `null`, the function returns `null`.
 
-## Examples
+**Supported types**
 
-Formatting a date to `yyyy-MM-dd`
+| dateFormat | date       | result  |
+|------------|------------|---------|
+| keyword    | date       | keyword |
+| keyword    | date_nanos | keyword |
+| text       | date       | keyword |
+| text       | date_nanos | keyword |
+|            | date       | keyword |
+|            | date_nanos | keyword |
 
+**Example**
 ```esql
 FROM employees
 | KEEP first_name, last_name, hire_date
 | EVAL hired = DATE_FORMAT("yyyy-MM-dd", hire_date)
 ```
 
-This example formats the `hire_date` field into the `yyyy-MM-dd` format and stores the result in a new column named `hired`.
+| first_name:keyword | last_name:keyword | hire_date:date           | hired:keyword |
+|--------------------|-------------------|--------------------------|---------------|
+| Alejandro          | McAlpine          | 1991-06-26T00:00:00.000Z | 1991-06-26    |
+| Amabile            | Gomatam           | 1992-11-18T00:00:00.000Z | 1992-11-18    |
+| Anneke             | Preusig           | 1989-06-02T00:00:00.000Z | 1989-06-02    |

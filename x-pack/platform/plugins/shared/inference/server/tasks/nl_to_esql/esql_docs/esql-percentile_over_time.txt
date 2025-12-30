@@ -1,0 +1,47 @@
+# PERCENTILE_OVER_TIME
+
+Calculates the percentile over time of a field.
+
+```
+stack: preview 9.3.0
+serverless: preview
+```
+
+**Syntax**
+`PERCENTILE_OVER_TIME(field, percentile)`
+
+### Parameters
+
+#### `field`
+
+the metric field to calculate the value for
+
+#### `percentile`
+
+the percentile value to compute (between 0 and 100)
+
+**Supported types**
+
+| field                 | percentile | result |
+|-----------------------|------------|--------|
+| double                | double     | double |
+| double                | integer    | double |
+| double                | long       | double |
+| exponential_histogram | double     | double |
+| exponential_histogram | integer    | double |
+| exponential_histogram | long       | double |
+| integer               | double     | double |
+| integer               | integer    | double |
+| integer               | long       | double |
+| long                  | double     | double |
+| long                  | integer    | double |
+| long                  | long       | double |
+| tdigest               | double     | double |
+| tdigest               | integer    | double |
+| tdigest               | long       | double |
+
+**Example**
+```esql
+TS k8s
+| STATS p95_cost=MAX(PERCENTILE_OVER_TIME(network.cost, 95)), p99_cost=MAX(PERCENTILE_OVER_TIME(network.cost, 99)) BY cluster, time_bucket = TBUCKET(1minute)
+```

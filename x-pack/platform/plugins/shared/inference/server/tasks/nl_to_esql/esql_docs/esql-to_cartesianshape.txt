@@ -1,30 +1,33 @@
 # TO_CARTESIANSHAPE
 
-Converts an input value to a `cartesian_shape` value. A string will only be successfully converted if it adheres to the WKT (Well-Known Text) format.
+Converts an input value to a `cartesian_shape` value. A string will only be successfully converted if it respects the WKT format.
 
-## Syntax
-
+**Syntax**
 `TO_CARTESIANSHAPE(field)`
 
 ### Parameters
 
-#### field
+#### `field`
 
-The input value to be converted. This can be a single- or multi-valued column or an expression.
+Input value. The input can be a single- or multi-valued column or an expression.
 
-## Examples
+**Supported types**
 
-Converting WKT strings to `cartesian_shape`
+| field           | result          |
+|-----------------|-----------------|
+| cartesian_point | cartesian_shape |
+| cartesian_shape | cartesian_shape |
+| keyword         | cartesian_shape |
+| text            | cartesian_shape |
 
+**Example**
 ```esql
 ROW wkt = ["POINT(4297.11 -1475.53)", "POLYGON ((3339584.72 1118889.97, 4452779.63 4865942.27, 2226389.81 4865942.27, 1113194.90 2273030.92, 3339584.72 1118889.97))"]
 | MV_EXPAND wkt
 | EVAL geom = TO_CARTESIANSHAPE(wkt)
 ```
 
-This example converts a multi-valued column containing WKT strings into `cartesian_shape` values.
-
-## Notes
-
-- The input value can be a single or multi-valued column or an expression.
-- The function will only successfully convert a string if it adheres to the WKT format.
+| wkt:keyword                                                                                                                     | geom:cartesian_shape                                                                                                          |
+|---------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| "POINT(4297.11 -1475.53)"                                                                                                       | POINT(4297.11 -1475.53)                                                                                                       |
+| "POLYGON ((3339584.72 1118889.97, 4452779.63 4865942.27, 2226389.81 4865942.27, 1113194.90 2273030.92, 3339584.72 1118889.97))" | POLYGON ((3339584.72 1118889.97, 4452779.63 4865942.27, 2226389.81 4865942.27, 1113194.90 2273030.92, 3339584.72 1118889.97)) |

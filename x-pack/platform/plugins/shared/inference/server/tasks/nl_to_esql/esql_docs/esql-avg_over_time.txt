@@ -1,0 +1,45 @@
+# AVG_OVER_TIME
+
+Calculates the average over time of a numeric field.
+
+```
+stack: preview 9.2.0
+serverless: preview
+```
+
+**Syntax**
+`AVG_OVER_TIME(field, window)`
+
+### Parameters
+
+#### `field`
+
+the metric field to calculate the value for
+
+#### `window`
+
+the time window over which to compute the average
+
+**Supported types**
+
+| field                   | window                               | result |
+|-------------------------|--------------------------------------|--------|
+| aggregate_metric_double | time_duration `stack: preview 9.3.0` | double |
+| double                  | time_duration `stack: preview 9.3.0` | double |
+| exponential_histogram   | time_duration `stack: preview 9.3.0` | double |
+| integer                 | time_duration `stack: preview 9.3.0` | double |
+| long                    | time_duration `stack: preview 9.3.0` | double |
+| tdigest                 | time_duration `stack: preview 9.3.0` | double |
+
+**Example**
+```esql
+TS k8s
+| STATS max_cost=MAX(AVG_OVER_TIME(network.cost)) BY cluster, time_bucket = TBUCKET(1minute)
+```
+
+| max_cost:double | cluster:keyword | time_bucket:datetime     |
+|-----------------|-----------------|--------------------------|
+| 12.375          | prod            | 2024-05-10T00:17:00.000Z |
+| 12.375          | qa              | 2024-05-10T00:01:00.000Z |
+| 12.25           | prod            | 2024-05-10T00:19:00.000Z |
+| 12.0625         | qa              | 2024-05-10T00:06:00.000Z |

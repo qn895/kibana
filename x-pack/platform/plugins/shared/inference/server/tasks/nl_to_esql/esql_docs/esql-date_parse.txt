@@ -1,10 +1,9 @@
 # DATE_PARSE
 
-Parses a date string into a date object using the specified format.
+Returns a date by parsing the second argument using the format specified in the first argument.
 
-## Syntax
-
-`DATE_PARSE(datePattern, dateString)`
+**Syntax**
+`DATE_PARSE(datePattern, dateString, options, time_zone, locale)`
 
 ### Parameters
 
@@ -14,15 +13,46 @@ The date format. Refer to the `DateTimeFormatter` documentation for the syntax. 
 
 #### `dateString`
 
-A date expression as a string. If `null` or an empty string, the function returns `null`.
+Date expression as a string. If `null` or an empty string, the function returns `null`.
 
-## Examples
+#### `options`
 
-Parsing a date string
+(Optional) Additional options for date parsing, specifying time zone and locale as function named parameters.
 
+**Supported types**
+
+| datePattern | dateString | options          | result |
+|-------------|------------|------------------|--------|
+| keyword     | keyword    | named parameters | date   |
+| keyword     | keyword    |                  | date   |
+| keyword     | text       | named parameters | date   |
+| keyword     | text       |                  | date   |
+| text        | keyword    | named parameters | date   |
+| text        | keyword    |                  | date   |
+| text        | text       | named parameters | date   |
+| text        | text       |                  | date   |
+|             | keyword    | named parameters | date   |
+|             | keyword    |                  | date   |
+|             | text       | named parameters | date   |
+|             | text       |                  | date   |
+
+**Supported function named parameters**
+### Parameters
+
+#### `time_zone`
+
+(keyword) Coordinated Universal Time (UTC) offset or IANA time zone used to convert date values in the query string to UTC.
+
+#### `locale`
+
+(keyword) The locale to use when parsing the date, relevant when parsing month names or week days.
+
+**Example**
 ```esql
 ROW date_string = "2022-05-06"
 | EVAL date = DATE_PARSE("yyyy-MM-dd", date_string)
 ```
 
-This example parses the string `"2022-05-06"` into a date object using the format `"yyyy-MM-dd"`.
+| date_string:keyword | date:date                |
+|---------------------|--------------------------|
+| 2022-05-06          | 2022-05-06T00:00:00.000Z |
