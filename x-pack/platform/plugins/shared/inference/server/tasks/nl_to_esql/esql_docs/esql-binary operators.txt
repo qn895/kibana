@@ -26,8 +26,6 @@ Check if two fields are equal. If either field is multivalued then the result is
 
 ### Inequality `!=`
 
-!Embedded
-
 Check if two fields are unequal. If either field is multivalued then the result is `null`.
 <note>
   This is pushed to the underlying search index if one side of the comparison is constant and the other side is a field in the index that has both an mapping-index and doc-values.
@@ -36,8 +34,6 @@ Check if two fields are unequal. If either field is multivalued then the result 
 **Supported types**
 
 ### Less than `<`
-
-!Embedded
 
 Check if one field is less than another. If either field is multivalued then the result is `null`.
 <note>
@@ -48,8 +44,6 @@ Check if one field is less than another. If either field is multivalued then the
 
 ### Less than or equal to `<=`
 
-!Embedded
-
 Check if one field is less than or equal to another. If either field is multivalued then the result is `null`.
 <note>
   This is pushed to the underlying search index if one side of the comparison is constant and the other side is a field in the index that has both an mapping-index and doc-values.
@@ -58,8 +52,6 @@ Check if one field is less than or equal to another. If either field is multival
 **Supported types**
 
 ### Greater than `>`
-
-!Embedded
 
 Check if one field is greater than another. If either field is multivalued then the result is `null`.
 <note>
@@ -70,8 +62,6 @@ Check if one field is greater than another. If either field is multivalued then 
 
 ### Greater than or equal to `>=`
 
-!Embedded
-
 Check if one field is greater than or equal to another. If either field is multivalued then the result is `null`.
 <note>
   This is pushed to the underlying search index if one side of the comparison is constant and the other side is a field in the index that has both an mapping-index and doc-values.
@@ -81,28 +71,20 @@ Check if one field is greater than or equal to another. If either field is multi
 
 ### Add `+`
 
-!Embedded
-
 Add two numbers together. If either field is multivalued then the result is `null`.
 **Supported types**
 
 ### Subtract `-`
-
-!Embedded
 
 Subtract one number from another. If either field is multivalued then the result is `null`.
 **Supported types**
 
 ### Multiply `*`
 
-!Embedded
-
 Multiply two numbers together. If either field is multivalued then the result is `null`.
 **Supported types**
 
 ### Divide `/`
-
-!Embedded
 
 Divide one number by another. If either field is multivalued then the result is `null`.
 <note>
@@ -112,8 +94,6 @@ Divide one number by another. If either field is multivalued then the result is 
 **Supported types**
 
 ### Modulus `%`
-
-!Embedded
 
 Divide one number by another and return the remainder. If either field is multivalued then the result is `null`.
 **Supported types**

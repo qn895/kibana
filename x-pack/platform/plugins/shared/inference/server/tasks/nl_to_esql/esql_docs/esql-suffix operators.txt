@@ -6,7 +6,6 @@
 ### `IS NULL`
 
 For NULL comparison, use the `IS NULL` and `IS NOT NULL` predicates.
-!Embedded
 
 **Example**
 ```esql
@@ -17,7 +16,6 @@ FROM employees
 ### `IS NOT NULL`
 
 For NULL comparison, use the `IS NULL` and `IS NOT NULL` predicates.
-!Embedded
 
 **Example**
 ```esql

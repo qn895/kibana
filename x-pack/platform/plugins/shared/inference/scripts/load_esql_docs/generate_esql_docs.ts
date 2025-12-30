@@ -141,6 +141,13 @@ function stripMarkdownTables(content: string): string {
   return result.join('\n');
 }
 
+function stripEmbeddedImages(content: string): string {
+  // Strip all ![Embedded](...) markdown image syntax
+  // Pattern: ![Embedded](url) or ![Embedded](url "title")
+  // Handle URLs with parentheses by matching until the closing )
+  return content.replace(/!\[Embedded\]\([^\)]*(?:\([^\)]*\))*[^\)]*\)/g, '');
+}
+
 function stripMarkdownLinks(content: string): string {
   // Strip markdown links: [text](url) -> text
   // Pattern: [link text](url) or [link text](url "title")
@@ -220,7 +227,8 @@ function reorganizeContent(content: string, functionName: string): string {
 
   // If we found a description, prepend it to the top with function name as heading
   if (descriptionText) {
-    // Strip markdown links from description
+    // Strip embedded images and markdown links from description
+    descriptionText = stripEmbeddedImages(descriptionText);
     descriptionText = stripMarkdownLinks(descriptionText);
     const descriptionWithHeading = `# ${functionName}\n\n${descriptionText}`;
     reorganizedContent = `${descriptionWithHeading}\n\n${reorganizedContent}`;
@@ -229,7 +237,9 @@ function reorganizeContent(content: string, functionName: string): string {
     reorganizedContent = `# ${functionName}\n\n${reorganizedContent}`;
   }
 
-  reorganizedContent = stripMarkdownTables(stripMarkdownLinks(reorganizedContent));
+  reorganizedContent = stripMarkdownTables(
+    stripMarkdownLinks(stripEmbeddedImages(reorganizedContent))
+  );
 
   // Clean up multiple consecutive newlines
   reorganizedContent = reorganizedContent.replace(/\n{3,}/g, '\n\n');
@@ -258,8 +268,10 @@ function convertDefinitionsToMarkdown(content: string): string {
       const term = defMatch[1];
       const rawContent = defMatch[2].trim();
 
-      // Strip markdown links * markdown tables
-      let defContent = stripMarkdownLinks(rawContent);
+      // Strip embedded images, markdown links, and markdown tables
+      let defContent = stripEmbeddedImages(rawContent);
+      defContent = stripMarkdownLinks(defContent);
+      defContent = stripMarkdownTables(defContent);
 
       // Normalize whitespace - replace multiple spaces/newlines with single newline
       defContent = defContent.replace(/\n\s*\n\s*\n+/g, '\n\n');
