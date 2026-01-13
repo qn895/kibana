@@ -1,0 +1,26 @@
+# TO_GEOHASH
+
+Converts an input value to a `geohash` value. A string will only be successfully converted if it respects the `geohash` format, as described for the geohash grid aggregation.
+
+```
+stack: preview
+serverless: preview
+```
+
+**Syntax**
+`TO_GEOHASH(field)`
+
+### Parameters
+
+#### `field`
+
+Input value. The input can be a single- or multi-valued column or an expression.
+
+**Supported types**
+
+**Example**
+```esql
+ROW string = "u3bu"
+| EVAL geohash = TO_GEOHASH(string)
+```
+

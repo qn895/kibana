@@ -1,0 +1,30 @@
+# TEXT_EMBEDDING
+
+Generates dense vector embeddings from text input using a specified inference endpoint. Use this function to generate query vectors for KNN searches against your vectorized data or others dense vector based operations.
+
+```
+stack: preview 9.3
+serverless: preview
+```
+
+**Syntax**
+`TEXT_EMBEDDING(text, inference_id)`
+
+### Parameters
+
+#### `text`
+
+Text string to generate embeddings from. Must be a non-null literal string value.
+
+#### `inference_id`
+
+Identifier of an existing inference endpoint the that will generate the embeddings. The inference endpoint must have the `text_embedding` task type and should use the same model that was used to embed your indexed data.
+
+**Supported types**
+
+**Example**
+Generate text embeddings using the 'test_dense_inference' inference endpoint.
+```esql
+FROM dense_vector_text METADATA _score
+| WHERE KNN(text_embedding_field, TEXT_EMBEDDING("be excellent to each other", "test_dense_inference"))
+```

@@ -1,0 +1,43 @@
+# TBUCKET
+
+Creates groups of values - buckets - out of a @timestamp attribute. The size of the buckets must be provided directly.
+
+**Syntax**
+`TBUCKET(buckets)`
+
+### Parameters
+
+#### `buckets`
+
+Desired bucket size.
+
+**Supported types**
+
+**Examples**
+Provide a bucket size as an argument.
+```esql
+FROM sample_data
+| STATS min = MIN(@timestamp), max = MAX(@timestamp) BY bucket = TBUCKET(1 hour)
+| SORT min
+```
+
+<note>
+  When providing the bucket size, it must be a time duration or date period.
+  Also the reference is epoch, which starts at `0001-01-01T00:00:00Z`.
+</note>
+
+Provide a string representation of bucket size as an argument.
+```esql
+FROM sample_data
+| STATS min = MIN(@timestamp), max = MAX(@timestamp) BY bucket = TBUCKET("1 hour")
+| SORT min
+```
+
+<note>
+  When providing the bucket size, it can be a string representation of time duration or date period.
+  For example, "1 hour". Also the reference is epoch, which starts at `0001-01-01T00:00:00Z`.
+</note>
+
+<note>
+  The `CATEGORIZE` function requires a platinum license.
+</note>
