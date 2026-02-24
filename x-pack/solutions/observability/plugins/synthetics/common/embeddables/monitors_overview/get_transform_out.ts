@@ -7,17 +7,19 @@
 
 import type { Reference } from '@kbn/content-management-utils/src/types';
 import { transformTitlesOut } from '@kbn/presentation-publishing';
-import type { DrilldownTransforms } from '@kbn/embeddable-plugin/common';
 import { flow } from 'lodash';
 import { transformFiltersOut } from '../bwc/transform_filters_out';
-import type { OverviewStatsEmbeddableState } from '../../types';
+import type { OverviewMonitorsEmbeddableState } from '../../types';
 
-export function getTransformOut(transformDrilldownsOut: DrilldownTransforms['transformOut']) {
-  function transformOut(storedState: OverviewStatsEmbeddableState, references?: Reference[]) {
+export function getTransformOut() {
+  function transformOut(
+    storedState: OverviewMonitorsEmbeddableState,
+    _panelReferences?: Reference[],
+    _containerReferences?: Reference[]
+  ): OverviewMonitorsEmbeddableState {
     const transformsFlow = flow(
-      transformTitlesOut<OverviewStatsEmbeddableState>,
-      transformFiltersOut<OverviewStatsEmbeddableState>,
-      (state: OverviewStatsEmbeddableState) => transformDrilldownsOut(state, references)
+      transformTitlesOut<OverviewMonitorsEmbeddableState>,
+      transformFiltersOut<OverviewMonitorsEmbeddableState>
     );
     return transformsFlow(storedState);
   }
