@@ -56,6 +56,7 @@ describe('Header', () => {
 
   // FLAKY: https://github.com/elastic/kibana/issues/254016
   // FLAKY: https://github.com/elastic/kibana/issues/253935
+  // FLAKY: https://github.com/elastic/kibana/issues/253959
   describe.skip('QueryTabHeader', () => {
     test('should render the data providers when show is true', async () => {
       const testProps = { ...props, show: true };
