@@ -5,11 +5,5 @@
  * 2.0.
  */
 
-export type {
-  ToolServiceStartContract,
-  ExecuteToolParams,
-  ExecuteToolReturn,
-  ListWorkflowsParams,
-  ListWorkflowsResponse,
-  WorkflowListItem,
-} from './contract';
+export { WorkflowComboBox } from './workflow_combo_box';
+export type { WorkflowComboBoxProps, WorkflowComboBoxOption } from './workflow_combo_box';

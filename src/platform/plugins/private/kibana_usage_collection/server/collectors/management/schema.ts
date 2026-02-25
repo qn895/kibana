@@ -753,6 +753,15 @@ export const stackManagementSchema: MakeSchemaFrom<UsageStats> = {
       description: 'Restrict to default AI connector only',
     },
   },
+  'agentBuilder:prePromptWorkflowIds': {
+    type: 'array',
+    items: {
+      type: 'keyword',
+      _meta: {
+        description: 'Pre-prompt workflow IDs',
+      },
+    },
+  },
   'securitySolution:entityStoreEnableV2': {
     type: 'boolean',
     _meta: {
