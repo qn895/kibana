@@ -352,6 +352,7 @@ src/platform/packages/private/kbn-ci-stats-reporter @elastic/kibana-operations
 src/platform/packages/private/kbn-code-owners @elastic/appex-qa
 src/platform/packages/private/kbn-config-mocks @elastic/kibana-core
 src/platform/packages/private/kbn-controls-renderer @elastic/kibana-presentation
+src/platform/packages/private/kbn-cps-common @elastic/kibana-presentation
 src/platform/packages/private/kbn-data-streams @elastic/kibana-core
 src/platform/packages/private/kbn-dot-text @elastic/kibana-operations
 src/platform/packages/private/kbn-dot-text-loader @elastic/kibana-operations
