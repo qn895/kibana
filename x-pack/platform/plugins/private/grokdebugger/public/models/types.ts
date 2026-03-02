@@ -5,8 +5,4 @@
  * 2.0.
  */
 
-import { GrokDebuggerUIPlugin } from './plugin';
-
-export function plugin(initializerContext) {
-  return new GrokDebuggerUIPlugin(initializerContext);
-}
+export type { CustomPatterns, GrokdebuggerResponseParams } from '../../common/types';
