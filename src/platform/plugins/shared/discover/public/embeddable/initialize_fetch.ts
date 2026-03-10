@@ -150,15 +150,15 @@ export function initializeFetch({
 
   const fetchSubscription = combineLatest(observables)
     .pipe(
-      debounceTime(0), // debounce to batch updates in the same tick
-      tap(([fetchContext]) => {
+      tap(([fetchContext, savedSearch, dataViews]) => {
         // abort any in-progress requests
         if (abortController) {
           abortController.abort(AbortReason.REPLACED);
           abortController = undefined;
         }
-        // Always keep the latest fetch context in sync, even in field stats mode
-        api.fetchContext$.next(fetchContext);
+        if (isFieldStatsMode(savedSearch, dataViews[0], discoverServices.uiSettings)) {
+          api.fetchContext$.next(fetchContext);
+        }
       }),
       switchMap(async ([fetchContext, savedSearch, dataViews]) => {
         const dataView = dataViews?.length ? dataViews[0] : undefined;
