@@ -29,9 +29,8 @@ if [[ ${#ZIP_FILES[@]} -eq 0 ]]; then
 fi
 
 for zip_file in "${ZIP_FILES[@]}"; do
-  echo "Uploading $(basename "$zip_file") to $GCS_BUCKET"
-  gsutil cp "$zip_file" "$GCS_BUCKET/"
+  echo "Uploading $(basename "$zip_file") to $GCS_BUCKET (overwriting if exists)"
+  gsutil -o "GSUtil:no_clobber=False" cp "$zip_file" "$GCS_BUCKET/"
 done
 
 echo "Finished uploading kb-artifacts to $GCS_BUCKET"
-
