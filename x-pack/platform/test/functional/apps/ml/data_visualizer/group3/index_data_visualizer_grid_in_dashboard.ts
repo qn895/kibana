@@ -110,21 +110,21 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
         await PageObjects.dashboard.saveDashboard(dashboardTitle);
       });
 
-      // it(`doesn't display Field statistics table in Dashboard when disabled`, async function () {
-      //   await ml.testResources.setAdvancedSettingProperty(SHOW_FIELD_STATISTICS, false);
+      it(`doesn't display Field statistics table in Dashboard when disabled`, async function () {
+        await ml.testResources.setAdvancedSettingProperty(SHOW_FIELD_STATISTICS, false);
 
-      //   await PageObjects.dashboard.navigateToApp();
-      //   await PageObjects.dashboard.loadDashboardInEditMode(dashboardTitle);
+        await PageObjects.dashboard.navigateToApp();
+        await PageObjects.dashboard.loadDashboardInEditMode(dashboardTitle);
 
-      //   await dashboardAddPanel.addSavedSearch(savedSearchTitle);
-      //   await PageObjects.header.waitUntilLoadingHasFinished();
+        await dashboardAddPanel.addSavedSearch(savedSearchTitle);
+        await PageObjects.header.waitUntilLoadingHasFinished();
 
-      //   await PageObjects.timePicker.setAbsoluteRange(startTime, endTime);
-      //   await PageObjects.header.waitUntilLoadingHasFinished();
+        await PageObjects.timePicker.setAbsoluteRange(startTime, endTime);
+        await PageObjects.header.waitUntilLoadingHasFinished();
 
-      //   await PageObjects.discover.assertFieldStatsTableNotExists();
-      //   await PageObjects.dashboard.saveDashboard(dashboardTitle, { saveAsNew: false });
-      // });
+        await PageObjects.discover.assertFieldStatsTableNotExists();
+        await PageObjects.dashboard.saveDashboard(dashboardTitle, { saveAsNew: false });
+      });
     });
   }
 
