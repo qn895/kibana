@@ -31,7 +31,7 @@ export const indexDocuments = async ({
   for (let i = 0; i < chunks.length; i++) {
     const chunk = chunks[i];
     const before = Date.now();
-    await client.bulk(
+    const response = await client.bulk(
       {
         refresh: 'wait_for',
         operations: chunk.reduce((operations, document) => {
@@ -41,6 +41,7 @@ export const indexDocuments = async ({
       },
       { requestTimeout: 10 * 60 * 1000 }
     );
+    log.info(`Bulk response: ${JSON.stringify(response)}`);
 
     const duration = Date.now() - before;
     log.info(`Indexed ${i + 1} of ${chunks.length} chunks (took ${duration}ms)`);
