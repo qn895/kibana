@@ -26,21 +26,13 @@ main () {
     --license=trial &
   ES_PID=$!
 
-  ELASTICSEARCH_URL="http://localhost:9200"
-
-  # Derive host and port for the TCP check from ELASTICSEARCH_URL
-  ES_HOST_PORT="${ELASTICSEARCH_URL#*://}"      # strip protocol
-  ES_HOST_PORT="${ES_HOST_PORT%%/*}"            # strip path
-  ES_HOST="${ES_HOST_PORT%%:*}"
-  ES_PORT="${ES_HOST_PORT##*:}"
-  if [ "$ES_HOST" = "$ES_PORT" ]; then
-    # No explicit port in URL; fall back to default Elasticsearch port
-    ES_PORT=9200
-  fi
+  ES_HOST=localhost
+  ES_PORT=9200
+  ELASTICSEARCH_URL="http://${ES_HOST}:${ES_PORT}"
 
   # Wait for Elasticsearch to be ready
   echo "Waiting for Elasticsearch to be ready..."
-  MAX_WAIT_ES=300  # 5 minutes max wait
+  MAX_WAIT_ES=600
   ELAPSED_ES=0
   while [ $ELAPSED_ES -lt $MAX_WAIT_ES ]; do
     if timeout 1 bash -c "echo > /dev/tcp/$ES_HOST/$ES_PORT" 2>/dev/null; then
@@ -76,17 +68,9 @@ main () {
   node scripts/kibana "${KIBANA_ARGS[@]}" &
   KIBANA_PID=$!
 
-  KIBANA_URL="http://localhost:5601"
-
-  # Derive host and port for the TCP check from KIBANA_URL
-  KB_HOST_PORT="${KIBANA_URL#*://}"      # strip protocol
-  KB_HOST_PORT="${KB_HOST_PORT%%/*}"     # strip path
-  KB_HOST="${KB_HOST_PORT%%:*}"
-  KB_PORT="${KB_HOST_PORT##*:}"
-  if [ "$KB_HOST" = "$KB_PORT" ]; then
-    # No explicit port in URL; fall back to default Kibana port
-    KB_PORT=5601
-  fi
+  KB_HOST=localhost
+  KB_PORT=5601
+  KIBANA_URL="http://${KB_HOST}:${KB_PORT}"
 
 
   # Wait for Kibana to be ready (check both port and status endpoint)
@@ -122,8 +106,10 @@ main () {
 
   # Load ES|QL docs
   if [ -n "$PRECONFIGURED_CONNECTORS" ]; then
+    echo "Using preconfigured connector for ES|QL docs sync"
     node x-pack/platform/plugins/shared/inference/scripts/load_esql_docs/index.js --connectorId azure-gpt4
   else
+    echo "Syncing ES|QL docs"
     node x-pack/platform/plugins/shared/inference/scripts/load_esql_docs/index.js --force
   fi
 
