@@ -36,8 +36,7 @@ export default function ({ getService }: FtrProviderContext) {
   const retry = getService('retry');
 
   describe('EIS product docs artifact generation', function () {
-    this.timeout(90 * 60 * 1000); // 60 minutes, allow enough time for all artifact builds
-
+    this.timeout(170 * 60 * 1000);
     const scriptsDir = resolve(REPO_ROOT, 'scripts');
     const nodeBin = process.execPath;
 

@@ -41,7 +41,9 @@ export const indexDocuments = async ({
       },
       { requestTimeout: 10 * 60 * 1000 }
     );
-    log.info(`Bulk response: ${JSON.stringify(response)}`);
+    if (response.errors) {
+      log.error(`Bulk response errors: ${JSON.stringify(response)}`);
+    }
 
     const duration = Date.now() - before;
     log.info(`Indexed ${i + 1} of ${chunks.length} chunks (took ${duration}ms)`);

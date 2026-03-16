@@ -38,6 +38,9 @@ steps:
       export KIBANA_SOURCE_INDEX="$(echo "$SOURCE_CLUSTER_CONFIG_JSON" | jq -r '.sourceIndex')"
 
       .buildkite/scripts/steps/test/ftr_configs.sh
+
+      echo "--- Upload GenAI product docs artifacts to GCS"
+      .buildkite/scripts/steps/gen_ai/upload_kb_artifacts.sh
     env:
       FTR_CONFIG: 'x-pack/platform/test/functional_gen_ai/inference/eis.config.ts'
       FTR_CONFIG_GROUP_KEY: 'ftr-ai-infra-gen-ai-inference-api'
