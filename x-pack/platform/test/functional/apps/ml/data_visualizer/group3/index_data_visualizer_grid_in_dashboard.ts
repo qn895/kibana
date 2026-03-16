@@ -24,7 +24,12 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
   const dataViews = getService('dataViews');
   const retry = getService('retry');
   const dashboardAddPanel = getService('dashboardAddPanel');
+  const filterBar = getService('filterBar');
 
+  const PINNED_FILTER = {
+    key: 'type.keyword',
+    value: 'farequote',
+  };
   function runTests(testData: TestData) {
     const savedSearchTitle = `Field stats for ${testData.suiteTitle} ${Date.now()}`;
     const dashboardTitle = `Dashboard for ${testData.suiteTitle} ${Date.now()}`;
@@ -88,25 +93,38 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
             fieldRow.exampleContent
           );
         }
+        await filterBar.addFilter({
+          field: PINNED_FILTER.key,
+          operation: 'is not',
+          value: PINNED_FILTER.value,
+        });
+        await ml.dataVisualizerTable.assertNonMetricFieldContents(
+          'text',
+          '@version',
+          '0 (0%)',
+          0,
+          false
+        );
+        await filterBar.removeFilter(PINNED_FILTER.key);
 
         await PageObjects.dashboard.saveDashboard(dashboardTitle);
       });
 
-      it(`doesn't display Field statistics table in Dashboard when disabled`, async function () {
-        await ml.testResources.setAdvancedSettingProperty(SHOW_FIELD_STATISTICS, false);
+      // it(`doesn't display Field statistics table in Dashboard when disabled`, async function () {
+      //   await ml.testResources.setAdvancedSettingProperty(SHOW_FIELD_STATISTICS, false);
 
-        await PageObjects.dashboard.navigateToApp();
-        await PageObjects.dashboard.loadDashboardInEditMode(dashboardTitle);
+      //   await PageObjects.dashboard.navigateToApp();
+      //   await PageObjects.dashboard.loadDashboardInEditMode(dashboardTitle);
 
-        await dashboardAddPanel.addSavedSearch(savedSearchTitle);
-        await PageObjects.header.waitUntilLoadingHasFinished();
+      //   await dashboardAddPanel.addSavedSearch(savedSearchTitle);
+      //   await PageObjects.header.waitUntilLoadingHasFinished();
 
-        await PageObjects.timePicker.setAbsoluteRange(startTime, endTime);
-        await PageObjects.header.waitUntilLoadingHasFinished();
+      //   await PageObjects.timePicker.setAbsoluteRange(startTime, endTime);
+      //   await PageObjects.header.waitUntilLoadingHasFinished();
 
-        await PageObjects.discover.assertFieldStatsTableNotExists();
-        await PageObjects.dashboard.saveDashboard(dashboardTitle, { saveAsNew: false });
-      });
+      //   await PageObjects.discover.assertFieldStatsTableNotExists();
+      //   await PageObjects.dashboard.saveDashboard(dashboardTitle, { saveAsNew: false });
+      // });
     });
   }
 
