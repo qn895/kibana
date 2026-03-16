@@ -28,12 +28,22 @@ main () {
 
   ELASTICSEARCH_URL="http://localhost:9200"
 
+  # Derive host and port for the TCP check from ELASTICSEARCH_URL
+  ES_HOST_PORT="${ELASTICSEARCH_URL#*://}"      # strip protocol
+  ES_HOST_PORT="${ES_HOST_PORT%%/*}"            # strip path
+  ES_HOST="${ES_HOST_PORT%%:*}"
+  ES_PORT="${ES_HOST_PORT##*:}"
+  if [ "$ES_HOST" = "$ES_PORT" ]; then
+    # No explicit port in URL; fall back to default Elasticsearch port
+    ES_PORT=9200
+  fi
+
   # Wait for Elasticsearch to be ready
   echo "Waiting for Elasticsearch to be ready..."
   MAX_WAIT_ES=300  # 5 minutes max wait
   ELAPSED_ES=0
   while [ $ELAPSED_ES -lt $MAX_WAIT_ES ]; do
-    if timeout 1 bash -c "echo > /dev/tcp/localhost/9200" 2>/dev/null; then
+    if timeout 1 bash -c "echo > /dev/tcp/$ES_HOST/$ES_PORT" 2>/dev/null; then
       # Port is open, check if ES is responding
       if curl -s "$ELASTICSEARCH_URL/_cluster/health" | grep -q '"status":"green"\|"status":"yellow"'; then
         echo "Elasticsearch is ready"
@@ -68,13 +78,23 @@ main () {
 
   KIBANA_URL="http://localhost:5601"
 
+  # Derive host and port for the TCP check from KIBANA_URL
+  KB_HOST_PORT="${KIBANA_URL#*://}"      # strip protocol
+  KB_HOST_PORT="${KB_HOST_PORT%%/*}"     # strip path
+  KB_HOST="${KB_HOST_PORT%%:*}"
+  KB_PORT="${KB_HOST_PORT##*:}"
+  if [ "$KB_HOST" = "$KB_PORT" ]; then
+    # No explicit port in URL; fall back to default Kibana port
+    KB_PORT=5601
+  fi
+
 
   # Wait for Kibana to be ready (check both port and status endpoint)
   echo "Waiting for Kibana to be ready..."
   MAX_WAIT=300  # 5 minutes max wait
   ELAPSED=0
   while [ $ELAPSED -lt $MAX_WAIT ]; do
-    if timeout 1 bash -c "echo > /dev/tcp/localhost/5601" 2>/dev/null; then
+    if timeout 1 bash -c "echo > /dev/tcp/$KB_HOST/$KB_PORT" 2>/dev/null; then
       # Port is open, check if Kibana status endpoint is available
       if curl -s "$KIBANA_URL/api/status" | grep -q '"state":"green"'; then
         echo "Kibana is ready"
