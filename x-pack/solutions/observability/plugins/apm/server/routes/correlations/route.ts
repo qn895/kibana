@@ -425,8 +425,7 @@ const unifiedCorrelationsRoute = createApmServerRoute({
       throw Boom.notImplemented(
         i18n.translate('xpack.apm.correlations.metric.notImplemented', {
           defaultMessage:
-            "Correlations for metric '{metric}' are not implemented yet. Supported metrics are 'latency' and 'failure_rate'.",
-          values: { metric },
+            "Correlations for this metric are not implemented yet. Supported metrics are 'latency' and 'failure_rate'.",
         })
       );
     })();
