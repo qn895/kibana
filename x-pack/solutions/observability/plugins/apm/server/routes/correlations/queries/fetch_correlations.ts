@@ -24,8 +24,8 @@ import { fetchDurationFieldCandidates } from './fetch_duration_field_candidates'
 import { fetchFieldValuePairs } from './fetch_field_value_pairs';
 import { fetchSignificantCorrelations } from './fetch_significant_correlations';
 import { fetchPValues } from './fetch_p_values';
-import { getEventTypeFromEntityType } from '../utils';
 import type { APMEventClient } from '../../../lib/helpers/create_es_client/create_apm_event_client';
+import { getEventTypeFromEntityType } from '../utils';
 
 const CHUNK_SIZE = 10;
 
@@ -42,6 +42,7 @@ interface FetchCorrelationsParams extends CommonCorrelationsQueryParams {
   durationMin?: number;
   durationMax?: number;
   includeHistogram?: boolean;
+  correlationType?: 'significant' | 'p-value';
   config?: {
     apm: {
       searchAggregatedTransactions?: boolean;
