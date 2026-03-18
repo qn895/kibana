@@ -27,20 +27,7 @@ steps:
 
   - label: AppEx AI-Infra Inference APIs FTR tests
     key: ai-infra-gen-ai-inference-api
-    command: |
-      SOURCE_CLUSTER_CONFIG_B64="$(vault_get ai-infra-ci-docs source-cluster-config)"
-      SOURCE_CLUSTER_CONFIG_JSON="$(echo "$SOURCE_CLUSTER_CONFIG_B64" | base64 -d)"
-
-      export KIBANA_SOURCE_CLUSTER_URL="$(echo "$SOURCE_CLUSTER_CONFIG_JSON" | jq -r '.sourceClusterUrl')"
-      export KIBANA_SOURCE_CLUSTER_API_KEY="$(echo "$SOURCE_CLUSTER_CONFIG_JSON" | jq -r '.sourceClusterApiKey')"
-      export KIBANA_SOURCE_CLUSTER_USERNAME="$(echo "$SOURCE_CLUSTER_CONFIG_JSON" | jq -r '.sourceClusterUsername')"
-      export KIBANA_SOURCE_CLUSTER_PASSWORD="$(echo "$SOURCE_CLUSTER_CONFIG_JSON" | jq -r '.sourceClusterPassword')"
-      export KIBANA_SOURCE_INDEX="$(echo "$SOURCE_CLUSTER_CONFIG_JSON" | jq -r '.sourceIndex')"
-
-      .buildkite/scripts/steps/test/ftr_configs.sh
-
-      echo "--- Upload GenAI product docs artifacts to GCS"
-      .buildkite/scripts/steps/gen_ai/upload_kb_artifacts.sh
+    command: bash .buildkite/scripts/steps/gen_ai/run_ai_infra_inference_api_ftr.sh
     env:
       FTR_CONFIG: 'x-pack/platform/test/functional_gen_ai/inference/eis.config.ts'
       FTR_CONFIG_GROUP_KEY: 'ftr-ai-infra-gen-ai-inference-api'

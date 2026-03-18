@@ -14,7 +14,7 @@ spec:
     apiVersion: buildkite.elastic.dev/v1
     kind: Pipeline
     metadata:
-      name: kibana / gen-ai-product-docs / twice-monthly
+      name: kibana / gen-ai-product-docs
       description: Runs the GenAI product docs pipeline twice a month
     spec:
       env:
