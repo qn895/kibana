@@ -121,13 +121,23 @@ export default function ({ getService }: FtrProviderContext) {
 
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         const response = await es.inference.get({ inference_id: '_all' });
-        const endpoints = response.endpoints as Array<{ task_type: string; service: string }>;
+        const endpoints = response.endpoints as Array<{
+          task_type: string;
+          service: string;
+          inference_id?: string;
+        }>;
         const eisEndpoints = endpoints.filter(
-          (ep) => ep.task_type === 'chat_completion' && ep.service === 'elastic'
+          (ep) =>
+            ep.service === 'elastic' &&
+            (ep.task_type === 'embedding' ||
+              ep.task_type === 'embeddings' ||
+              ep.inference_id === inferenceId)
         );
 
         if (eisEndpoints.length > 0) {
-          log.info(`[EIS] ✅ Found ${eisEndpoints.length} EIS endpoints on attempt ${attempt}`);
+          log.info(
+            `[EIS] ✅ Found ${eisEndpoints.length} EIS embeddings endpoints on attempt ${attempt}`
+          );
           return;
         }
         if (attempt < maxRetries) {
