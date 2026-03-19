@@ -29,8 +29,10 @@ export default async function ({ readConfigFile }: FtrConfigProviderContext) {
     services,
     testFiles: [require.resolve('./artifacts')],
     esTestCluster: {
+      ...xpackFunctionalConfig.get('esTestCluster'),
       license: 'trial',
       serverArgs: [
+        ...xpackFunctionalConfig.get('esTestCluster.serverArgs'),
         `xpack.inference.elastic.url=${EIS_QA_URL}`,
         `xpack.license.self_generated.type=trial`,
       ],
