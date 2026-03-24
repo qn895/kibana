@@ -25,6 +25,11 @@ for var_name in KIBANA_SOURCE_CLUSTER_URL KIBANA_SOURCE_INDEX KIBANA_SOURCE_CLUS
   fi
 done
 
+export FTR_CONFIG="${FTR_CONFIG:-x-pack/platform/test/functional_gen_ai/inference/eis.config.ts}"
+export FTR_CONFIG_GROUP_KEY="${FTR_CONFIG_GROUP_KEY:-ftr-ai-infra-gen-ai-inference-api}"
+export FTR_GEN_AI="${FTR_GEN_AI:-1}"
+export FTR_EIS_CCM="${FTR_EIS_CCM:-1}"
+
 .buildkite/scripts/steps/test/ftr_configs.sh
 
 echo "--- Upload GenAI product docs artifacts to GCS"
