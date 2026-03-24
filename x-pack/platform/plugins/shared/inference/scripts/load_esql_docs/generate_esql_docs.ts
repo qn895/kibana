@@ -626,7 +626,8 @@ yargs(process.argv.slice(2))
           boolean: true,
           default: false,
         })
-        .option('cache-source', {
+        .option('cacheSource', {
+          alias: 'cache-source',
           describe:
             'If llm.zip already exists under load_esql_docs/__tmp__, skip downloading; default is always re-download',
           boolean: true,
@@ -711,7 +712,7 @@ yargs(process.argv.slice(2))
             const zipExists = await Fs.access(zipPath)
               .then(() => true)
               .catch(() => false);
-            const skipDownload = Boolean(argv['cache-source']) && zipExists;
+            const skipDownload = Boolean(argv.cacheSource) && zipExists;
 
             if (skipDownload) {
               log.info(`Zip file already exists at ${zipPath}, skipping download (--cache-source)`);
