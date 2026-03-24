@@ -50,7 +50,7 @@ main () {
 
   git push origin "$BRANCH_NAME"
 
-  gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base main --head "${BRANCH_NAME}" --label 'release_note:skip' --label 'Team:AI'
+  gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base main --head "${BRANCH_NAME}" --label 'release_note:skip' --label 'Team:AI Infra'
 }
 
 main
