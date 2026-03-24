@@ -44,7 +44,7 @@ main () {
   git checkout -b "$BRANCH_NAME"
 
   git add "$docs_dir"
-  git commit -m "Update ES|QL documentation"
+  git commit -m "Update ES|QL documentation" --no-verify
 
   report_main_step "Changes committed. Creating pull request."
 
