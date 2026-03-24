@@ -12,7 +12,7 @@ main () {
   report_main_step "Loading ES|QL documentation"
 
 
-  docs_dir="x-pack/platform/plugins/shared/inference/server/tasks/nl_to_esql/esql_docs"
+  docs_dir="x-pack/platform/plugins/shared/inference"
   set +e
   git diff --exit-code --quiet "$docs_dir"
   if [ $? -eq 0 ]; then
