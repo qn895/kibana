@@ -9,6 +9,7 @@ import { resolve } from 'path';
 import Fs from 'fs/promises';
 import { spawn } from 'child_process';
 import { REPO_ROOT } from '@kbn/repo-info';
+import { defaultInferenceEndpoints } from '@kbn/inference-common';
 import { getArtifactName } from '@kbn/product-doc-common';
 import type { ProductName } from '@kbn/product-doc-common';
 import type { FtrProviderContext } from '../ftr_provider_context';
@@ -20,6 +21,8 @@ const eisCcmApiKey = process.env[EIS_CCM_API_KEY_ENV];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const inferenceId = process.env.INFERENCE_ID || '.jina-embeddings-v5-text-small';
+/** OpenAPI artifact builder defaults to multilingual per product-doc-artifact-builder README */
+const openApiInferenceId = process.env.OPENAPI_INFERENCE_ID || '.jina-embeddings-v5-text-small';
 const stackDocsVersion = process.env.STACK_DOCS_VERSION || 'latest';
 const sourceClusterUrl = process.env.KIBANA_SOURCE_CLUSTER_URL;
 const sourceClusterApiKey = process.env.KIBANA_SOURCE_CLUSTER_API_KEY;
@@ -28,6 +31,24 @@ const sourceClusterIndex = process.env.KIBANA_SOURCE_INDEX;
 const embeddingClusterUrl = 'http://localhost:9220';
 const embeddingClusterUsername = 'elastic';
 const embeddingClusterPassword = 'changeme';
+const MIN_ARTIFACT_SIZE_BYTES = 3 * 1024 * 1024;
+
+const getCombinedOpenApiArtifactZipFileName = (
+  stackVersion: string,
+  openapiInference: string
+): string => {
+  const impliedElser =
+    openapiInference === defaultInferenceEndpoints.ELSER ||
+    openapiInference === defaultInferenceEndpoints.ELSER_IN_EIS_INFERENCE_ID ||
+    openapiInference.toLowerCase().includes('elser');
+  const suffix = impliedElser ? '' : `--${openapiInference}`;
+  return `kb-product-doc-openapi-${stackVersion}${suffix}.zip`;
+};
+
+const OPENAPI_SPEC_INDEX_NAMES = [
+  'kibana_ai_openapi_spec_elasticsearch',
+  'kibana_ai_openapi_spec_kibana',
+] as const;
 
 // eslint-disable-next-line import/no-default-export
 export default function ({ getService }: FtrProviderContext) {
@@ -36,9 +57,36 @@ export default function ({ getService }: FtrProviderContext) {
   const retry = getService('retry');
 
   describe('EIS product docs artifact generation', function () {
-    this.timeout(170 * 60 * 1000);
+    this.timeout(340 * 60 * 1000);
     const scriptsDir = resolve(REPO_ROOT, 'scripts');
     const nodeBin = process.execPath;
+    const kbArtifactsDir = resolve(REPO_ROOT, 'build', 'kb-artifacts');
+
+    const waitForArtifactZipAtPath = async (artifactPath: string) => {
+      await retry.waitForWithTimeout(
+        `Artifact zip [${artifactPath}] should exist`,
+        30 * 60 * 1000, // 30 minutes
+        async () => {
+          try {
+            await Fs.access(artifactPath);
+            return true;
+          } catch {
+            return false;
+          }
+        }
+      );
+
+      const stats = await Fs.stat(artifactPath);
+      if (stats.size < MIN_ARTIFACT_SIZE_BYTES) {
+        throw new Error(
+          `Artifact zip '[${artifactPath}]' exists but is too small (${stats.size} bytes); expected at least ${MIN_ARTIFACT_SIZE_BYTES} bytes (failing immediately)`
+        );
+      }
+
+      log.info(
+        `Artifact zip [${artifactPath}] size check passed (${stats.size} bytes >= ${MIN_ARTIFACT_SIZE_BYTES} bytes)`
+      );
+    };
 
     const baseArgs = [
       resolve(scriptsDir, 'build_product_doc_artifacts.js'),
@@ -76,34 +124,36 @@ export default function ({ getService }: FtrProviderContext) {
     };
 
     const waitForArtifactZip = async (productName: ProductName) => {
-      const artifactsDir = resolve(REPO_ROOT, 'build', 'kb-artifacts');
       const artifactName = getArtifactName({
         productName,
-        productVersion: 'latest',
+        productVersion: stackDocsVersion,
         inferenceId,
       });
-      const artifactPath = resolve(artifactsDir, artifactName);
+      const artifactPath = resolve(kbArtifactsDir, artifactName);
+      await waitForArtifactZipAtPath(artifactPath);
+    };
 
-      await retry.waitForWithTimeout(
-        `Artifact zip [${artifactPath}] should exist`,
-        30 * 60 * 1000, // 30 minutes
-        async () => {
-          try {
-            await Fs.access(artifactPath);
-            return true;
-          } catch {
-            throw new Error(`Expected artifact zip '[${artifactPath}]' to exist.`);
+    const waitForOpenApiSpecIndices = async () => {
+      for (const indexName of OPENAPI_SPEC_INDEX_NAMES) {
+        await retry.waitForWithTimeout(
+          `Elasticsearch index [${indexName}] should exist`,
+          5 * 60 * 1000,
+          async () => {
+            if (await es.indices.exists({ index: indexName })) {
+              return true;
+            }
+
+            throw new Error(`Expected Elasticsearch index '[${indexName}]' to exist.`);
           }
-        }
-      );
+        );
+      }
     };
 
     before(async () => {
       if (!eisCcmApiKey) {
-        log.warning(
+        throw new Error(
           `[EIS] ${EIS_CCM_API_KEY_ENV} is not set; skipping CCM enablement and assuming endpoints already exist`
         );
-        return;
       }
 
       log.info('[EIS] Enabling Cloud Connected Mode...');
@@ -122,35 +172,43 @@ export default function ({ getService }: FtrProviderContext) {
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         const response = await es.inference.get({ inference_id: '_all' });
         const endpoints = response.endpoints as Array<{
-          task_type: string;
-          service: string;
           inference_id?: string;
         }>;
-        const eisEndpoints = endpoints.filter(
-          (ep) =>
-            ep.service === 'elastic' &&
-            (ep.task_type === 'embedding' ||
-              ep.task_type === 'embeddings' ||
-              ep.inference_id === inferenceId)
+        const presentInferenceIds = new Set(
+          endpoints
+            .map((ep) => ep.inference_id)
+            .filter((id): id is string => typeof id === 'string' && id.length > 0)
+        );
+        const requiredInferenceIds = [...new Set([inferenceId, openApiInferenceId])];
+        const missingInferenceIds = requiredInferenceIds.filter(
+          (id) => !presentInferenceIds.has(id)
         );
 
-        if (eisEndpoints.length > 0) {
+        if (missingInferenceIds.length === 0) {
           log.info(
-            `[EIS] ✅ Found ${eisEndpoints.length} EIS embeddings endpoints on attempt ${attempt}`
+            `[EIS] ✅ Found inference endpoints for: ${requiredInferenceIds.join(
+              ', '
+            )} (attempt ${attempt})`
           );
           return;
         }
         if (attempt < maxRetries) {
-          log.info(`[EIS] No endpoints yet (attempt ${attempt}/${maxRetries}), waiting...`);
+          log.info(
+            `[EIS] Missing inference endpoints: ${missingInferenceIds.join(
+              ', '
+            )} (attempt ${attempt}/${maxRetries}), waiting...`
+          );
 
           await sleep(retryDelayMs);
         }
       }
 
-      log.warning('[EIS] ⚠️ No EIS endpoints found after waiting');
+      throw new Error(
+        `[EIS] Required inference endpoints not all present after ${maxRetries} attempts (need ${inferenceId} and ${openApiInferenceId}). Failing fast before artifact generation.`
+      );
     });
 
-    it('runs product doc artifact builds against EIS', async () => {
+    it(`builds product doc artifacts for inference_id=${inferenceId}`, async () => {
       for (const args of commands) {
         const cmd = `${nodeBin} ${args.join(' ')}`;
         log.info(`Running product doc artifact build: ${cmd}`);
@@ -206,6 +264,64 @@ export default function ({ getService }: FtrProviderContext) {
           await waitForArtifactZip(productName);
         }
       }
+    });
+
+    it(`builds OpenAPI spec artifacts for inference_id=${openApiInferenceId}`, async () => {
+      const openApiArgs = [
+        resolve(scriptsDir, 'build_openapi_artifacts.js'),
+        `--stack-version=${stackDocsVersion}`,
+        `--embedding-cluster-url=${embeddingClusterUrl}`,
+        `--embedding-cluster-username=${embeddingClusterUsername}`,
+        `--embedding-cluster-password=${embeddingClusterPassword}`,
+        `--inference-id=${openApiInferenceId}`,
+      ];
+
+      const cmd = `${nodeBin} ${openApiArgs.join(' ')}`;
+      log.info(`Running OpenAPI artifact build: ${cmd}`);
+
+      await new Promise<void>((resolvePromise, rejectPromise) => {
+        const child = spawn(nodeBin, openApiArgs, {
+          cwd: REPO_ROOT,
+          stdio: 'inherit',
+          env: process.env,
+        });
+
+        child.on('exit', async (code: number | null) => {
+          if (code === 0) {
+            resolvePromise();
+            return;
+          }
+
+          log.warning(
+            `OpenAPI build exited with code ${code}. Waiting for OpenAPI spec indices before failing.`
+          );
+
+          try {
+            await waitForOpenApiSpecIndices();
+            log.info(`OpenAPI spec indices became available despite non-zero exit code ${code}`);
+            resolvePromise();
+          } catch (err) {
+            rejectPromise(
+              new Error(
+                `OpenAPI build failed with exit code ${code} and spec indices did not become ready: ${cmd}. Underlying error: ${
+                  (err as Error).message
+                }`
+              )
+            );
+          }
+        });
+
+        child.on('error', (err: Error) => {
+          rejectPromise(err);
+        });
+      });
+
+      const openApiZipName = getCombinedOpenApiArtifactZipFileName(
+        stackDocsVersion,
+        openApiInferenceId
+      );
+      // waits for zip, then asserts size >= MIN_ARTIFACT_SIZE_BYTES (see waitForArtifactZipAtPath)
+      await waitForArtifactZipAtPath(resolve(kbArtifactsDir, openApiZipName));
     });
   });
 }
