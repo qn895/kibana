@@ -68,6 +68,46 @@ export default function ({ getService }: FtrProviderContext) {
   const config = getService('config');
 
   describe('Gen AI artifacts', function () {
+    describe('updates ES|QL docs with LLM enrichment', function () {
+      this.timeout(120 * 60 * 1000);
+      const nodeBin = process.execPath;
+
+      it(`runs load_esql_docs with connectorId=${ESQL_DOCS_CONNECTOR_ID}`, async function () {
+        const kibanaUrl = formatUrl(config.get('servers.kibana'));
+        const esUrl = formatUrl(config.get('servers.elasticsearch'));
+
+        const loadEsqlDocsArgs = [
+          LOAD_ESQL_DOCS_SCRIPT,
+          `--connectorId=${ESQL_DOCS_CONNECTOR_ID}`,
+          `--kibana=${kibanaUrl}`,
+          `--elasticsearch=${esUrl}`,
+        ];
+
+        const cmd = `${nodeBin} ${loadEsqlDocsArgs.join(' ')}`;
+        log.info(`Running load ES|QL docs: ${cmd}`);
+
+        await new Promise<void>((resolvePromise, rejectPromise) => {
+          const child = spawn(nodeBin, loadEsqlDocsArgs, {
+            cwd: REPO_ROOT,
+            stdio: 'inherit',
+            env: process.env,
+          });
+
+          child.on('exit', (code: number | null) => {
+            if (code === 0) {
+              resolvePromise();
+              return;
+            }
+            rejectPromise(new Error(`load_esql_docs exited with code ${code}: ${cmd}`));
+          });
+
+          child.on('error', (err: Error) => {
+            rejectPromise(err);
+          });
+        });
+      });
+    });
+
     describe('generates product docs artifact with EIS enabled', function () {
       this.timeout(340 * 60 * 1000);
       const scriptsDir = resolve(REPO_ROOT, 'scripts');
@@ -334,46 +374,6 @@ export default function ({ getService }: FtrProviderContext) {
         );
         // waits for zip, then asserts size >= MIN_ARTIFACT_SIZE_BYTES (see waitForArtifactZipAtPath)
         await waitForArtifactZipAtPath(resolve(kbArtifactsDir, openApiZipName));
-      });
-    });
-
-    describe('updates ES|QL docs with LLM enrichment', function () {
-      this.timeout(120 * 60 * 1000);
-      const nodeBin = process.execPath;
-
-      it(`runs load_esql_docs with connectorId=${ESQL_DOCS_CONNECTOR_ID}`, async function () {
-        const kibanaUrl = formatUrl(config.get('servers.kibana'));
-        const esUrl = formatUrl(config.get('servers.elasticsearch'));
-
-        const loadEsqlDocsArgs = [
-          LOAD_ESQL_DOCS_SCRIPT,
-          `--connectorId=${ESQL_DOCS_CONNECTOR_ID}`,
-          `--kibana=${kibanaUrl}`,
-          `--elasticsearch=${esUrl}`,
-        ];
-
-        const cmd = `${nodeBin} ${loadEsqlDocsArgs.join(' ')}`;
-        log.info(`Running load ES|QL docs: ${cmd}`);
-
-        await new Promise<void>((resolvePromise, rejectPromise) => {
-          const child = spawn(nodeBin, loadEsqlDocsArgs, {
-            cwd: REPO_ROOT,
-            stdio: 'inherit',
-            env: process.env,
-          });
-
-          child.on('exit', (code: number | null) => {
-            if (code === 0) {
-              resolvePromise();
-              return;
-            }
-            rejectPromise(new Error(`load_esql_docs exited with code ${code}: ${cmd}`));
-          });
-
-          child.on('error', (err: Error) => {
-            rejectPromise(err);
-          });
-        });
       });
     });
   });
