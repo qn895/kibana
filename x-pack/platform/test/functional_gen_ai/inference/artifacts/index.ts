@@ -67,8 +67,8 @@ export default function ({ getService }: FtrProviderContext) {
   const retry = getService('retry');
   const config = getService('config');
 
-  describe('Gen AI inference artifacts', function () {
-    describe.skip('product docs artifact generation with EIS enabled', function () {
+  describe('Gen AI artifacts', function () {
+    describe('generates product docs artifact with EIS enabled', function () {
       this.timeout(340 * 60 * 1000);
       const scriptsDir = resolve(REPO_ROOT, 'scripts');
       const nodeBin = process.execPath;
@@ -337,7 +337,7 @@ export default function ({ getService }: FtrProviderContext) {
       });
     });
 
-    describe('Load ES|QL docs (inference script)', function () {
+    describe('updates ES|QL docs with LLM enrichment', function () {
       this.timeout(120 * 60 * 1000);
       const nodeBin = process.execPath;
 
