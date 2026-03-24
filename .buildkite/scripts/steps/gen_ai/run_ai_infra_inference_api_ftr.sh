@@ -32,7 +32,7 @@ export FTR_EIS_CCM="${FTR_EIS_CCM:-1}"
 
 .buildkite/scripts/steps/test/ftr_configs.sh
 
-echo "--- Run GenAI inference artifacts FTR"
+echo "--- Make PR for GenAI ES|QL docs sync update"
 .buildkite/scripts/steps/gen_ai/esql_docs_sync.sh
 
 

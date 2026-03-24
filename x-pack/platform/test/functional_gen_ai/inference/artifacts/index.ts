@@ -15,10 +15,6 @@ import { getArtifactName } from '@kbn/product-doc-common';
 import type { ProductName } from '@kbn/product-doc-common';
 import type { FtrProviderContext } from '../ftr_provider_context';
 
-// Environment variable for EIS CCM API key (set by CI from Vault)
-const EIS_CCM_API_KEY_ENV = 'KIBANA_EIS_CCM_API_KEY';
-const eisCcmApiKey = process.env[EIS_CCM_API_KEY_ENV];
-
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const inferenceId = process.env.INFERENCE_ID || '.jina-embeddings-v5-text-small';
@@ -68,6 +64,69 @@ export default function ({ getService }: FtrProviderContext) {
   const config = getService('config');
 
   describe('Gen AI artifacts', function () {
+    before(async () => {
+      // Environment variable for EIS CCM API key (set by CI from Vault)
+      const EIS_CCM_API_KEY_ENV = 'KIBANA_EIS_CCM_API_KEY';
+      const eisCcmApiKey = process.env[EIS_CCM_API_KEY_ENV];
+
+      if (!eisCcmApiKey) {
+        throw new Error(
+          `[EIS] ${EIS_CCM_API_KEY_ENV} is not set; skipping CCM enablement and assuming endpoints already exist`
+        );
+      }
+
+      log.info('[EIS] Enabling Cloud Connected Mode...');
+      await es.transport.request({
+        method: 'PUT',
+        path: '/_inference/_ccm',
+        body: { api_key: eisCcmApiKey },
+      });
+      log.info('[EIS] ✅ CCM enabled');
+
+      // Wait for EIS to provision endpoints
+      log.info('[EIS] Waiting for EIS endpoints to be provisioned...');
+      const maxRetries = 5;
+      const retryDelayMs = 3000;
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const response = await es.inference.get({ inference_id: '_all' });
+        const endpoints = response.endpoints as Array<{
+          inference_id?: string;
+        }>;
+        const presentInferenceIds = new Set(
+          endpoints
+            .map((ep) => ep.inference_id)
+            .filter((id): id is string => typeof id === 'string' && id.length > 0)
+        );
+        const requiredInferenceIds = [...new Set([inferenceId, openApiInferenceId])];
+        const missingInferenceIds = requiredInferenceIds.filter(
+          (id) => !presentInferenceIds.has(id)
+        );
+
+        if (missingInferenceIds.length === 0) {
+          log.info(
+            `[EIS] ✅ Found inference endpoints for: ${requiredInferenceIds.join(
+              ', '
+            )} (attempt ${attempt})`
+          );
+          return;
+        }
+        if (attempt < maxRetries) {
+          log.info(
+            `[EIS] Missing inference endpoints: ${missingInferenceIds.join(
+              ', '
+            )} (attempt ${attempt}/${maxRetries}), waiting...`
+          );
+
+          await sleep(retryDelayMs);
+        }
+      }
+
+      throw new Error(
+        `[EIS] Required inference endpoints not all present after ${maxRetries} attempts (need ${inferenceId} and ${openApiInferenceId}). Failing fast before artifact generation.`
+      );
+    });
+
     describe('updates ES|QL docs with LLM enrichment', function () {
       this.timeout(120 * 60 * 1000);
       const nodeBin = process.execPath;
@@ -201,66 +260,7 @@ export default function ({ getService }: FtrProviderContext) {
         }
       };
 
-      before(async () => {
-        if (!eisCcmApiKey) {
-          throw new Error(
-            `[EIS] ${EIS_CCM_API_KEY_ENV} is not set; skipping CCM enablement and assuming endpoints already exist`
-          );
-        }
-
-        log.info('[EIS] Enabling Cloud Connected Mode...');
-        await es.transport.request({
-          method: 'PUT',
-          path: '/_inference/_ccm',
-          body: { api_key: eisCcmApiKey },
-        });
-        log.info('[EIS] ✅ CCM enabled');
-
-        // Wait for EIS to provision endpoints
-        log.info('[EIS] Waiting for EIS endpoints to be provisioned...');
-        const maxRetries = 5;
-        const retryDelayMs = 3000;
-
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-          const response = await es.inference.get({ inference_id: '_all' });
-          const endpoints = response.endpoints as Array<{
-            inference_id?: string;
-          }>;
-          const presentInferenceIds = new Set(
-            endpoints
-              .map((ep) => ep.inference_id)
-              .filter((id): id is string => typeof id === 'string' && id.length > 0)
-          );
-          const requiredInferenceIds = [...new Set([inferenceId, openApiInferenceId])];
-          const missingInferenceIds = requiredInferenceIds.filter(
-            (id) => !presentInferenceIds.has(id)
-          );
-
-          if (missingInferenceIds.length === 0) {
-            log.info(
-              `[EIS] ✅ Found inference endpoints for: ${requiredInferenceIds.join(
-                ', '
-              )} (attempt ${attempt})`
-            );
-            return;
-          }
-          if (attempt < maxRetries) {
-            log.info(
-              `[EIS] Missing inference endpoints: ${missingInferenceIds.join(
-                ', '
-              )} (attempt ${attempt}/${maxRetries}), waiting...`
-            );
-
-            await sleep(retryDelayMs);
-          }
-        }
-
-        throw new Error(
-          `[EIS] Required inference endpoints not all present after ${maxRetries} attempts (need ${inferenceId} and ${openApiInferenceId}). Failing fast before artifact generation.`
-        );
-      });
-
-      it.skip(`builds product doc artifacts for inference_id=${inferenceId}`, async () => {
+      it(`builds product doc artifacts for inference_id=${inferenceId}`, async () => {
         for (const args of commands) {
           const cmd = `${nodeBin} ${args.join(' ')}`;
           log.info(`Running product doc artifact build: ${cmd}`);
@@ -318,7 +318,7 @@ export default function ({ getService }: FtrProviderContext) {
         }
       });
 
-      it.skip(`builds OpenAPI spec artifacts for inference_id=${openApiInferenceId}`, async () => {
+      it(`builds OpenAPI spec artifacts for inference_id=${openApiInferenceId}`, async () => {
         const openApiArgs = [
           resolve(scriptsDir, 'build_openapi_artifacts.js'),
           `--stack-version=${stackDocsVersion}`,
