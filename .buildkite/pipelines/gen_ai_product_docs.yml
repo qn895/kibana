@@ -29,7 +29,7 @@ steps:
     key: ai-infra-gen-ai-inference-api
     command: bash .buildkite/scripts/steps/gen_ai/run_ai_infra_inference_api_ftr.sh
     env:
-      FTR_CONFIG: 'x-pack/platform/test/functional_gen_ai/inference/eis.config.ts'
+      FTR_CONFIG: 'x-pack/platform/test/functional_gen_ai/inference/generate_artifacts.config.ts'
       FTR_CONFIG_GROUP_KEY: 'ftr-ai-infra-gen-ai-inference-api'
       FTR_GEN_AI: '1'
       FTR_EIS_CCM: '1'

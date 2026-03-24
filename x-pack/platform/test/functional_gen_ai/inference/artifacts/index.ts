@@ -6,6 +6,7 @@
  */
 
 import { resolve } from 'path';
+import { format as formatUrl } from 'url';
 import Fs from 'fs/promises';
 import { spawn } from 'child_process';
 import { REPO_ROOT } from '@kbn/repo-info';
@@ -50,91 +51,77 @@ const OPENAPI_SPEC_INDEX_NAMES = [
   'kibana_ai_openapi_spec_kibana',
 ] as const;
 
+const LOAD_ESQL_DOCS_SCRIPT = resolve(
+  REPO_ROOT,
+  'x-pack/platform/plugins/shared/inference/scripts/load_esql_docs/index.js'
+);
+
+/** Connector used by load_esql_docs to enrich ES|QL docs (must exist in preconfigured connectors) */
+const ESQL_DOCS_CONNECTOR_ID =
+  process.env.ESQL_DOCS_CONNECTOR_ID || '.openai-gpt-4.1-chat_completion';
+
 // eslint-disable-next-line import/no-default-export
 export default function ({ getService }: FtrProviderContext) {
   const log = getService('log');
   const es = getService('es');
   const retry = getService('retry');
+  const config = getService('config');
 
-  describe('EIS product docs artifact generation', function () {
-    this.timeout(340 * 60 * 1000);
-    const scriptsDir = resolve(REPO_ROOT, 'scripts');
-    const nodeBin = process.execPath;
-    const kbArtifactsDir = resolve(REPO_ROOT, 'build', 'kb-artifacts');
+  describe('Gen AI inference artifacts', function () {
+    describe.skip('product docs artifact generation with EIS enabled', function () {
+      this.timeout(340 * 60 * 1000);
+      const scriptsDir = resolve(REPO_ROOT, 'scripts');
+      const nodeBin = process.execPath;
+      const kbArtifactsDir = resolve(REPO_ROOT, 'build', 'kb-artifacts');
 
-    const waitForArtifactZipAtPath = async (artifactPath: string) => {
-      await retry.waitForWithTimeout(
-        `Artifact zip [${artifactPath}] should exist`,
-        30 * 60 * 1000, // 30 minutes
-        async () => {
-          try {
-            await Fs.access(artifactPath);
-            return true;
-          } catch {
-            return false;
+      const waitForArtifactZipAtPath = async (artifactPath: string) => {
+        await retry.waitForWithTimeout(
+          `Artifact zip [${artifactPath}] should exist`,
+          30 * 60 * 1000, // 30 minutes
+          async () => {
+            try {
+              await Fs.access(artifactPath);
+              return true;
+            } catch {
+              return false;
+            }
           }
-        }
-      );
-
-      const stats = await Fs.stat(artifactPath);
-      if (stats.size < MIN_ARTIFACT_SIZE_BYTES) {
-        throw new Error(
-          `Artifact zip '[${artifactPath}]' exists but is too small (${stats.size} bytes); expected at least ${MIN_ARTIFACT_SIZE_BYTES} bytes (failing immediately)`
         );
-      }
 
-      log.info(
-        `Artifact zip [${artifactPath}] size check passed (${stats.size} bytes >= ${MIN_ARTIFACT_SIZE_BYTES} bytes)`
-      );
-    };
-
-    const baseArgs = [
-      resolve(scriptsDir, 'build_product_doc_artifacts.js'),
-      `--stack-version=${stackDocsVersion}`,
-      `--inference-id=${inferenceId}`,
-      `--sourceClusterUrl=${sourceClusterUrl}`,
-      `--sourceClusterApiKey=${sourceClusterApiKey}`,
-      `--sourceClusterIndex=${sourceClusterIndex}`,
-      `--embeddingClusterUrl=${embeddingClusterUrl}`,
-      `--embeddingClusterUsername=${embeddingClusterUsername}`,
-      `--embeddingClusterPassword=${embeddingClusterPassword}`,
-    ];
-
-    const commands = [
-      [...baseArgs, '--product-name=kibana'],
-      [...baseArgs, '--product-name=elasticsearch'],
-      [...baseArgs, '--product-name=observability'],
-      [...baseArgs, '--product-name=security'],
-    ];
-
-    const waitForProductDocIndex = async (productName: string) => {
-      const indexName = `.kibana_ai_product_doc_${productName}-${inferenceId}`;
-
-      await retry.waitForWithTimeout(
-        `Elasticsearch index [${indexName}] should exist`,
-        5 * 60 * 1000,
-        async () => {
-          if (await es.indices.exists({ index: indexName })) {
-            return true;
-          }
-
-          throw new Error(`Expected Elasticsearch index '[${indexName}]' to exist.`);
+        const stats = await Fs.stat(artifactPath);
+        if (stats.size < MIN_ARTIFACT_SIZE_BYTES) {
+          throw new Error(
+            `Artifact zip '[${artifactPath}]' exists but is too small (${stats.size} bytes); expected at least ${MIN_ARTIFACT_SIZE_BYTES} bytes (failing immediately)`
+          );
         }
-      );
-    };
 
-    const waitForArtifactZip = async (productName: ProductName) => {
-      const artifactName = getArtifactName({
-        productName,
-        productVersion: stackDocsVersion,
-        inferenceId,
-      });
-      const artifactPath = resolve(kbArtifactsDir, artifactName);
-      await waitForArtifactZipAtPath(artifactPath);
-    };
+        log.info(
+          `Artifact zip [${artifactPath}] size check passed (${stats.size} bytes >= ${MIN_ARTIFACT_SIZE_BYTES} bytes)`
+        );
+      };
 
-    const waitForOpenApiSpecIndices = async () => {
-      for (const indexName of OPENAPI_SPEC_INDEX_NAMES) {
+      const baseArgs = [
+        resolve(scriptsDir, 'build_product_doc_artifacts.js'),
+        `--stack-version=${stackDocsVersion}`,
+        `--inference-id=${inferenceId}`,
+        `--sourceClusterUrl=${sourceClusterUrl}`,
+        `--sourceClusterApiKey=${sourceClusterApiKey}`,
+        `--sourceClusterIndex=${sourceClusterIndex}`,
+        `--embeddingClusterUrl=${embeddingClusterUrl}`,
+        `--embeddingClusterUsername=${embeddingClusterUsername}`,
+        `--embeddingClusterPassword=${embeddingClusterPassword}`,
+      ];
+
+      const commands = [
+        [...baseArgs, '--product-name=kibana'],
+        [...baseArgs, '--product-name=elasticsearch'],
+        [...baseArgs, '--product-name=observability'],
+        [...baseArgs, '--product-name=security'],
+      ];
+
+      const waitForProductDocIndex = async (productName: string) => {
+        const indexName = `.kibana_ai_product_doc_${productName}-${inferenceId}`;
+
         await retry.waitForWithTimeout(
           `Elasticsearch index [${indexName}] should exist`,
           5 * 60 * 1000,
@@ -146,78 +133,166 @@ export default function ({ getService }: FtrProviderContext) {
             throw new Error(`Expected Elasticsearch index '[${indexName}]' to exist.`);
           }
         );
-      }
-    };
+      };
 
-    before(async () => {
-      if (!eisCcmApiKey) {
+      const waitForArtifactZip = async (productName: ProductName) => {
+        const artifactName = getArtifactName({
+          productName,
+          productVersion: stackDocsVersion,
+          inferenceId,
+        });
+        const artifactPath = resolve(kbArtifactsDir, artifactName);
+        await waitForArtifactZipAtPath(artifactPath);
+      };
+
+      const waitForOpenApiSpecIndices = async () => {
+        for (const indexName of OPENAPI_SPEC_INDEX_NAMES) {
+          await retry.waitForWithTimeout(
+            `Elasticsearch index [${indexName}] should exist`,
+            5 * 60 * 1000,
+            async () => {
+              if (await es.indices.exists({ index: indexName })) {
+                return true;
+              }
+
+              throw new Error(`Expected Elasticsearch index '[${indexName}]' to exist.`);
+            }
+          );
+        }
+      };
+
+      before(async () => {
+        if (!eisCcmApiKey) {
+          throw new Error(
+            `[EIS] ${EIS_CCM_API_KEY_ENV} is not set; skipping CCM enablement and assuming endpoints already exist`
+          );
+        }
+
+        log.info('[EIS] Enabling Cloud Connected Mode...');
+        await es.transport.request({
+          method: 'PUT',
+          path: '/_inference/_ccm',
+          body: { api_key: eisCcmApiKey },
+        });
+        log.info('[EIS] ✅ CCM enabled');
+
+        // Wait for EIS to provision endpoints
+        log.info('[EIS] Waiting for EIS endpoints to be provisioned...');
+        const maxRetries = 5;
+        const retryDelayMs = 3000;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          const response = await es.inference.get({ inference_id: '_all' });
+          const endpoints = response.endpoints as Array<{
+            inference_id?: string;
+          }>;
+          const presentInferenceIds = new Set(
+            endpoints
+              .map((ep) => ep.inference_id)
+              .filter((id): id is string => typeof id === 'string' && id.length > 0)
+          );
+          const requiredInferenceIds = [...new Set([inferenceId, openApiInferenceId])];
+          const missingInferenceIds = requiredInferenceIds.filter(
+            (id) => !presentInferenceIds.has(id)
+          );
+
+          if (missingInferenceIds.length === 0) {
+            log.info(
+              `[EIS] ✅ Found inference endpoints for: ${requiredInferenceIds.join(
+                ', '
+              )} (attempt ${attempt})`
+            );
+            return;
+          }
+          if (attempt < maxRetries) {
+            log.info(
+              `[EIS] Missing inference endpoints: ${missingInferenceIds.join(
+                ', '
+              )} (attempt ${attempt}/${maxRetries}), waiting...`
+            );
+
+            await sleep(retryDelayMs);
+          }
+        }
+
         throw new Error(
-          `[EIS] ${EIS_CCM_API_KEY_ENV} is not set; skipping CCM enablement and assuming endpoints already exist`
+          `[EIS] Required inference endpoints not all present after ${maxRetries} attempts (need ${inferenceId} and ${openApiInferenceId}). Failing fast before artifact generation.`
         );
-      }
-
-      log.info('[EIS] Enabling Cloud Connected Mode...');
-      await es.transport.request({
-        method: 'PUT',
-        path: '/_inference/_ccm',
-        body: { api_key: eisCcmApiKey },
       });
-      log.info('[EIS] ✅ CCM enabled');
 
-      // Wait for EIS to provision endpoints
-      log.info('[EIS] Waiting for EIS endpoints to be provisioned...');
-      const maxRetries = 5;
-      const retryDelayMs = 3000;
+      it.skip(`builds product doc artifacts for inference_id=${inferenceId}`, async () => {
+        for (const args of commands) {
+          const cmd = `${nodeBin} ${args.join(' ')}`;
+          log.info(`Running product doc artifact build: ${cmd}`);
 
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        const response = await es.inference.get({ inference_id: '_all' });
-        const endpoints = response.endpoints as Array<{
-          inference_id?: string;
-        }>;
-        const presentInferenceIds = new Set(
-          endpoints
-            .map((ep) => ep.inference_id)
-            .filter((id): id is string => typeof id === 'string' && id.length > 0)
-        );
-        const requiredInferenceIds = [...new Set([inferenceId, openApiInferenceId])];
-        const missingInferenceIds = requiredInferenceIds.filter(
-          (id) => !presentInferenceIds.has(id)
-        );
+          const productNameArg = args.find((arg) => arg.startsWith('--product-name='));
+          const productName = productNameArg?.split('=')[1] as ProductName | undefined;
 
-        if (missingInferenceIds.length === 0) {
-          log.info(
-            `[EIS] ✅ Found inference endpoints for: ${requiredInferenceIds.join(
-              ', '
-            )} (attempt ${attempt})`
-          );
-          return;
+          await new Promise<void>((resolvePromise, rejectPromise) => {
+            const child = spawn(nodeBin, args, {
+              cwd: REPO_ROOT,
+              stdio: 'inherit',
+              env: process.env,
+            });
+
+            child.on('exit', async (code: number | null) => {
+              if (code === 0) {
+                resolvePromise();
+                return;
+              }
+
+              if (!productName) {
+                rejectPromise(new Error(`Command failed with exit code ${code}: ${cmd}`));
+                return;
+              }
+
+              log.warning(
+                `Command exited with code ${code} for product [${productName}]. Waiting for index to be ready before failing.`
+              );
+
+              try {
+                await waitForProductDocIndex(productName);
+                log.info(
+                  `Index for product [${productName}] became available despite non-zero exit code ${code}`
+                );
+                resolvePromise();
+              } catch (err) {
+                rejectPromise(
+                  new Error(
+                    `Command failed with exit code ${code} and index for product [${productName}] did not become ready: ${cmd}. Underlying error: ${
+                      (err as Error).message
+                    }`
+                  )
+                );
+              }
+            });
+
+            child.on('error', (err: Error) => {
+              rejectPromise(err);
+            });
+          });
+
+          if (productName) {
+            await waitForArtifactZip(productName);
+          }
         }
-        if (attempt < maxRetries) {
-          log.info(
-            `[EIS] Missing inference endpoints: ${missingInferenceIds.join(
-              ', '
-            )} (attempt ${attempt}/${maxRetries}), waiting...`
-          );
+      });
 
-          await sleep(retryDelayMs);
-        }
-      }
+      it.skip(`builds OpenAPI spec artifacts for inference_id=${openApiInferenceId}`, async () => {
+        const openApiArgs = [
+          resolve(scriptsDir, 'build_openapi_artifacts.js'),
+          `--stack-version=${stackDocsVersion}`,
+          `--embedding-cluster-url=${embeddingClusterUrl}`,
+          `--embedding-cluster-username=${embeddingClusterUsername}`,
+          `--embedding-cluster-password=${embeddingClusterPassword}`,
+          `--inference-id=${openApiInferenceId}`,
+        ];
 
-      throw new Error(
-        `[EIS] Required inference endpoints not all present after ${maxRetries} attempts (need ${inferenceId} and ${openApiInferenceId}). Failing fast before artifact generation.`
-      );
-    });
-
-    it(`builds product doc artifacts for inference_id=${inferenceId}`, async () => {
-      for (const args of commands) {
-        const cmd = `${nodeBin} ${args.join(' ')}`;
-        log.info(`Running product doc artifact build: ${cmd}`);
-
-        const productNameArg = args.find((arg) => arg.startsWith('--product-name='));
-        const productName = productNameArg?.split('=')[1] as ProductName | undefined;
+        const cmd = `${nodeBin} ${openApiArgs.join(' ')}`;
+        log.info(`Running OpenAPI artifact build: ${cmd}`);
 
         await new Promise<void>((resolvePromise, rejectPromise) => {
-          const child = spawn(nodeBin, args, {
+          const child = spawn(nodeBin, openApiArgs, {
             cwd: REPO_ROOT,
             stdio: 'inherit',
             env: process.env,
@@ -229,25 +304,18 @@ export default function ({ getService }: FtrProviderContext) {
               return;
             }
 
-            if (!productName) {
-              rejectPromise(new Error(`Command failed with exit code ${code}: ${cmd}`));
-              return;
-            }
-
             log.warning(
-              `Command exited with code ${code} for product [${productName}]. Waiting for index to be ready before failing.`
+              `OpenAPI build exited with code ${code}. Waiting for OpenAPI spec indices before failing.`
             );
 
             try {
-              await waitForProductDocIndex(productName);
-              log.info(
-                `Index for product [${productName}] became available despite non-zero exit code ${code}`
-              );
+              await waitForOpenApiSpecIndices();
+              log.info(`OpenAPI spec indices became available despite non-zero exit code ${code}`);
               resolvePromise();
             } catch (err) {
               rejectPromise(
                 new Error(
-                  `Command failed with exit code ${code} and index for product [${productName}] did not become ready: ${cmd}. Underlying error: ${
+                  `OpenAPI build failed with exit code ${code} and spec indices did not become ready: ${cmd}. Underlying error: ${
                     (err as Error).message
                   }`
                 )
@@ -260,68 +328,53 @@ export default function ({ getService }: FtrProviderContext) {
           });
         });
 
-        if (productName) {
-          await waitForArtifactZip(productName);
-        }
-      }
+        const openApiZipName = getCombinedOpenApiArtifactZipFileName(
+          stackDocsVersion,
+          openApiInferenceId
+        );
+        // waits for zip, then asserts size >= MIN_ARTIFACT_SIZE_BYTES (see waitForArtifactZipAtPath)
+        await waitForArtifactZipAtPath(resolve(kbArtifactsDir, openApiZipName));
+      });
     });
 
-    it(`builds OpenAPI spec artifacts for inference_id=${openApiInferenceId}`, async () => {
-      const openApiArgs = [
-        resolve(scriptsDir, 'build_openapi_artifacts.js'),
-        `--stack-version=${stackDocsVersion}`,
-        `--embedding-cluster-url=${embeddingClusterUrl}`,
-        `--embedding-cluster-username=${embeddingClusterUsername}`,
-        `--embedding-cluster-password=${embeddingClusterPassword}`,
-        `--inference-id=${openApiInferenceId}`,
-      ];
+    describe('Load ES|QL docs (inference script)', function () {
+      this.timeout(120 * 60 * 1000);
+      const nodeBin = process.execPath;
 
-      const cmd = `${nodeBin} ${openApiArgs.join(' ')}`;
-      log.info(`Running OpenAPI artifact build: ${cmd}`);
+      it(`runs load_esql_docs with connectorId=${ESQL_DOCS_CONNECTOR_ID}`, async function () {
+        const kibanaUrl = formatUrl(config.get('servers.kibana'));
+        const esUrl = formatUrl(config.get('servers.elasticsearch'));
 
-      await new Promise<void>((resolvePromise, rejectPromise) => {
-        const child = spawn(nodeBin, openApiArgs, {
-          cwd: REPO_ROOT,
-          stdio: 'inherit',
-          env: process.env,
-        });
+        const loadEsqlDocsArgs = [
+          LOAD_ESQL_DOCS_SCRIPT,
+          `--connectorId=${ESQL_DOCS_CONNECTOR_ID}`,
+          `--kibana=${kibanaUrl}`,
+          `--elasticsearch=${esUrl}`,
+        ];
 
-        child.on('exit', async (code: number | null) => {
-          if (code === 0) {
-            resolvePromise();
-            return;
-          }
+        const cmd = `${nodeBin} ${loadEsqlDocsArgs.join(' ')}`;
+        log.info(`Running load ES|QL docs: ${cmd}`);
 
-          log.warning(
-            `OpenAPI build exited with code ${code}. Waiting for OpenAPI spec indices before failing.`
-          );
+        await new Promise<void>((resolvePromise, rejectPromise) => {
+          const child = spawn(nodeBin, loadEsqlDocsArgs, {
+            cwd: REPO_ROOT,
+            stdio: 'inherit',
+            env: process.env,
+          });
 
-          try {
-            await waitForOpenApiSpecIndices();
-            log.info(`OpenAPI spec indices became available despite non-zero exit code ${code}`);
-            resolvePromise();
-          } catch (err) {
-            rejectPromise(
-              new Error(
-                `OpenAPI build failed with exit code ${code} and spec indices did not become ready: ${cmd}. Underlying error: ${
-                  (err as Error).message
-                }`
-              )
-            );
-          }
-        });
+          child.on('exit', (code: number | null) => {
+            if (code === 0) {
+              resolvePromise();
+              return;
+            }
+            rejectPromise(new Error(`load_esql_docs exited with code ${code}: ${cmd}`));
+          });
 
-        child.on('error', (err: Error) => {
-          rejectPromise(err);
+          child.on('error', (err: Error) => {
+            rejectPromise(err);
+          });
         });
       });
-
-      const openApiZipName = getCombinedOpenApiArtifactZipFileName(
-        stackDocsVersion,
-        openApiInferenceId
-      );
-      // waits for zip, then asserts size >= MIN_ARTIFACT_SIZE_BYTES (see waitForArtifactZipAtPath)
-      await waitForArtifactZipAtPath(resolve(kbArtifactsDir, openApiZipName));
     });
   });
 }
