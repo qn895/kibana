@@ -10,6 +10,9 @@ import type { Logger } from '@kbn/core/server';
 import type { BuiltinToolDefinition, StaticToolRegistration } from '@kbn/agent-builder-server';
 import { ToolType } from '@kbn/agent-builder-common';
 import { ToolResultType } from '@kbn/agent-builder-common/tools/tool_result';
+import { i18n } from '@kbn/i18n';
+import { isActivePlatinumLicense } from '@kbn/apm-plugin/common/license_check';
+import { firstValueFrom } from 'rxjs';
 import type {
   ObservabilityAgentBuilderCoreSetup,
   ObservabilityAgentBuilderPluginSetupDependencies,
@@ -23,6 +26,13 @@ export const OBSERVABILITY_GET_APM_CORRELATIONS_TOOL_ID = 'observability.get_apm
 
 const MAX_FIELD_CANDIDATES = 25;
 const MAX_RESULTS_PER_FIELD = 20;
+const INVALID_LICENSE = i18n.translate(
+  'xpack.observabilityAgentBuilder.tools.getApmCorrelations.invalidLicense',
+  {
+    defaultMessage:
+      'To use the correlations API, you must be subscribed to an Elastic Platinum license.',
+  }
+);
 
 const getApmCorrelationsSchema = z.object({
   ...timeRangeSchemaRequired,
@@ -107,6 +117,21 @@ Notes:
       { esClient }
     ) => {
       try {
+        const [, pluginStart] = await core.getStartServices();
+        const license = await firstValueFrom(pluginStart.licensing.license$);
+        if (!isActivePlatinumLicense(license)) {
+          return {
+            results: [
+              {
+                type: ToolResultType.error,
+                data: {
+                  message: INVALID_LICENSE,
+                },
+              },
+            ],
+          };
+        }
+
         const result = await getToolHandler({
           core,
           plugins,
