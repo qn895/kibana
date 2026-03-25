@@ -15,9 +15,22 @@ main () {
   docs_dir="x-pack/platform/plugins/shared/inference"
   set +e
   git diff --exit-code --quiet "$docs_dir"
-  if [ $? -eq 0 ]; then
+  diff_exit_code=$?
+  if [ $diff_exit_code -gt 1 ]; then
+    echo "ERROR: git diff failed (exit code $diff_exit_code) for '$docs_dir'" >&2
+    exit $diff_exit_code
+  fi
+
+  untracked_files=$(git ls-files --others --exclude-standard -- "$docs_dir")
+  ls_files_exit_code=$?
+  if [ $ls_files_exit_code -ne 0 ]; then
+    echo "ERROR: git ls-files failed (exit code $ls_files_exit_code) for '$docs_dir'" >&2
+    exit $ls_files_exit_code
+  fi
+
+  if [ $diff_exit_code -eq 0 ] && [ -z "$untracked_files" ]; then
     echo "No differences found. Our work is done here."
-    exit
+    exit 0
   fi
   set -e
 
