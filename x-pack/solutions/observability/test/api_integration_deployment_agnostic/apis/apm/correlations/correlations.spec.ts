@@ -217,6 +217,30 @@ export default function ApiTest({ getService }: DeploymentAgnosticFtrProviderCon
           1244,
           `Expected 1244 total doc count, got ${response.totalDocCount}.`
         );
+
+        for (const c of response.correlations) {
+          expect(c.histogram).to.be(undefined);
+        }
+      });
+
+      it('accepts requests without a kuery field', async () => {
+        const unifiedResponse = await apmApiClient.readUser({
+          endpoint: 'POST /internal/apm/correlations',
+          params: {
+            body: {
+              start: '2020',
+              end: '2021',
+              entityType: 'transaction',
+              metric: 'latency',
+              percentileThreshold: 95,
+              includeHistogram: true,
+            },
+          },
+        });
+
+        expect(unifiedResponse.status).to.eql(200);
+        const response = unifiedResponse.body as CorrelationsResponse;
+        expect(response.fieldCandidates.length).to.be.greaterThan(0);
       });
     });
 
@@ -281,12 +305,13 @@ export default function ApiTest({ getService }: DeploymentAgnosticFtrProviderCon
           `Expected 29 identified correlations, got ${failedTransactionsResponse.failedTransactionsCorrelations?.length}.`
         );
 
-        const sortedCorrelations = orderBy(
-          failedTransactionsResponse.failedTransactionsCorrelations,
-          ['score', 'fieldName', 'fieldValue'],
-          ['desc', 'asc', 'asc']
+        const normalizedScores = response.correlations.map((c) => c.normalizedScore ?? 0);
+        expect(normalizedScores).to.eql(
+          [...normalizedScores].sort((a, b) => b - a),
+          'correlations should be sorted by normalizedScore descending'
         );
-        const correlation = sortedCorrelations?.[0];
+
+        const correlation = response.correlations[0];
 
         expect(typeof correlation).to.be('object');
         expect(correlation?.doc_count).to.be(31);

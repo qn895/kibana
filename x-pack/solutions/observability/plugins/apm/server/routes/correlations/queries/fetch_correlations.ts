@@ -165,6 +165,7 @@ export async function fetchCorrelations({
         durationMax,
         fieldCandidates: fieldCandidatesChunk,
         entityType,
+        includeHistogram,
       });
 
       if (pValuesResponse.failedTransactionsCorrelations.length > 0) {
@@ -188,7 +189,28 @@ export async function fetchCorrelations({
       }
     }
 
-    correlations = allFailedCorrelations;
+    correlations = allFailedCorrelations.sort((a, b) => {
+      const aScore = a.normalizedScore ?? 0;
+      const bScore = b.normalizedScore ?? 0;
+      if (bScore !== aScore) {
+        return bScore - aScore;
+      }
+      const aP = a.pValue;
+      const bP = b.pValue;
+      if (typeof aP === 'number' && typeof bP === 'number' && aP !== bP) {
+        return aP - bP;
+      }
+      if (typeof aP === 'number' && typeof bP !== 'number') {
+        return -1;
+      }
+      if (typeof aP !== 'number' && typeof bP === 'number') {
+        return 1;
+      }
+      if (a.fieldName !== b.fieldName) {
+        return a.fieldName.localeCompare(b.fieldName);
+      }
+      return String(a.fieldValue).localeCompare(String(b.fieldValue));
+    });
     fallbackResult = bestFallback;
   } else {
     // For transaction_duration, use significant correlations approach
@@ -230,15 +252,11 @@ export async function fetchCorrelations({
         durationMaxOverride: durationMax,
         fieldValuePairs: fieldValuePairChunk,
         entityType,
+        includeHistogram,
       });
 
-      // Only include correlations that have histograms (already filtered by fetchSignificantCorrelations)
-      // This ensures we only get correlations that passed the correlation and ksTest thresholds
-      const validCorrelations = significantCorrelationsResponse.latencyCorrelations.filter(
-        (c) => c && 'histogram' in c && c.histogram !== undefined
-      );
-      if (validCorrelations.length > 0) {
-        allLatencyCorrelations.push(...validCorrelations);
+      if (significantCorrelationsResponse.latencyCorrelations.length > 0) {
+        allLatencyCorrelations.push(...significantCorrelationsResponse.latencyCorrelations);
       }
 
       if (significantCorrelationsResponse.fallbackResult) {
@@ -266,16 +284,12 @@ export async function fetchCorrelations({
     }
 
     // Deduplicate by fieldName + fieldValue combination
-    // fetchSignificantCorrelations already filters to only include correlations with histograms
-    // (which means they passed correlation and ksTest thresholds)
     const correlationMap = new Map<string, UnifiedCorrelation>();
     for (const correlation of allLatencyCorrelations) {
-      // Ensure correlation has required fields and histogram
       if (
         correlation.correlation !== undefined &&
         correlation.ksTest !== undefined &&
-        'histogram' in correlation &&
-        correlation.histogram !== undefined
+        (includeHistogram ? correlation.histogram !== undefined : true)
       ) {
         const key = `${correlation.fieldName}:${correlation.fieldValue}`;
         const existing = correlationMap.get(key);

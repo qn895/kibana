@@ -27,11 +27,13 @@ export const fetchFailedEventsCorrelationPValues = async ({
   rangeSteps,
   fieldName,
   entityType,
+  includeHistogram = true,
 }: CommonCorrelationsQueryParams & {
   apmEventClient: APMEventClient;
   rangeSteps: number[];
   fieldName: string;
   entityType: EntityType;
+  includeHistogram?: boolean;
 }) => {
   const eventType = getEventTypeFromEntityType(entityType);
 
@@ -91,22 +93,7 @@ export const fetchFailedEventsCorrelationPValues = async ({
       0.25 * Math.min(Math.max((bucket.score - 6.908) / 6.908, 0), 1) +
       0.25 * Math.min(Math.max((bucket.score - 13.816) / 101.314, 0), 1);
 
-    const { durationRanges: histogram } = await fetchDurationRanges({
-      apmEventClient,
-      entityType,
-      start,
-      end,
-      environment,
-      kuery,
-      query: {
-        bool: {
-          filter: [query, ...termQuery(fieldName, bucket.key)],
-        },
-      },
-      rangeSteps,
-    });
-
-    result.push({
+    const base = {
       fieldName,
       fieldValue: bucket.key,
       doc_count: bucket.doc_count,
@@ -119,8 +106,27 @@ export const fetchFailedEventsCorrelationPValues = async ({
       // Percentage of time the term appears in successful transactions
       successPercentage:
         (bucket.bg_count - bucket.doc_count) / (overallResult.bg_count - overallResult.doc_count),
-      histogram,
-    });
+    };
+
+    if (includeHistogram) {
+      const { durationRanges: histogram } = await fetchDurationRanges({
+        apmEventClient,
+        entityType,
+        start,
+        end,
+        environment,
+        kuery,
+        query: {
+          bool: {
+            filter: [query, ...termQuery(fieldName, bucket.key)],
+          },
+        },
+        rangeSteps,
+      });
+      result.push({ ...base, histogram });
+    } else {
+      result.push(base);
+    }
   }
 
   return result;

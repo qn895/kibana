@@ -31,7 +31,7 @@ import { fetchPValues } from './queries/fetch_p_values';
 import { getApmEventClient } from '../../lib/helpers/get_apm_event_client';
 import type { TopValuesStats } from '../../../common/correlations/field_stats_types';
 import { SPAN_DESTINATION_SERVICE_RESOURCE } from '../../../common/correlations/constants';
-import type { CorrelationsResponse, Metric } from '../../../common/correlations/types';
+import type { CorrelationsResponse } from '../../../common/correlations/types';
 import { fetchCorrelations } from './queries/fetch_correlations';
 
 const INVALID_LICENSE = i18n.translate('xpack.apm.correlations.license.text', {
@@ -346,11 +346,7 @@ const pValuesTransactionsRoute = createApmServerRoute({
 
 const entityTypeRt = t.union([t.literal('transaction'), t.literal('exit_span')]);
 
-const metricRt = t.union([
-  t.literal('throughput'),
-  t.literal('latency'),
-  t.literal('failure_rate'),
-]);
+const metricRt = t.union([t.literal('latency'), t.literal('failure_rate')]);
 
 /**
  * Unified correlations API
@@ -388,8 +384,8 @@ const unifiedCorrelationsRoute = createApmServerRoute({
         durationMax: toNumberRt,
         percentileThreshold: toNumberRt,
         includeHistogram: toBooleanRt,
+        kuery: t.string,
       }),
-      kueryRt,
       rangeRt,
     ]),
   }),
@@ -409,7 +405,7 @@ const unifiedCorrelationsRoute = createApmServerRoute({
         metric,
         start,
         end,
-        kuery,
+        kuery = '',
         fieldCandidates,
         durationMin,
         durationMax,
@@ -417,18 +413,6 @@ const unifiedCorrelationsRoute = createApmServerRoute({
         includeHistogram = false,
       },
     } = resources.params;
-
-    const correlationTypeMetric: Metric = ((): Metric => {
-      if (metric === 'latency' || metric === 'failure_rate') {
-        return metric;
-      }
-      throw Boom.notImplemented(
-        i18n.translate('xpack.apm.correlations.metric.notImplemented', {
-          defaultMessage:
-            "Correlations for this metric are not implemented yet. Supported metrics are 'latency' and 'failure_rate'.",
-        })
-      );
-    })();
 
     const scope: 'transactions' | 'exitSpans' =
       entityType === 'exit_span' ? 'exitSpans' : 'transactions';
@@ -444,7 +428,7 @@ const unifiedCorrelationsRoute = createApmServerRoute({
 
     return fetchCorrelations({
       apmEventClient,
-      metric: correlationTypeMetric,
+      metric,
       scope,
       start,
       end,

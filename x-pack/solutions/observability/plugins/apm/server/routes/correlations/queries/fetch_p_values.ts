@@ -39,12 +39,14 @@ export const fetchPValues = async ({
   durationMax,
   fieldCandidates,
   entityType,
+  includeHistogram = true,
 }: CommonCorrelationsQueryParams & {
   apmEventClient: APMEventClient;
   durationMin?: number;
   durationMax?: number;
   fieldCandidates: string[];
   entityType: EntityType;
+  includeHistogram?: boolean;
 }): Promise<PValuesResponse> => {
   const eventType = getEventTypeFromEntityType(entityType);
   const { rangeSteps } = await fetchDurationHistogramRangeSteps({
@@ -73,6 +75,7 @@ export const fetchPValues = async ({
             fieldName,
             rangeSteps,
             entityType,
+            includeHistogram,
           })
         )
       )

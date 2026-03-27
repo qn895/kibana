@@ -38,6 +38,7 @@ export async function fetchDurationCorrelationWithHistogram({
   histogramRangeSteps,
   totalDocCount,
   fieldValuePair,
+  includeHistogram = true,
 }: CommonCorrelationsQueryParams & {
   apmEventClient: APMEventClient;
   entityType: EntityType;
@@ -47,6 +48,7 @@ export async function fetchDurationCorrelationWithHistogram({
   histogramRangeSteps: number[];
   totalDocCount: number;
   fieldValuePair: FieldValuePair;
+  includeHistogram?: boolean;
 }) {
   const eventType = getEventTypeFromEntityType(entityType);
   const queryWithFieldValuePair = {
@@ -71,6 +73,13 @@ export async function fetchDurationCorrelationWithHistogram({
 
   if (correlation !== null && ksTest !== null && !isNaN(ksTest)) {
     if (correlation > CORRELATION_THRESHOLD && ksTest < KS_TEST_THRESHOLD) {
+      if (!includeHistogram) {
+        return {
+          ...fieldValuePair,
+          correlation,
+          ksTest,
+        };
+      }
       const { durationRanges: histogram } = await fetchDurationRanges({
         apmEventClient,
         entityType,
