@@ -62,7 +62,6 @@ dependsOn:
   - '@kbn/apm-types-shared'
   - '@kbn/observability-utils-server'
   - '@kbn/calculate-auto'
-  - '@kbn/apm-plugin'
 tags:
   - plugin
   - prod

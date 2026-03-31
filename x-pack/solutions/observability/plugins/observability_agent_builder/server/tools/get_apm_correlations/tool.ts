@@ -11,7 +11,7 @@ import type { BuiltinToolDefinition, StaticToolRegistration } from '@kbn/agent-b
 import { ToolType } from '@kbn/agent-builder-common';
 import { ToolResultType } from '@kbn/agent-builder-common/tools/tool_result';
 import { i18n } from '@kbn/i18n';
-import { isActivePlatinumLicense } from '@kbn/apm-plugin/common/license_check';
+import type { ILicense } from '@kbn/licensing-types';
 import { firstValueFrom } from 'rxjs';
 import type {
   ObservabilityAgentBuilderCoreSetup,
@@ -33,6 +33,9 @@ const INVALID_LICENSE = i18n.translate(
       'To use the correlations API, you must be subscribed to an Elastic Platinum license.',
   }
 );
+
+const isActivePlatinumLicense = (license?: ILicense) =>
+  Boolean(license && license.isActive && license.hasAtLeast('platinum'));
 
 const getApmCorrelationsSchema = z.object({
   ...timeRangeSchemaRequired,

@@ -72,6 +72,72 @@ function roundTo(value: number, digits: number) {
   return Math.round(value * factor) / factor;
 }
 
+async function getCorrelations({
+  esClient,
+  indices,
+  candidates,
+  subsetFilters,
+  overallFilters,
+  limit,
+  subsetTotalHits,
+  overallTotalHits,
+}: {
+  esClient: IScopedClusterClient;
+  indices: string[];
+  candidates: readonly string[];
+  subsetFilters: QueryDslQueryContainer[];
+  overallFilters: QueryDslQueryContainer[];
+  limit: number;
+  subsetTotalHits: number;
+  overallTotalHits: number;
+}) {
+  return candidates.reduce<Promise<Array<{ field: string; values: unknown[] }>>>(
+    async (accPromise, field) => {
+      const acc = await accPromise;
+      const resp = await esClient.asCurrentUser.search({
+        index: indices,
+        size: 0,
+        query: toBoolFilter(subsetFilters),
+        aggs: {
+          correlated_values: {
+            significant_terms: {
+              field,
+              size: limit,
+              background_filter: toBoolFilter(overallFilters),
+            },
+          },
+        },
+      });
+
+      const buckets = (resp.aggregations?.correlated_values as any)?.buckets as
+        | Array<{ key: string; doc_count: number; bg_count: number; score: number }>
+        | undefined;
+
+      if (!buckets || buckets.length === 0) {
+        return acc;
+      }
+
+      const values = buckets.map((b) => {
+        const subsetPct = subsetTotalHits ? b.doc_count / subsetTotalHits : 0;
+        const overallPct = overallTotalHits ? b.bg_count / overallTotalHits : 0;
+
+        return {
+          value: b.key,
+          score: roundTo(b.score, 3),
+          subsetDocCount: b.doc_count,
+          overallDocCount: b.bg_count,
+          subsetPct: roundTo(subsetPct, 4),
+          overallPct: roundTo(overallPct, 4),
+          upliftPctPoints: roundTo((subsetPct - overallPct) * 100, 2),
+        };
+      });
+
+      return [...acc, { field, values }];
+    },
+    Promise.resolve([])
+  );
+}
+
 export async function getToolHandler({
   core,
   plugins,
@@ -203,49 +269,16 @@ export async function getToolHandler({
     fieldCandidates?.length ? fieldCandidates : [...DEFAULT_FIELD_CANDIDATES]
   ).slice(0, 25);
 
-  const correlations = [];
-
-  for (const field of candidates) {
-    const resp = await esClient.asCurrentUser.search({
-      index: indices,
-      size: 0,
-      query: toBoolFilter(subsetFilters),
-      aggs: {
-        correlated_values: {
-          significant_terms: {
-            field,
-            size: limit,
-            background_filter: toBoolFilter(overallFilters),
-          },
-        },
-      },
-    });
-
-    const buckets = (resp.aggregations?.correlated_values as any)?.buckets as
-      | Array<{ key: string; doc_count: number; bg_count: number; score: number }>
-      | undefined;
-
-    if (!buckets || buckets.length === 0) {
-      continue;
-    }
-
-    const values = buckets.map((b) => {
-      const subsetPct = subsetTotalHits ? b.doc_count / subsetTotalHits : 0;
-      const overallPct = overallTotalHits ? b.bg_count / overallTotalHits : 0;
-
-      return {
-        value: b.key,
-        score: roundTo(b.score, 3),
-        subsetDocCount: b.doc_count,
-        overallDocCount: b.bg_count,
-        subsetPct: roundTo(subsetPct, 4),
-        overallPct: roundTo(overallPct, 4),
-        upliftPctPoints: roundTo((subsetPct - overallPct) * 100, 2),
-      };
-    });
-
-    correlations.push({ field, values });
-  }
+  const correlations = await getCorrelations({
+    esClient,
+    indices,
+    candidates,
+    subsetFilters,
+    overallFilters,
+    limit,
+    subsetTotalHits,
+    overallTotalHits,
+  });
 
   return {
     metric,
