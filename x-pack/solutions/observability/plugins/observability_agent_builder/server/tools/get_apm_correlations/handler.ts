@@ -8,6 +8,21 @@
 import type { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 import type { IScopedClusterClient } from '@kbn/core-elasticsearch-server';
 import type { Logger } from '@kbn/core/server';
+import {
+  AGENT_NAME,
+  AT_TIMESTAMP,
+  CLOUD_REGION,
+  CONTAINER_ID,
+  EVENT_OUTCOME,
+  HOST_NAME,
+  KUBERNETES_NAMESPACE,
+  KUBERNETES_POD_NAME,
+  PROCESSOR_EVENT,
+  SERVICE_ENVIRONMENT,
+  SERVICE_NAME,
+  TRANSACTION_DURATION,
+  USER_AGENT_NAME,
+} from '@kbn/apm-types';
 import type {
   ObservabilityAgentBuilderCoreSetup,
   ObservabilityAgentBuilderPluginSetupDependencies,
@@ -15,25 +30,21 @@ import type {
 import { getObservabilityDataSources } from '../../utils/get_observability_data_sources';
 import { kqlFilter, timeRangeFilter } from '../../utils/dsl_filters';
 import { parseDatemath } from '../../utils/time';
-
 type CorrelationsMetric = 'latency' | 'failure_rate';
 
 const DEFAULT_FIELD_CANDIDATES = [
-  'service.name',
-  'service.environment',
-  'host.name',
-  'cloud.region',
-  'kubernetes.namespace',
-  'kubernetes.pod.name',
-  'container.id',
-  'agent.name',
-  'user_agent.name',
+  SERVICE_NAME,
+  SERVICE_ENVIRONMENT,
+  HOST_NAME,
+  CLOUD_REGION,
+  KUBERNETES_NAMESPACE,
+  KUBERNETES_POD_NAME,
+  CONTAINER_ID,
+  AGENT_NAME,
+  USER_AGENT_NAME,
 ] as const;
 
-const APM_TIME_FIELD = '@timestamp';
-const TRANSACTION_DURATION_US_FIELD = 'transaction.duration.us';
-const EVENT_OUTCOME_FIELD = 'event.outcome';
-const PROCESSOR_EVENT_FIELD = 'processor.event';
+const APM_TIME_FIELD = AT_TIMESTAMP;
 const PROCESSOR_EVENT_TRANSACTION = 'transaction';
 
 function getOverallFilters({
@@ -48,7 +59,7 @@ function getOverallFilters({
   return [
     ...timeRangeFilter(APM_TIME_FIELD, { start, end }),
     ...kqlFilter(kqlFilterValue),
-    { term: { [PROCESSOR_EVENT_FIELD]: PROCESSOR_EVENT_TRANSACTION } },
+    { term: { [PROCESSOR_EVENT]: PROCESSOR_EVENT_TRANSACTION } },
   ];
 }
 
@@ -141,7 +152,7 @@ export async function getToolHandler({
       aggs: {
         duration_percentile: {
           percentiles: {
-            field: TRANSACTION_DURATION_US_FIELD,
+            field: TRANSACTION_DURATION,
             percents: [percentileThreshold],
             keyed: true,
           },
@@ -158,7 +169,7 @@ export async function getToolHandler({
 
     if (durationThresholdUs == null || !Number.isFinite(durationThresholdUs)) {
       throw new Error(
-        `Could not compute duration percentile (p${percentileThreshold}) for field "${TRANSACTION_DURATION_US_FIELD}".`
+        `Could not compute duration percentile (p${percentileThreshold}) for field "${TRANSACTION_DURATION}".`
       );
     }
 
@@ -166,13 +177,13 @@ export async function getToolHandler({
       ...overallFilters,
       {
         range: {
-          [TRANSACTION_DURATION_US_FIELD]: { gte: durationThresholdUs },
+          [TRANSACTION_DURATION]: { gte: durationThresholdUs },
         },
       },
     ];
     subsetDefinition = { metric: 'latency', percentileThreshold, durationThresholdUs };
   } else {
-    subsetFilters = [...overallFilters, { term: { [EVENT_OUTCOME_FIELD]: 'failure' } }];
+    subsetFilters = [...overallFilters, { term: { [EVENT_OUTCOME]: 'failure' } }];
     subsetDefinition = { metric: 'failure_rate' };
   }
 
