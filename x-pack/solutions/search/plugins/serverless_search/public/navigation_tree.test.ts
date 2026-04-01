@@ -23,6 +23,20 @@ describe('Navigation Tree', () => {
     });
   });
 
+  it('includes Stack Management ML Overview in Machine Learning admin links', () => {
+    const { footer } = createNavigationTree(mockApplication);
+
+    const adminAndSettingsNode = footer?.find((item: any) => item.id === 'admin_and_settings');
+    const mlSection = adminAndSettingsNode?.children?.find(
+      (item: any) => item.id === 'settings_ml'
+    );
+
+    expect(mlSection).toBeDefined();
+    expect(mlSection?.children?.[0]).toEqual(
+      expect.objectContaining({ link: 'management:overview' })
+    );
+  });
+
   it('shows AI section with GenAI settings and AI Assistant when AI Assistant is enabled', () => {
     const { footer } = createNavigationTree(mockApplication);
 

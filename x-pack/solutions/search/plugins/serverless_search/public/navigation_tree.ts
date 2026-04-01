@@ -259,6 +259,7 @@ export function createNavigationTree({
             id: 'settings_ml',
             title: MACHINE_LEARNING_TITLE,
             children: [
+              { link: 'management:overview', breadcrumbStatus: 'hidden' },
               { link: 'management:trained_models', breadcrumbStatus: 'hidden' },
               {
                 id: 'searchInferenceEndpoints',

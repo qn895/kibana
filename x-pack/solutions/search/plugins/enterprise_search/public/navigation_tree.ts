@@ -271,6 +271,7 @@ export const getNavigationTreeDefinition = ({
                 },
                 {
                   children: [
+                    { link: 'management:overview' },
                     { link: 'management:trained_models' },
                     {
                       link: 'management:inference_endpoints',
