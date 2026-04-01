@@ -103,7 +103,19 @@ export function createNavigationTree({
               defaultMessage: 'Anomaly detection',
             }),
             breadcrumbStatus: 'hidden',
-            children: [{ link: 'ml:anomalyExplorer' }, { link: 'ml:singleMetricViewer' }],
+            children: [
+              {
+                link: 'management:anomaly_detection',
+                title: i18n.translate(
+                  'xpack.serverlessSearch.nav.machineLearning.anomalyDetection.manageJobs',
+                  {
+                    defaultMessage: 'Manage jobs',
+                  }
+                ),
+              },
+              { link: 'ml:anomalyExplorer' },
+              { link: 'ml:singleMetricViewer' },
+            ],
           },
           {
             id: 'category-data_frame analytics',
