@@ -13,9 +13,9 @@ import { toBooleanRt, toNumberRt } from '@kbn/io-ts-utils';
 
 import { termQuery } from '@kbn/observability-plugin/server';
 import { ProcessorEvent } from '@kbn/observability-plugin/common';
+import { SPAN_DESTINATION_SERVICE_RESOURCE } from '@kbn/apm-types';
 import { isActivePlatinumLicense } from '../../../common/license_check';
 import { ENVIRONMENT_ALL_VALUE } from '../../../common/environment_filter_values';
-
 import { createApmServerRoute } from '../apm_routes/create_apm_server_route';
 import { environmentRt, kueryRt, rangeRt } from '../default_api_types';
 import type { DurationFieldCandidatesResponse } from './queries/fetch_duration_field_candidates';
@@ -30,7 +30,6 @@ import type { PValuesResponse } from './queries/fetch_p_values';
 import { fetchPValues } from './queries/fetch_p_values';
 import { getApmEventClient } from '../../lib/helpers/get_apm_event_client';
 import type { TopValuesStats } from '../../../common/correlations/field_stats_types';
-import { SPAN_DESTINATION_SERVICE_RESOURCE } from '../../../common/correlations/constants';
 import type { CorrelationsResponse } from '../../../common/correlations/types';
 import { fetchCorrelations } from './queries/fetch_correlations';
 
