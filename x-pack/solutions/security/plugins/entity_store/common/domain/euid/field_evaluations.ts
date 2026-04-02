@@ -6,7 +6,15 @@
  */
 
 import { get } from 'lodash';
-import type { FieldEvaluation, FieldEvaluationSource } from '../definitions/entity_schema';
+import type {
+  EntityDefinitionWithoutId,
+  FieldEvaluation,
+  FieldEvaluationSource,
+} from '../definitions/entity_schema';
+import { isSingleFieldIdentity } from '../definitions/entity_schema';
+
+/** Result of resolving document + field evaluation into a filter-friendly spec (no EVAL). */
+export type SourceMatchSpec = { type: 'unknown' } | { type: 'values'; values: string[] };
 
 export function getFieldValue(doc: any, field: string): string | undefined {
   const flattened = doc[field];
@@ -32,9 +40,38 @@ function resolveSourceValue(doc: any, source: FieldEvaluationSource): string | u
   if (raw === undefined || raw === '') {
     return undefined;
   }
-  const parts = raw.split(source.splitBy);
-  const first = parts[0];
-  return first !== undefined && first !== '' ? first : undefined;
+  const idx = raw.indexOf(source.splitBy);
+  const first = idx === -1 ? raw : raw.substring(0, idx);
+  return first !== '' ? first : undefined;
+}
+
+/**
+ * Resolves the document and a single field evaluation into a source match spec for building
+ * ESQL/DSL filters without EVAL. Uses the same first-source-wins and whenClause logic as
+ * applyFieldEvaluations; when a whenClause matches, returns that clause's sourceMatchesAny
+ * so the filter can match any of those source values (e.g. okta or entityanalytics_okta).
+ *
+ * @param doc - The document (flat or nested)
+ * @param evaluation - One entry from identityField.fieldEvaluations
+ * @returns { type: 'unknown' } when no source has a value; otherwise { type: 'values', values }.
+ */
+export function getSourceMatchSpec(doc: any, evaluation: FieldEvaluation): SourceMatchSpec {
+  let sourceValue: string | undefined;
+  for (const source of evaluation.sources) {
+    sourceValue = resolveSourceValue(doc, source);
+    if (sourceValue !== undefined) {
+      break;
+    }
+  }
+  if (sourceValue === undefined) {
+    return { type: 'unknown' };
+  }
+  for (const clause of evaluation.whenClauses) {
+    if (clause.sourceMatchesAny.includes(sourceValue)) {
+      return { type: 'values', values: clause.sourceMatchesAny };
+    }
+  }
+  return { type: 'values', values: [sourceValue] };
 }
 
 /**
@@ -49,17 +86,18 @@ function resolveSourceValue(doc: any, source: FieldEvaluationSource): string | u
 export function applyFieldEvaluations(
   doc: any,
   fieldEvaluations: FieldEvaluation[]
-): Record<string, string> {
-  const result: Record<string, string> = {};
+): Record<string, string | null> {
+  const result: Record<string, string | null> = {};
   for (const evaluation of fieldEvaluations) {
+    const currentDoc = { ...doc, ...result };
     let sourceValue: string | undefined;
     for (const source of evaluation.sources) {
-      sourceValue = resolveSourceValue(doc, source);
+      sourceValue = resolveSourceValue(currentDoc, source);
       if (sourceValue !== undefined) {
         break;
       }
     }
-    let value: string;
+    let value: string | null;
     if (sourceValue === undefined) {
       value = evaluation.fallbackValue;
     } else {
@@ -74,6 +112,17 @@ export function applyFieldEvaluations(
     result[evaluation.destination] = value;
   }
   return result;
+}
+
+export function getFieldEvaluationsFromDefinition(
+  entityDefinition: Pick<EntityDefinitionWithoutId, 'fieldEvaluations' | 'identityField'>
+): FieldEvaluation[] {
+  const sharedEvaluations = entityDefinition.fieldEvaluations ?? [];
+  if (isSingleFieldIdentity(entityDefinition.identityField)) {
+    return sharedEvaluations;
+  }
+
+  return [...sharedEvaluations, ...(entityDefinition.identityField.fieldEvaluations ?? [])];
 }
 
 function isNotEmpty(value: string): boolean {

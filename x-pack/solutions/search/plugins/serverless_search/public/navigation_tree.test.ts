@@ -68,6 +68,11 @@ describe('Navigation Tree', () => {
     );
     expect(aiSection?.children).toContainEqual(
       expect.objectContaining({
+        link: 'management:evals',
+      })
+    );
+    expect(aiSection?.children).toContainEqual(
+      expect.objectContaining({
         link: 'management:observabilityAiAssistantManagement',
       })
     );
@@ -85,6 +90,11 @@ describe('Navigation Tree', () => {
     expect(aiSection?.children).toContainEqual(
       expect.objectContaining({
         link: 'management:genAiSettings',
+      })
+    );
+    expect(aiSection?.children).toContainEqual(
+      expect.objectContaining({
+        link: 'management:evals',
       })
     );
     expect(aiSection?.children).not.toContainEqual(
