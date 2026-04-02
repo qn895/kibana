@@ -12,11 +12,7 @@ import { useCallback, useMemo } from 'react';
 import { CHANGE_POINT_DETECTION_ENABLED } from '@kbn/aiops-change-point-detection/constants';
 import { useUrlState } from '@kbn/ml-url-state';
 import type { MlLocatorParams } from '../../../../common/types/locator';
-import {
-  useMlLocator,
-  useMlManagementLocatorInternal,
-  useNavigateToPath,
-} from '../../contexts/kibana';
+import { useMlLocator, useMlManagementLocator, useNavigateToPath } from '../../contexts/kibana';
 import { isFullLicense } from '../../license';
 import type { MlRoute } from '../../routing';
 import { ML_PAGES } from '../../../../common/constants/locator';
@@ -39,12 +35,12 @@ export interface Tab {
 
 export function useSideNavItems(activeRoute: MlRoute | undefined) {
   const mlLocator = useMlLocator();
-  const mlManagementLocator = useMlManagementLocatorInternal();
+  const mlManagementLocator = useMlManagementLocator();
   const navigateToPath = useNavigateToPath();
 
   const mlFeaturesDisabled = !isFullLicense();
   const { isADEnabled, isDFAEnabled } = useEnabledFeatures();
-  const [canUseAiops] = usePermissionCheck(['canUseAiops']);
+  const [canUseAiops, canGetJobs] = usePermissionCheck(['canUseAiops', 'canGetJobs']);
 
   const [globalState] = useUrlState('_g');
 
@@ -74,15 +70,13 @@ export function useSideNavItems(activeRoute: MlRoute | undefined) {
   );
 
   const navigateToAnomalyDetectionJobsManagement = useCallback(async () => {
-    const { url } = await mlManagementLocator.getUrl(
-      {
-        page: ML_PAGES.ANOMALY_DETECTION_JOBS_MANAGE,
-        pageState: {},
-      },
-      'anomaly_detection'
-    );
-    await navigateToPath(url);
-  }, [mlManagementLocator, navigateToPath]);
+    if (!mlManagementLocator) return;
+
+    await mlManagementLocator.navigate({
+      sectionId: 'ml',
+      appId: 'anomaly_detection',
+    });
+  }, [mlManagementLocator]);
 
   const tabsDefinition: Tab[] = useMemo((): Tab[] => {
     const disableLinks = mlFeaturesDisabled;
@@ -126,7 +120,7 @@ export function useSideNavItems(activeRoute: MlRoute | undefined) {
                   name: i18n.translate('xpack.ml.navMenu.anomalyDetection.manageJobsText', {
                     defaultMessage: 'Manage jobs',
                   }),
-                  disabled: disableLinks || !isADEnabled,
+                  disabled: disableLinks || !isADEnabled || !canGetJobs,
                   onClick: navigateToAnomalyDetectionJobsManagement,
                   testSubj: 'mlMainTab manageJobs',
                 },
@@ -239,6 +233,7 @@ export function useSideNavItems(activeRoute: MlRoute | undefined) {
     isADEnabled,
     isDFAEnabled,
     canUseAiops,
+    canGetJobs,
     navigateToAnomalyDetectionJobsManagement,
   ]);
 
