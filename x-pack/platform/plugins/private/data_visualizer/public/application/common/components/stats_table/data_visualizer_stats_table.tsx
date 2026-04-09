@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { EuiBasicTableColumn, HorizontalAlignment } from '@elastic/eui';
 import {
@@ -20,6 +20,7 @@ import {
   RIGHT_ALIGNMENT,
   EuiResizeObserver,
   EuiLoadingSpinner,
+  EuiScreenReaderOnly,
   useEuiTheme,
   useEuiMinBreakpoint,
 } from '@elastic/eui';
@@ -93,6 +94,41 @@ const UnmemoizedDataVisualizerTable = <T extends DataVisualizerTableItem>({
   );
   const [showDistributions, setShowDistributions] = useState<boolean>(showPreviewByDefault ?? true);
   const [dimensions, setDimensions] = useState(calculateTableColumnsDimensions());
+  const [sortAnnouncement, setSortAnnouncement] = useState('');
+
+  useEffect(() => {
+    const columnNames: Record<string, string> = {
+      type: i18n.translate('xpack.dataVisualizer.dataGrid.typeColumnName', {
+        defaultMessage: 'Type',
+      }),
+      fieldName: i18n.translate('xpack.dataVisualizer.dataGrid.nameColumnName', {
+        defaultMessage: 'Name',
+      }),
+      docCount: i18n.translate('xpack.dataVisualizer.dataGrid.documentsCountColumnName', {
+        defaultMessage: 'Documents (%)',
+      }),
+      cardinality: i18n.translate('xpack.dataVisualizer.dataGrid.distinctValuesColumnName', {
+        defaultMessage: 'Distinct values',
+      }),
+    };
+
+    const columnLabel = columnNames[pageState.sortField] ?? pageState.sortField;
+    const directionLabel =
+      pageState.sortDirection === 'asc'
+        ? i18n.translate('xpack.dataVisualizer.dataGrid.sortAscending', {
+            defaultMessage: 'ascending',
+          })
+        : i18n.translate('xpack.dataVisualizer.dataGrid.sortDescending', {
+            defaultMessage: 'descending',
+          });
+
+    setSortAnnouncement(
+      i18n.translate('xpack.dataVisualizer.dataGrid.sortAnnouncement', {
+        defaultMessage: 'Table sorted by {columnLabel} in {directionLabel} order',
+        values: { columnLabel, directionLabel },
+      })
+    );
+  }, [pageState.sortField, pageState.sortDirection]);
 
   const toggleExpandAll = useCallback(
     (shouldExpandAll: boolean) => {
@@ -499,6 +535,11 @@ const UnmemoizedDataVisualizerTable = <T extends DataVisualizerTableItem>({
           ref={resizeRef}
           data-shared-item="" // TODO: Remove data-shared-item as part of https://github.com/elastic/kibana/issues/179376
         >
+          <EuiScreenReaderOnly>
+            <div aria-live="polite" aria-atomic="true">
+              {sortAnnouncement}
+            </div>
+          </EuiScreenReaderOnly>
           <EuiInMemoryTable<T>
             noItemsMessage={message}
             css={dvTableCss}
