@@ -37,4 +37,4 @@ echo "--- Make PR for GenAI ES|QL docs sync update"
 
 
 echo "--- Upload GenAI product docs artifacts to GCS"
-bash .buildkite/scripts/steps/gen_ai/upload_kb_artifacts.sh
+.buildkite/scripts/steps/gen_ai/upload_kb_artifacts.sh
