@@ -7,15 +7,33 @@ GCS_BUCKET="gs://$BUCKET_NAME"
 
 # Determine Kibana directory (assume script is run from repo root if KIBANA_DIR is not set)
 KIBANA_DIR="${KIBANA_DIR:-$(pwd)}"
-ARTIFACTS_DIR="$KIBANA_DIR/build/kb-artifacts"
+if [[ -n "${ARTIFACTS_DIR:-}" ]]; then
+  ARTIFACTS_DIR_CANDIDATES=("$ARTIFACTS_DIR")
+else
+  ARTIFACTS_DIR_CANDIDATES=(
+    "$KIBANA_DIR/build/kb-artifacts"
+    "$KIBANA_DIR/build-kb-artifacts"
+  )
+fi
+
+ARTIFACTS_DIR=""
+for candidate in "${ARTIFACTS_DIR_CANDIDATES[@]}"; do
+  if [[ -d "$candidate" ]]; then
+    ARTIFACTS_DIR="$candidate"
+    break
+  fi
+done
 
 echo "--- Activate GCP service account for $GCS_BUCKET"
 .buildkite/scripts/common/activate_service_account.sh "$GCS_BUCKET"
 
 echo "--- Upload kb-artifacts .zip files to $GCS_BUCKET"
 
-if [[ ! -d "$ARTIFACTS_DIR" ]]; then
-  echo "Artifacts directory not found: $ARTIFACTS_DIR"
+if [[ -z "$ARTIFACTS_DIR" ]]; then
+  echo "Artifacts directory not found. Checked:"
+  for candidate in "${ARTIFACTS_DIR_CANDIDATES[@]}"; do
+    echo " - $candidate"
+  done
   exit 1
 fi
 
