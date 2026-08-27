@@ -16,6 +16,7 @@ import {
   fetchArtifactVersionsMock,
   fetchSecurityLabsVersionsMock,
   ensureDefaultElserDeployedMock,
+  ensureInferenceDeployedMock,
 } from './package_installer.test.mocks';
 import { cloneDeep } from 'lodash';
 import type { ProductName } from '@kbn/product-doc-common';
@@ -85,6 +86,7 @@ describe('PackageInstaller', () => {
     fetchArtifactVersionsMock.mockReset();
     fetchSecurityLabsVersionsMock.mockReset();
     ensureDefaultElserDeployedMock.mockReset();
+    ensureInferenceDeployedMock.mockReset();
   });
 
   describe('installPackage', () => {
@@ -165,6 +167,46 @@ describe('PackageInstaller', () => {
       expect(zipArchive.close).toHaveBeenCalledTimes(1);
 
       expect(productDocClient.setInstallationFailed).not.toHaveBeenCalled();
+    });
+
+    it('does not deploy local ELSER when installing with EIS ELSER', async () => {
+      const zipArchive = {
+        close: jest.fn(),
+      };
+      openZipArchiveMock.mockResolvedValue(zipArchive);
+
+      const artifactName = getArtifactName({
+        productName: 'kibana',
+        productVersion: '8.16',
+        inferenceId: defaultInferenceEndpoints.ELSER_IN_EIS_INFERENCE_ID,
+      });
+      downloadToDiskMock.mockResolvedValue(`${artifactsFolder}/${artifactName}`);
+      loadMappingFileMock.mockResolvedValue({
+        properties: {
+          semantic: {
+            inference_id: '.elser',
+            type: 'semantic_text',
+            model_settings: {},
+          },
+        },
+      });
+
+      await packageInstaller.installPackage({
+        productName: 'kibana',
+        productVersion: '8.16',
+        customInference: {
+          inference_id: defaultInferenceEndpoints.ELSER_IN_EIS_INFERENCE_ID,
+          task_type: 'sparse_embedding' as InferenceTaskType,
+          service: 'elasticsearch',
+          service_settings: {},
+        },
+      });
+
+      expect(ensureDefaultElserDeployedMock).not.toHaveBeenCalled();
+      expect(ensureInferenceDeployedMock).toHaveBeenCalledWith({
+        client: esClient,
+        inferenceId: defaultInferenceEndpoints.ELSER_IN_EIS_INFERENCE_ID,
+      });
     });
 
     it('executes the steps in the right order', async () => {

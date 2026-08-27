@@ -22,6 +22,7 @@ import { registerRoutes } from './routes';
 import { PackageInstaller } from './services/package_installer';
 import { registerTaskDefinitions, scheduleEnsureUpToDateTask } from './tasks';
 import { DocumentationManager } from './services/doc_manager';
+import { defaultInferenceEndpoints } from '@kbn/inference-common';
 
 const PackageInstallMock = PackageInstaller as jest.Mock;
 const DocumentationManagerMock = DocumentationManager as jest.Mock;
@@ -108,11 +109,32 @@ describe('ProductDocBasePlugin', () => {
       });
     });
 
-    it('schedules the update task', () => {
+    it('schedules the update task when EIS ELSER is available', async () => {
+      const coreStart = coreMock.createStart();
+      coreStart.elasticsearch.client.asInternalUser.inference.get.mockResolvedValue({
+        endpoints: [{ inference_id: defaultInferenceEndpoints.ELSER_IN_EIS_INFERENCE_ID }],
+      } as never);
+
       plugin.setup(coreMock.createSetup(), pluginSetupDeps);
-      plugin.start(coreMock.createStart(), pluginStartDeps);
+      plugin.start(coreStart, pluginStartDeps);
+      await new Promise((resolve) => setImmediate(resolve));
+
       expect(DocumentationManagerMock().updateAll).toHaveBeenCalledTimes(1);
       expect(DocumentationManagerMock().updateSecurityLabsAll).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not schedule the update task when EIS ELSER is unavailable', async () => {
+      const coreStart = coreMock.createStart();
+      coreStart.elasticsearch.client.asInternalUser.inference.get.mockRejectedValue(
+        new Error('not found')
+      );
+
+      plugin.setup(coreMock.createSetup(), pluginSetupDeps);
+      plugin.start(coreStart, pluginStartDeps);
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(DocumentationManagerMock().updateAll).not.toHaveBeenCalled();
+      expect(DocumentationManagerMock().updateSecurityLabsAll).not.toHaveBeenCalled();
     });
   });
 });

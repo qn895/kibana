@@ -130,6 +130,25 @@ export class PackageInstaller {
       ? inferenceEndpoints.endpoints[0]
       : undefined;
   }
+
+  /**
+   * Ensures the inference endpoint used for this install is ready.
+   * Local ELSER (`.elser-2-elasticsearch`) is started via the default deploy helper.
+   * EIS ELSER (`.elser-2-elastic`) and other endpoints are pinged by ID so we never
+   * fall back to allocating a local ML model when EIS is the intended backend.
+   */
+  private async ensureReadyForInferenceId(inferenceId: string) {
+    if (inferenceId === defaultInferenceEndpoints.ELSER) {
+      await ensureDefaultElserDeployed({
+        client: this.esClient,
+      });
+      return;
+    }
+    await ensureInferenceDeployed({
+      client: this.esClient,
+      inferenceId,
+    });
+  }
   /**
    * Make sure that the currently installed doc packages are up to date.
    * Will not upgrade products that are not already installed
@@ -297,17 +316,9 @@ export class PackageInstaller {
             `Inference [${inferenceId}]'s task type ${customInference?.task_type} is not supported. Please use a model with task type 'text_embedding'.`
           );
         }
-        await ensureInferenceDeployed({
-          client: this.esClient,
-          inferenceId,
-        });
       }
 
-      if (!customInference || isDefaultLinuxElserInferenceId(customInference?.inference_id)) {
-        await ensureDefaultElserDeployed({
-          client: this.esClient,
-        });
-      }
+      await this.ensureReadyForInferenceId(inferenceId);
 
       const artifactFileName = getArtifactName({
         productName,
@@ -438,16 +449,7 @@ export class PackageInstaller {
     let zipArchive: ZipArchive | undefined;
     let selectedVersion: string | undefined;
     try {
-      // ELSER can come in default linux variant
-      if (isDefaultLinuxElserInferenceId(inferenceId)) {
-        // Ensure ELSER is deployed
-        await ensureDefaultElserDeployed({
-          client: this.esClient,
-        });
-      } else {
-        // or ARM which can be a different Inference id
-        await ensureInferenceDeployed({ client: this.esClient, inferenceId: effectiveInferenceId });
-      }
+      await this.ensureReadyForInferenceId(effectiveInferenceId);
 
       // Determine version to install
       selectedVersion = version;
@@ -675,15 +677,7 @@ export class PackageInstaller {
     try {
       await this.uninstallOpenAPISpec({ inferenceId: effectiveInferenceId });
 
-      if (isDefaultLinuxElserInferenceId(effectiveInferenceId)) {
-        // Ensure ELSER is deployed
-        await ensureDefaultElserDeployed({
-          client: this.esClient,
-        });
-      } else {
-        // or ARM which can be a different Inference id
-        await ensureInferenceDeployed({ client: this.esClient, inferenceId: effectiveInferenceId });
-      }
+      await this.ensureReadyForInferenceId(effectiveInferenceId);
       const artifactFileName = this.getOpenApiArtifactFileName({
         stackVersion,
         inferenceId: effectiveInferenceId,

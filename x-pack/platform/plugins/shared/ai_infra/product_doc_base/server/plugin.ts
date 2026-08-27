@@ -24,6 +24,7 @@ import { DocumentationManager } from './services/doc_manager';
 import { SearchService } from './services/search';
 import { registerRoutes } from './routes';
 import { registerTaskDefinitions } from './tasks';
+import { isElserInEisAvailable } from './utils/is_elser_in_eis_available';
 
 export class ProductDocBasePlugin
   implements
@@ -116,12 +117,28 @@ export class ProductDocBasePlugin
       licensing,
       taskManager,
     };
-    documentationManager.updateAll().catch((err) => {
-      this.logger.error(`Error scheduling product documentation updateAll task: ${err.message}`);
-    });
-    documentationManager.updateSecurityLabsAll().catch((err) => {
-      this.logger.error(`Error scheduling Security Labs update task: ${err.message}`);
-    });
+
+    // Auto-update previously installed docs only when EIS ELSER is actually present.
+    // Local `.elser-2-elasticsearch` is always preconfigured, so using it as a fallback
+    // would try to allocate an ML model on clusters (and local/dev) without EIS.
+    void isElserInEisAvailable(core.elasticsearch.client.asInternalUser).then(
+      (eisElserAvailable) => {
+        if (!eisElserAvailable) {
+          this.logger.info(
+            'Skipping product documentation auto-update because EIS ELSER (.elser-2-elastic) is not available'
+          );
+          return;
+        }
+        documentationManager.updateAll().catch((err) => {
+          this.logger.error(
+            `Error scheduling product documentation updateAll task: ${err.message}`
+          );
+        });
+        documentationManager.updateSecurityLabsAll().catch((err) => {
+          this.logger.error(`Error scheduling Security Labs update task: ${err.message}`);
+        });
+      }
+    );
     return {
       management: {
         install: documentationManager.install.bind(documentationManager),
