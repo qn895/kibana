@@ -8,6 +8,7 @@
 import type { Logger } from '@kbn/logging';
 import type { CoreSetup, CoreStart, Plugin, PluginInitializerContext } from '@kbn/core/server';
 import { SavedObjectsClient } from '@kbn/core/server';
+import { configureFsDataPath } from '@kbn/fs';
 import {
   GEN_AI_SETTINGS_DEFAULT_AI_CONNECTOR,
   GEN_AI_SETTINGS_DEFAULT_AI_CONNECTOR_DEFAULT_ONLY,
@@ -53,6 +54,10 @@ export class ProductDocBasePlugin
 
   constructor(private readonly context: PluginInitializerContext<ProductDocBaseConfig>) {
     this.logger = context.logger.get();
+    // Artifact downloads go through @kbn/fs, which otherwise writes under the install
+    // directory (<repo>/data). On RPM that is /usr/share/kibana/data, owned by root.
+    // path.data is the directory the service user can write (RPM default: /var/lib/kibana).
+    configureFsDataPath(context.config.legacy.get().path.data);
   }
   setup(
     coreSetup: CoreSetup<ProductDocBaseStartDependencies, ProductDocBaseStartContract>,

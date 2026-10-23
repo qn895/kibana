@@ -15,7 +15,7 @@ export interface ArtifactsFolderUsage {
   bytes: number;
 }
 
-// getSafePath only resolves file names below Kibana's data path, so the folder is derived from a file in it
+// getSafePath only resolves file names below the configured Kibana data path (path.data)
 export const resolveArtifactsFolderPath = (artifactsFolder: string): string =>
   Path.dirname(getSafePath(`${artifactsFolder}/artifact.zip`).fullPath);
 

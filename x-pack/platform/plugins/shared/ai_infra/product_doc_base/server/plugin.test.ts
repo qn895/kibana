@@ -5,7 +5,9 @@
  * 2.0.
  */
 
+import { join } from 'path';
 import { coreMock } from '@kbn/core/server/mocks';
+import { configureFsDataPath, getFsDataPath, getSafePath } from '@kbn/fs';
 import { licensingMock } from '@kbn/licensing-plugin/server/mocks';
 import { taskManagerMock } from '@kbn/task-manager-plugin/server/mocks';
 import { defaultInferenceEndpoints } from '@kbn/inference-common';
@@ -71,6 +73,7 @@ describe('ProductDocBasePlugin', () => {
   let plugin: ProductDocBasePlugin;
   let pluginSetupDeps: ProductDocBaseSetupDependencies;
   let pluginStartDeps: ProductDocBaseStartDependencies;
+  const originalDataPath = getFsDataPath();
 
   beforeEach(() => {
     initContext = createInitContext();
@@ -109,6 +112,25 @@ describe('ProductDocBasePlugin', () => {
 
   afterEach(() => {
     (scheduleEnsureUpToDateTask as jest.Mock).mockReset();
+    configureFsDataPath(originalDataPath);
+  });
+
+  describe('#constructor', () => {
+    it('stores documentation artifacts under the configured path.data directory', () => {
+      const dataPath = '/var/lib/kibana';
+      const context = createInitContext();
+      const previousGet = context.config.legacy.get.bind(context.config.legacy);
+      context.config.legacy.get = () => ({
+        ...previousGet(),
+        path: { data: dataPath },
+      });
+
+      new ProductDocBasePlugin(context);
+
+      expect(getSafePath('ai-kb-artifacts/artifact.zip').fullPath).toBe(
+        join(dataPath, 'ai-kb-artifacts/artifact.zip')
+      );
+    });
   });
 
   describe('#setup', () => {

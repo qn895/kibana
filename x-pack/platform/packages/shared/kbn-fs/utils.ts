@@ -7,13 +7,12 @@
 
 import { promises as fs, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
-import { REPO_ROOT } from '@kbn/repo-info';
+import { getFsDataPath } from './data_path';
 import { validateNoPathTraversal, validateFileExtension } from './validations';
 
-const DATA_PATH = join(REPO_ROOT, 'data');
-
 export function getSafePath(name: string, volume?: string): { fullPath: string; alias: string } {
-  const fullPath = volume ? join(DATA_PATH, volume, name) : join(DATA_PATH, name);
+  const dataPath = getFsDataPath();
+  const fullPath = volume ? join(dataPath, volume, name) : join(dataPath, name);
 
   const resolvedPath = validateNoPathTraversal(fullPath);
 

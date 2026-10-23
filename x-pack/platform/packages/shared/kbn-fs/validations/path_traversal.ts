@@ -5,16 +5,16 @@
  * 2.0.
  */
 
-import { REPO_ROOT } from '@kbn/repo-info';
-import { join, resolve } from 'path';
-
-const DATA_PATH = join(REPO_ROOT, 'data');
-const DATA_PATH_RESOLVED = resolve(DATA_PATH);
+import { resolve, sep } from 'path';
+import { getFsDataPath } from '../data_path';
 
 export function validateNoPathTraversal(fullPath: string): string {
   const resolvedPath = resolve(fullPath);
+  const dataPath = getFsDataPath();
+  // Require a path separator so a sibling such as "<data>evil" is not treated as inside "<data>".
+  const prefix = dataPath.endsWith(sep) ? dataPath : `${dataPath}${sep}`;
 
-  if (!resolvedPath.startsWith(DATA_PATH_RESOLVED)) {
+  if (resolvedPath !== dataPath && !resolvedPath.startsWith(prefix)) {
     throw new Error(`Path traversal detected: ${fullPath}`);
   }
 

@@ -19,4 +19,5 @@ export {
 } from './lib';
 
 export { sanitizeSvg } from './sanitizations/svg';
+export { configureFsDataPath, getFsDataPath } from './data_path';
 export { getSafePath } from './utils';

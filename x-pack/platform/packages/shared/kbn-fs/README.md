@@ -12,7 +12,7 @@ This package provides a limited set of file system functions (no `openSync`, `mk
 
 ## Features
 
-- **Directory Restriction**: All file operations are automatically scoped to the data directory
+- **Directory Restriction**: All file operations are automatically scoped to Kibana's data directory. Call `configureFsDataPath` with `path.data` at startup so packaged installs (RPM/DEB) write under that directory instead of `<install>/data`. Until it is called, files stay under `<repo>/data`.
 - **Path Traversal Protection**: Prevents directory traversal attacks (e.g., `../` attempts)
 - **File Type Validation**: Only allows specific file extensions and MIME types
 - **File Size Limits**: Enforces maximum file size (1GB)
