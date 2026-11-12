@@ -9,6 +9,7 @@ import { coreMock } from '@kbn/core/server/mocks';
 import { licensingMock } from '@kbn/licensing-plugin/server/mocks';
 import { taskManagerMock } from '@kbn/task-manager-plugin/server/mocks';
 import { defaultInferenceEndpoints } from '@kbn/inference-common';
+import { setKibanaDataPath } from '@kbn/fs';
 import { productDocInstallStatusSavedObjectTypeName } from '../common/consts';
 import { LockManagerService } from '@kbn/lock-manager';
 import { ProductDocBasePlugin } from './plugin';
@@ -16,6 +17,9 @@ import type { ProductDocBaseConfig } from './config';
 import type { ProductDocBaseSetupDependencies, ProductDocBaseStartDependencies } from './types';
 import { PRODUCT_DOC_INSTALL_LOCK_ID } from './services/install_lock';
 
+jest.mock('@kbn/fs', () => ({
+  setKibanaDataPath: jest.fn(),
+}));
 jest.mock('@kbn/lock-manager');
 jest.mock('./services/package_installer');
 jest.mock('./services/search');
@@ -132,6 +136,18 @@ describe('ProductDocBasePlugin', () => {
       plugin.setup(coreMock.createSetup(), pluginSetupDeps);
 
       expect(registerTaskDefinitions).toHaveBeenCalledTimes(3);
+    });
+    it('stores product documentation artifacts under the configured path.data', () => {
+      const globalConfig = initContext.config.legacy.get();
+      jest.spyOn(initContext.config.legacy, 'get').mockReturnValue({
+        ...globalConfig,
+        path: { data: '/var/lib/kibana' },
+      });
+
+      plugin.setup(coreMock.createSetup(), pluginSetupDeps);
+      plugin.start(coreMock.createStart(), pluginStartDeps);
+
+      expect(setKibanaDataPath).toHaveBeenCalledWith('/var/lib/kibana');
     });
   });
 

@@ -8,12 +8,14 @@
 import Fs from 'fs/promises';
 import Os from 'os';
 import Path from 'path';
+import { getKibanaDataPath, setKibanaDataPath } from '@kbn/fs';
 import { loggerMock } from '@kbn/logging-mocks';
 import {
   getArtifactsFolderUsage,
   logArtifactsFolderUsage,
   purgeArtifactsFolder,
   removeArtifactFile,
+  resolveArtifactsFolderPath,
 } from './artifacts_folder';
 
 describe('artifacts folder utils', () => {
@@ -70,5 +72,21 @@ describe('artifacts folder utils', () => {
     await logArtifactsFolderUsage(folder, log);
 
     expect(log.info).toHaveBeenCalledWith(expect.stringContaining('holds 1 file(s), 1.0 MB'));
+  });
+});
+
+describe('resolveArtifactsFolderPath', () => {
+  const originalDataPath = getKibanaDataPath();
+
+  afterEach(() => {
+    setKibanaDataPath(originalDataPath);
+  });
+
+  it('places the artifacts folder inside the configured path.data directory', () => {
+    setKibanaDataPath('/var/lib/kibana');
+
+    expect(resolveArtifactsFolderPath('ai-kb-artifacts')).toBe(
+      Path.join('/var/lib/kibana', 'ai-kb-artifacts')
+    );
   });
 });

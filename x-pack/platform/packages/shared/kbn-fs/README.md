@@ -12,7 +12,7 @@ This package provides a limited set of file system functions (no `openSync`, `mk
 
 ## Features
 
-- **Directory Restriction**: All file operations are automatically scoped to the data directory
+- **Directory Restriction**: All file operations are automatically scoped to Kibana's `path.data` directory. Call `setKibanaDataPath` with the configured value once it is known. Until then, the package uses the same default as `path.data`: the install `data` folder when it is readable, otherwise `/var/lib/kibana` on RPM/DEB packages.
 - **Path Traversal Protection**: Prevents directory traversal attacks (e.g., `../` attempts)
 - **File Type Validation**: Only allows specific file extensions and MIME types
 - **File Size Limits**: Enforces maximum file size (1GB)

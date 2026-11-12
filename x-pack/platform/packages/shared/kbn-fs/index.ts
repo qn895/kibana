@@ -20,3 +20,4 @@ export {
 
 export { sanitizeSvg } from './sanitizations/svg';
 export { getSafePath } from './utils';
+export { getKibanaDataPath, setKibanaDataPath } from './data_path';

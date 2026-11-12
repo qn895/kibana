@@ -7,11 +7,16 @@
 
 import { join } from 'path';
 import { REPO_ROOT } from '@kbn/repo-info';
+import { clearKibanaDataPath, setKibanaDataPath } from './data_path';
 import { getSafePath } from './utils';
 
 const DATA_PATH = join(REPO_ROOT, 'data');
 
 describe('kbn-fs utils', () => {
+  afterEach(() => {
+    clearKibanaDataPath();
+  });
+
   describe('getSafePath', () => {
     it('should create safe path without volume', () => {
       const result = getSafePath('test-file.txt');
@@ -65,6 +70,21 @@ describe('kbn-fs utils', () => {
 
       expect(result.fullPath).toBe(join(DATA_PATH, 'test.txt'));
       expect(result.alias).toBe('disk:data/test.txt');
+    });
+
+    it('resolves files under a configured path.data directory', () => {
+      setKibanaDataPath('/var/lib/kibana');
+
+      const result = getSafePath('ai-kb-artifacts/artifact.zip');
+
+      expect(result.fullPath).toBe('/var/lib/kibana/ai-kb-artifacts/artifact.zip');
+      expect(result.alias).toBe('disk:data/ai-kb-artifacts/artifact.zip');
+    });
+
+    it('rejects paths that escape a configured path.data directory', () => {
+      setKibanaDataPath('/var/lib/kibana');
+
+      expect(() => getSafePath('../../../etc/passwd')).toThrow(/Path traversal detected/);
     });
   });
 });

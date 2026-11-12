@@ -8,10 +8,15 @@
 import { validateNoPathTraversal } from './path_traversal';
 import { REPO_ROOT } from '@kbn/repo-info';
 import { join } from 'path';
+import { clearKibanaDataPath, setKibanaDataPath } from '../data_path';
 
 const DATA_PATH = join(REPO_ROOT, 'data');
 
 describe('validateNoPathTraversal', () => {
+  afterEach(() => {
+    clearKibanaDataPath();
+  });
+
   describe('valid paths', () => {
     it('should allow simple file paths', () => {
       expect(() => validateNoPathTraversal(join(DATA_PATH, 'file.txt'))).not.toThrow();
@@ -140,6 +145,19 @@ describe('validateNoPathTraversal', () => {
     it('should allow valid URL encoded characters that are not path traversal', () => {
       expect(() => validateNoPathTraversal(join(DATA_PATH, 'file%20name.txt'))).not.toThrow(); // space
       expect(() => validateNoPathTraversal(join(DATA_PATH, 'file%2dname.txt'))).not.toThrow(); // hyphen
+    });
+  });
+
+  describe('configured path.data', () => {
+    it('allows files inside the configured directory and rejects a sibling prefix', () => {
+      setKibanaDataPath('/var/lib/kibana');
+
+      expect(() =>
+        validateNoPathTraversal('/var/lib/kibana/ai-kb-artifacts/artifact.zip')
+      ).not.toThrow();
+      expect(() => validateNoPathTraversal('/var/lib/kibana-other/artifact.zip')).toThrow(
+        'Path traversal detected: /var/lib/kibana-other/artifact.zip'
+      );
     });
   });
 });

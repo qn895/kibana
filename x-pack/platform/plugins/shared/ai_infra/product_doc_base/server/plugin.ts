@@ -13,6 +13,7 @@ import {
   GEN_AI_SETTINGS_DEFAULT_AI_CONNECTOR_DEFAULT_ONLY,
 } from '@kbn/management-settings-ids';
 import { isEisAvailableFromInferenceGet } from '@kbn/product-doc-common';
+import { setKibanaDataPath } from '@kbn/fs';
 import { LockManagerService } from '@kbn/lock-manager';
 import { productDocInstallStatusSavedObjectTypeName } from '../common/consts';
 import type { ProductDocBaseConfig } from './config';
@@ -59,6 +60,7 @@ export class ProductDocBasePlugin
     { taskManager, cloud }: ProductDocBaseSetupDependencies
   ): ProductDocBaseSetupContract {
     this.cloud = cloud;
+    this.useConfiguredDataPath();
 
     const getServices = () => {
       if (!this.internalServices) {
@@ -93,6 +95,7 @@ export class ProductDocBasePlugin
     if (!this.lockManager) {
       throw new Error('#start called before #setup');
     }
+    this.useConfiguredDataPath();
 
     const soClient = new SavedObjectsClient(
       core.savedObjects.createInternalRepository([productDocInstallStatusSavedObjectTypeName])
@@ -168,6 +171,15 @@ export class ProductDocBasePlugin
       },
       search: searchService.search.bind(searchService),
     };
+  }
+
+  /**
+   * Artifact downloads go through `@kbn/fs`, which must use the configured `path.data`
+   * directory. RPM and DEB packages keep `<install>/data` root-owned; the service user
+   * can write `path.data` (default `/var/lib/kibana`).
+   */
+  private useConfiguredDataPath(): void {
+    setKibanaDataPath(this.context.config.legacy.get().path.data);
   }
 
   private async runStartupTasks(
