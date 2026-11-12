@@ -5,36 +5,18 @@
  * 2.0.
  */
 
-import * as Fs from 'fs';
 import { join } from 'path';
-import { REPO_ROOT } from '@kbn/repo-info';
-import { clearKibanaDataPath, getKibanaDataPath, setKibanaDataPath } from './data_path';
-
-jest.mock('fs', () => {
-  const actual = jest.requireActual<typeof import('fs')>('fs');
-  return {
-    ...actual,
-    accessSync: jest.fn((...args: Parameters<typeof actual.accessSync>) =>
-      actual.accessSync(...args)
-    ),
-  };
-});
-
-const repoDataPath = join(REPO_ROOT, 'data');
-const accessSyncMock = Fs.accessSync as jest.MockedFunction<typeof Fs.accessSync>;
-
-const accessError = (code: string): NodeJS.ErrnoException => {
-  const error = new Error(code) as NodeJS.ErrnoException;
-  error.code = code;
-  return error;
-};
+import { getDataPath } from '@kbn/utils';
+import {
+  clearKibanaDataPath,
+  getKibanaDataPath,
+  isInsideDirectory,
+  setKibanaDataPath,
+} from './data_path';
 
 describe('kibana data path', () => {
   afterEach(() => {
     clearKibanaDataPath();
-    accessSyncMock.mockImplementation((...args: Parameters<typeof Fs.accessSync>) =>
-      jest.requireActual<typeof import('fs')>('fs').accessSync(...args)
-    );
   });
 
   it('uses a configured path.data directory', () => {
@@ -53,24 +35,34 @@ describe('kibana data path', () => {
     expect(() => setKibanaDataPath('')).toThrow('Kibana data path must be a non-empty string');
   });
 
-  it('uses the install data directory when that directory is readable', () => {
-    accessSyncMock.mockImplementation((candidate) => {
-      if (String(candidate) !== repoDataPath) {
-        throw accessError('ENOENT');
-      }
-    });
+  it('allows setting the same path twice', () => {
+    setKibanaDataPath('/var/lib/kibana');
 
-    expect(getKibanaDataPath()).toBe(repoDataPath);
-    expect(accessSyncMock).toHaveBeenCalledWith(repoDataPath, Fs.constants.R_OK);
+    expect(() => setKibanaDataPath('/var/lib/kibana/')).not.toThrow();
   });
 
-  it('falls back to /var/lib/kibana when the install data directory is not readable', () => {
-    accessSyncMock.mockImplementation((candidate) => {
-      if (String(candidate) === repoDataPath) {
-        throw accessError('EACCES');
-      }
+  it('refuses to change an already configured path', () => {
+    setKibanaDataPath('/var/lib/kibana');
+
+    expect(() => setKibanaDataPath('/somewhere/else')).toThrow('already set');
+    expect(getKibanaDataPath()).toBe('/var/lib/kibana');
+  });
+
+  it('defaults to the same directory as the path.data setting', () => {
+    expect(getKibanaDataPath()).toBe(getDataPath());
+  });
+
+  describe('isInsideDirectory', () => {
+    it('accepts the directory itself and nested paths', () => {
+      expect(isInsideDirectory('/data', '/data')).toBe(true);
+      expect(isInsideDirectory('/data/a/b.txt', '/data')).toBe(true);
+      expect(isInsideDirectory('/data/a', '/data/')).toBe(true);
     });
 
-    expect(getKibanaDataPath()).toBe('/var/lib/kibana');
+    it('rejects siblings sharing a prefix and parent paths', () => {
+      expect(isInsideDirectory('/data-evil/x', '/data')).toBe(false);
+      expect(isInsideDirectory('/data/../etc', '/data')).toBe(false);
+      expect(isInsideDirectory('/', '/data')).toBe(false);
+    });
   });
 });

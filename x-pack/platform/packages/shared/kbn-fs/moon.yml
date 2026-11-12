@@ -17,7 +17,7 @@ project:
   owner: '@elastic/kibana-security'
   sourceRoot: x-pack/platform/packages/shared/kbn-fs
 dependsOn:
-  - '@kbn/repo-info'
+  - '@kbn/utils'
 tags:
   - shared-common
   - package

@@ -5,57 +5,50 @@
  * 2.0.
  */
 
-import * as Fs from 'fs';
-import { join, resolve, sep } from 'path';
-import { REPO_ROOT } from '@kbn/repo-info';
-
-// Same candidates as `getDataPath` in `@kbn/utils`: the repo `data` folder in
-// development, then `/var/lib/kibana` for RPM/DEB packages that do not ship
-// `<install>/data`.
-const DEFAULT_DATA_PATHS = [join(REPO_ROOT, 'data'), '/var/lib/kibana'];
+import { isAbsolute, relative, resolve, sep } from 'path';
+import { getDataPath } from '@kbn/utils';
 
 let configuredDataPath: string | undefined;
+let defaultDataPath: string | undefined;
 
-const findReadablePath = (paths: string[]): string => {
-  for (const candidate of paths) {
-    try {
-      Fs.accessSync(candidate, Fs.constants.R_OK);
-      return candidate;
-    } catch {
-      // Try the next candidate.
-    }
-  }
-  return paths[0];
-};
-
-/** Directory `@kbn/fs` may read and write. Honors `setKibanaDataPath` when set. */
+/**
+ * Directory `@kbn/fs` may read and write. Honors `setKibanaDataPath` when set, otherwise
+ * uses the same default as the `path.data` setting (`getDataPath` from `@kbn/utils`),
+ * resolved once and cached so the boundary does not change between calls.
+ */
 export const getKibanaDataPath = (): string => {
-  return configuredDataPath ?? findReadablePath(DEFAULT_DATA_PATHS);
+  if (configuredDataPath) {
+    return configuredDataPath;
+  }
+  defaultDataPath = defaultDataPath ?? resolve(getDataPath());
+  return defaultDataPath;
 };
 
 /**
  * Point file operations at Kibana's configured `path.data`.
- * Call this once that setting is known, before writing files.
+ * Idempotent for the same value; throws if called again with a different directory.
  */
 export const setKibanaDataPath = (dataPath: string): void => {
   if (typeof dataPath !== 'string' || dataPath.length === 0) {
     throw new Error('Kibana data path must be a non-empty string');
   }
-  configuredDataPath = resolve(dataPath);
+  const resolved = resolve(dataPath);
+  if (configuredDataPath !== undefined && configuredDataPath !== resolved) {
+    throw new Error(
+      `Kibana data path is already set to ${configuredDataPath}; refusing to change it to ${resolved}`
+    );
+  }
+  configuredDataPath = resolved;
 };
 
 /** Restores default data-directory lookup. Intended for tests. */
 export const clearKibanaDataPath = (): void => {
   configuredDataPath = undefined;
+  defaultDataPath = undefined;
 };
 
 /** True when `candidate` is `directory` or a path inside it. */
 export const isInsideDirectory = (candidate: string, directory: string): boolean => {
-  const resolvedCandidate = resolve(candidate);
-  const resolvedDirectory = resolve(directory);
-  if (resolvedCandidate === resolvedDirectory) {
-    return true;
-  }
-  const prefix = resolvedDirectory.endsWith(sep) ? resolvedDirectory : `${resolvedDirectory}${sep}`;
-  return resolvedCandidate.startsWith(prefix);
+  const rel = relative(resolve(directory), resolve(candidate));
+  return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
 };

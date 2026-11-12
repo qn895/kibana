@@ -95,7 +95,6 @@ export class ProductDocBasePlugin
     if (!this.lockManager) {
       throw new Error('#start called before #setup');
     }
-    this.useConfiguredDataPath();
 
     const soClient = new SavedObjectsClient(
       core.savedObjects.createInternalRepository([productDocInstallStatusSavedObjectTypeName])

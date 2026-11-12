@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+import { setKibanaDataPath } from '@kbn/fs';
 import type { Logger } from '@kbn/logging';
 import type { CoreSetup, CoreStart, Plugin, PluginInitializerContext } from '@kbn/core/server';
 import type { SampleDataIngestConfig } from './config';
@@ -31,6 +32,7 @@ export class SampleDataIngestPlugin
   }
 
   setup(coreSetup: CoreSetup, { taskManager }: SampleDataSetupDependencies): {} {
+    setKibanaDataPath(this.context.config.legacy.get().path.data);
     const getServices = () => {
       if (!this.internalServices) {
         throw new Error('getServices called before #start');

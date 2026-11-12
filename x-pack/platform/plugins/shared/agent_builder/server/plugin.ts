@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+import { setKibanaDataPath } from '@kbn/fs';
 import type { CoreSetup, CoreStart, Plugin, PluginInitializerContext } from '@kbn/core/server';
 import type { Logger } from '@kbn/logging';
 import type { UsageCounter } from '@kbn/usage-collection-plugin/server';
@@ -73,6 +74,7 @@ export class AgentBuilderPlugin
     >
 {
   private logger: Logger;
+  private readonly dataPath: string;
   private config: AgentBuilderConfig;
   private readonly env: PluginInitializerContext['env'];
   private serviceManager: ServiceManager;
@@ -87,6 +89,7 @@ export class AgentBuilderPlugin
   private readonly conversationUpdatedOptIns: ConversationUpdatedOptIn[] = [];
   private recommendedEndpointsPoller?: RecommendedEndpointsPoller;
   constructor(context: PluginInitializerContext<AgentBuilderConfig>) {
+    this.dataPath = context.config.legacy.get().path.data;
     this.logger = context.logger.get();
     this.config = context.config.get();
     this.env = context.env;
@@ -97,6 +100,7 @@ export class AgentBuilderPlugin
     coreSetup: CoreSetup<AgentBuilderStartDependencies, AgentBuilderPluginStart>,
     setupDeps: AgentBuilderSetupDependencies
   ): AgentBuilderPluginSetup {
+    setKibanaDataPath(this.dataPath);
     this.home = setupDeps.home;
     this.cloudSetup = setupDeps.cloud;
 
