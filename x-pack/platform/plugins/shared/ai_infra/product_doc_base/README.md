@@ -19,6 +19,8 @@ All APIs accept an optional `resourceType` parameter. When omitted, it defaults 
 | `security_labs` | Elastic Security Labs content | UTC timestamp (`YYYY.MM.DD-HHMMSS`; legacy `YYYY.MM.DD` still accepted for 9.3/9.4 BWC) |
 | `openapi_spec`  | Elastic open api spec         |                               |
 
+Downloaded artifacts are written to `ai-kb-artifacts/` inside the configured `path.data` directory. On a DEB or RPM install that leaves `path.data` unset, that directory is `/var/lib/kibana`.
+
 ### To install
 
 **Product Documentation (default):**

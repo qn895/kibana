@@ -8,6 +8,7 @@
 import type { Logger } from '@kbn/logging';
 import type { CoreSetup, CoreStart, Plugin, PluginInitializerContext } from '@kbn/core/server';
 import { SavedObjectsClient } from '@kbn/core/server';
+import { setFsDataPath } from '@kbn/fs';
 import {
   GEN_AI_SETTINGS_DEFAULT_AI_CONNECTOR,
   GEN_AI_SETTINGS_DEFAULT_AI_CONNECTOR_DEFAULT_ONLY,
@@ -54,6 +55,14 @@ export class ProductDocBasePlugin
 
   constructor(private readonly context: PluginInitializerContext<ProductDocBaseConfig>) {
     this.logger = context.logger.get();
+    // Before any artifact download. `@kbn/fs` otherwise writes under the install
+    // directory (`/usr/share/kibana/data`). On DEB and RPM that directory is owned
+    // by root, so the kibana user cannot create it.
+    const dataPath = context.config.legacy.get().path.data;
+    setFsDataPath(dataPath);
+    this.logger.debug(
+      `Using configured data path [${dataPath}] for product documentation artifacts`
+    );
   }
   setup(
     coreSetup: CoreSetup<ProductDocBaseStartDependencies, ProductDocBaseStartContract>,

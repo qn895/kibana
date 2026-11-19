@@ -7,7 +7,7 @@
 
 import { join } from 'path';
 import { Readable } from 'stream';
-import { REPO_ROOT } from '@kbn/repo-info';
+import { getFsDataPath } from './data_path';
 import {
   writeFile,
   writeFileSync,
@@ -21,7 +21,7 @@ import {
   deleteFileSync,
 } from './lib';
 
-const DATA_PATH = join(REPO_ROOT, 'data');
+const DATA_PATH = getFsDataPath();
 
 jest.mock('fs', () => {
   const actual = jest.requireActual('fs');

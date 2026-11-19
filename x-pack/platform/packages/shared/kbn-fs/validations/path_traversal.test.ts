@@ -6,10 +6,10 @@
  */
 
 import { validateNoPathTraversal } from './path_traversal';
-import { REPO_ROOT } from '@kbn/repo-info';
+import { getFsDataPath } from '../data_path';
 import { join } from 'path';
 
-const DATA_PATH = join(REPO_ROOT, 'data');
+const DATA_PATH = getFsDataPath();
 
 describe('validateNoPathTraversal', () => {
   describe('valid paths', () => {
@@ -19,6 +19,13 @@ describe('validateNoPathTraversal', () => {
       expect(() =>
         validateNoPathTraversal(join(DATA_PATH, 'folder/subfolder/file.txt'))
       ).not.toThrow();
+    });
+
+    it('should reject a sibling directory that shares the data path prefix', () => {
+      const sibling = `${DATA_PATH}-other`;
+      expect(() => validateNoPathTraversal(join(sibling, 'file.txt'))).toThrow(
+        'Path traversal detected'
+      );
     });
 
     it('should allow paths with valid characters', () => {
