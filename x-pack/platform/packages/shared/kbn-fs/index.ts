@@ -19,4 +19,4 @@ export {
 } from './lib';
 
 export { getSafePath } from './utils';
-export { getFsDataPath, setFsDataPath, resetFsDataPath } from './data_path';
+export { resolveFsDataPath } from './data_path';

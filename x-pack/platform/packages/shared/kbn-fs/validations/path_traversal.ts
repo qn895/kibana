@@ -6,12 +6,12 @@
  */
 
 import { resolve } from 'path';
-import { getFsDataPath, isInsideDirectory } from '../data_path';
+import { isInsideDirectory, resolveFsDataPath } from '../data_path';
 
-export function validateNoPathTraversal(fullPath: string): string {
+export function validateNoPathTraversal(fullPath: string, dataPath?: string): string {
   const resolvedPath = resolve(fullPath);
 
-  if (!isInsideDirectory(getFsDataPath(), resolvedPath)) {
+  if (!isInsideDirectory(resolveFsDataPath(dataPath), resolvedPath)) {
     throw new Error(`Path traversal detected: ${fullPath}`);
   }
 

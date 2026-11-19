@@ -6,10 +6,10 @@
  */
 
 import { validateNoPathTraversal } from './path_traversal';
-import { getFsDataPath } from '../data_path';
+import { resolveFsDataPath } from '../data_path';
 import { join } from 'path';
 
-const DATA_PATH = getFsDataPath();
+const DATA_PATH = resolveFsDataPath();
 
 describe('validateNoPathTraversal', () => {
   describe('valid paths', () => {

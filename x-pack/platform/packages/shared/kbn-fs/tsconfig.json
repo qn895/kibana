@@ -14,7 +14,8 @@
     "target/**/*"
   ],
   "kbn_references": [
-    "@kbn/repo-info",
     "@kbn/content-sanitization",
+    "@kbn/repo-info",
+    "@kbn/utils",
   ]
 }

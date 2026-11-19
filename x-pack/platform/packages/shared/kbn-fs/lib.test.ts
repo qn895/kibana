@@ -7,7 +7,7 @@
 
 import { join } from 'path';
 import { Readable } from 'stream';
-import { getFsDataPath } from './data_path';
+import { resolveFsDataPath } from './data_path';
 import {
   writeFile,
   writeFileSync,
@@ -21,7 +21,7 @@ import {
   deleteFileSync,
 } from './lib';
 
-const DATA_PATH = getFsDataPath();
+const DATA_PATH = resolveFsDataPath();
 
 jest.mock('fs', () => {
   const actual = jest.requireActual('fs');

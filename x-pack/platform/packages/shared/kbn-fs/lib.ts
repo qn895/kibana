@@ -41,8 +41,8 @@ export async function writeFile(
   content: WriteFileContent,
   options?: WriteFileOptions
 ): Promise<FileMetadata> {
-  const { volume, override = true } = options ?? {};
-  const { fullPath, alias } = getSafePath(name, volume);
+  const { volume, override = true, dataPath } = options ?? {};
+  const { fullPath, alias } = getSafePath(name, volume, dataPath);
 
   if (!override && fsExistsSync(fullPath)) {
     throw new Error(`File already exists: ${name}. Use override: true to replace it.`);
@@ -75,7 +75,7 @@ export async function appendFile(
   content: string | Uint8Array,
   options?: WriteFileOptions
 ): Promise<FileMetadata> {
-  const { fullPath, alias } = getSafePath(name, options?.volume);
+  const { fullPath, alias } = getSafePath(name, options?.volume, options?.dataPath);
 
   await ensureDirectory(fullPath);
   const validatedContent = validateAndSanitizeFileData(content, fullPath);
@@ -103,9 +103,10 @@ export async function appendFile(
 export function createWriteStream(
   name: string,
   volume?: string,
-  options?: BufferEncoding | StreamOptions<Writable>
+  options?: BufferEncoding | StreamOptions<Writable>,
+  dataPath?: string
 ): Writable {
-  const { fullPath } = getSafePath(name, volume);
+  const { fullPath } = getSafePath(name, volume, dataPath);
 
   ensureDirectorySync(fullPath);
 
@@ -125,8 +126,12 @@ export function createWriteStream(
  * const report = await readFile('report.csv', 'reports');
  * ```
  */
-export async function readFile(name: string, volume?: string): Promise<string | Buffer> {
-  const { fullPath } = getSafePath(name, volume);
+export async function readFile(
+  name: string,
+  volume?: string,
+  dataPath?: string
+): Promise<string | Buffer> {
+  const { fullPath } = getSafePath(name, volume, dataPath);
 
   return await fs.readFile(fullPath);
 }
@@ -149,9 +154,10 @@ export async function readFile(name: string, volume?: string): Promise<string | 
 export function createReadStream(
   name: string,
   volume?: string,
-  options?: BufferEncoding | StreamOptions<Readable>
+  options?: BufferEncoding | StreamOptions<Readable>,
+  dataPath?: string
 ): Readable {
-  const { fullPath } = getSafePath(name, volume);
+  const { fullPath } = getSafePath(name, volume, dataPath);
 
   return fsCreateReadStream(fullPath, options);
 }
@@ -170,9 +176,9 @@ export function createReadStream(
  */
 export async function deleteFile(
   name: string,
-  options?: Pick<WriteFileOptions, 'volume'>
+  options?: Pick<WriteFileOptions, 'volume' | 'dataPath'>
 ): Promise<void> {
-  const { fullPath } = getSafePath(name, options?.volume);
+  const { fullPath } = getSafePath(name, options?.volume, options?.dataPath);
 
   await fs.unlink(fullPath);
 }
@@ -197,8 +203,8 @@ export function writeFileSync(
   content: string | NodeJS.ArrayBufferView,
   options?: WriteFileOptions
 ): FileMetadata {
-  const { volume, override = true } = options ?? {};
-  const { fullPath, alias } = getSafePath(name, volume);
+  const { volume, override = true, dataPath } = options ?? {};
+  const { fullPath, alias } = getSafePath(name, volume, dataPath);
 
   // Check if file exists and override is not allowed
   if (!override && fsExistsSync(fullPath)) {
@@ -232,8 +238,8 @@ export function appendFileSync(
   content: string | Uint8Array,
   options?: WriteFileOptions
 ): FileMetadata {
-  const { volume } = options ?? {};
-  const { fullPath, alias } = getSafePath(name, volume);
+  const { volume, dataPath } = options ?? {};
+  const { fullPath, alias } = getSafePath(name, volume, dataPath);
 
   ensureDirectorySync(fullPath);
   const validatedContent = validateAndSanitizeFileData(content, fullPath);
@@ -255,8 +261,8 @@ export function appendFileSync(
  * const report = readFileSync('report.csv', 'reports');
  * ```
  */
-export function readFileSync(name: string, volume?: string): string | Buffer {
-  const { fullPath } = getSafePath(name, volume);
+export function readFileSync(name: string, volume?: string, dataPath?: string): string | Buffer {
+  const { fullPath } = getSafePath(name, volume, dataPath);
 
   return fsReadFileSync(fullPath);
 }
@@ -273,8 +279,11 @@ export function readFileSync(name: string, volume?: string): string | Buffer {
  * deleteFileSync('old-report.csv', { volume: 'reports' });
  * ```
  */
-export function deleteFileSync(name: string, options?: Pick<WriteFileOptions, 'volume'>): void {
-  const { fullPath } = getSafePath(name, options?.volume);
+export function deleteFileSync(
+  name: string,
+  options?: Pick<WriteFileOptions, 'volume' | 'dataPath'>
+): void {
+  const { fullPath } = getSafePath(name, options?.volume, options?.dataPath);
 
   unlinkSync(fullPath);
 }
@@ -293,8 +302,8 @@ export function deleteFileSync(name: string, options?: Pick<WriteFileOptions, 'v
  * }
  * ```
  */
-export function existsSync(path: string, volume?: string): boolean {
-  const { fullPath } = getSafePath(path, volume);
+export function existsSync(path: string, volume?: string, dataPath?: string): boolean {
+  const { fullPath } = getSafePath(path, volume, dataPath);
 
   return fsExistsSync(fullPath);
 }

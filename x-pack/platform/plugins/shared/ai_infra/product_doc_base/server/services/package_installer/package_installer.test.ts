@@ -322,6 +322,7 @@ describe('PackageInstaller', () => {
       expect(downloadToDiskMock).toHaveBeenCalledWith(
         `${artifactRepositoryUrl}/${artifactName}`,
         `${artifactsFolder}/${artifactName}`,
+        undefined,
         undefined
       );
 
@@ -1317,7 +1318,8 @@ describe('PackageInstaller', () => {
       expect(downloadToDiskMock).toHaveBeenCalledWith(
         expect.stringContaining(artifactRepositoryUrl),
         expect.any(String),
-        artifactRepositoryProxyUrl
+        artifactRepositoryProxyUrl,
+        undefined
       );
     });
   });
@@ -1398,6 +1400,7 @@ describe('PackageInstaller', () => {
       expect(downloadToDiskMock).toHaveBeenCalledWith(
         `${artifactRepositoryUrl}/${artifactName}`,
         `${artifactsFolder}/${artifactName}`,
+        undefined,
         undefined
       );
 

@@ -6,48 +6,32 @@
  */
 
 import { resolve } from 'path';
-import {
-  getFsDataPath,
-  isInsideDirectory,
-  resetFsDataPath,
-  resolveDefaultDataPath,
-  setFsDataPath,
-} from './data_path';
+import { getDataPath } from '@kbn/utils';
+import { isInsideDirectory, resolveFsDataPath } from './data_path';
 
 describe('data path', () => {
-  afterEach(() => {
-    resetFsDataPath();
-  });
-
-  describe('resolveDefaultDataPath', () => {
-    const candidates = ['/usr/share/kibana/data', '/var/lib/kibana'];
-
-    it('uses the install data directory when it is readable', () => {
-      expect(resolveDefaultDataPath(candidates, (path) => path === candidates[0])).toBe(
-        '/usr/share/kibana/data'
-      );
+  describe('resolveFsDataPath', () => {
+    it('uses the same default as Kibana path.data when no directory is passed', () => {
+      expect(resolveFsDataPath()).toBe(resolve(getDataPath()));
     });
 
-    it('uses /var/lib/kibana when the install data directory is not readable', () => {
-      expect(resolveDefaultDataPath(candidates, (path) => path === '/var/lib/kibana')).toBe(
-        '/var/lib/kibana'
-      );
+    it('uses an explicit absolute directory', () => {
+      expect(resolveFsDataPath('/var/lib/kibana')).toBe('/var/lib/kibana');
+      expect(resolveFsDataPath('/var/lib/kibana/')).toBe('/var/lib/kibana');
     });
 
-    it('falls back to the install data directory when nothing is readable', () => {
-      expect(resolveDefaultDataPath(candidates, () => false)).toBe('/usr/share/kibana/data');
-    });
-  });
-
-  describe('setFsDataPath', () => {
-    it('overrides the directory used for later lookups', () => {
-      setFsDataPath('relative/data');
-
-      expect(getFsDataPath()).toBe(resolve('relative/data'));
+    it('resolves a relative directory from the current working directory', () => {
+      expect(resolveFsDataPath('relative/data')).toBe(resolve('relative/data'));
     });
 
     it('rejects an empty path', () => {
-      expect(() => setFsDataPath('   ')).toThrow('Kibana data path must be a non-empty string');
+      expect(() => resolveFsDataPath('   ')).toThrow('Kibana data path must be a non-empty string');
+    });
+
+    it('rejects the filesystem root', () => {
+      expect(() => resolveFsDataPath('/')).toThrow(
+        'Kibana data path must not be the filesystem root'
+      );
     });
   });
 

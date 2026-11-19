@@ -9,7 +9,6 @@ import Fs from 'fs/promises';
 import Os from 'os';
 import Path from 'path';
 import { loggerMock } from '@kbn/logging-mocks';
-import { resetFsDataPath, setFsDataPath } from '@kbn/fs';
 import {
   getArtifactsFolderUsage,
   isInArtifactsFolder,
@@ -20,14 +19,10 @@ import {
 } from './artifacts_folder';
 
 describe('resolveArtifactsFolderPath', () => {
-  afterEach(() => {
-    resetFsDataPath();
-  });
-
   it('resolves the folder under the configured path.data directory', () => {
-    setFsDataPath('/var/lib/kibana');
-
-    expect(resolveArtifactsFolderPath('ai-kb-artifacts')).toBe('/var/lib/kibana/ai-kb-artifacts');
+    expect(resolveArtifactsFolderPath('ai-kb-artifacts', '/var/lib/kibana')).toBe(
+      '/var/lib/kibana/ai-kb-artifacts'
+    );
   });
 });
 

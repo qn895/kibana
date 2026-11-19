@@ -20,6 +20,9 @@ export interface WriteFileOptions {
 
   // Specifies a sub-directory (sub-volume) within the base data directory to help in organizing files, e.g., 'reports', 'exports'.
   volume?: string;
+
+  // Kibana `path.data`. Omit to use the same default as `@kbn/utils` `getDataPath()`.
+  dataPath?: string;
 }
 
 export interface FileMetadata {

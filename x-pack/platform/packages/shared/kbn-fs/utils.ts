@@ -7,14 +7,18 @@
 
 import { promises as fs, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
-import { getFsDataPath } from './data_path';
+import { resolveFsDataPath } from './data_path';
 import { validateNoPathTraversal, validateFileExtension } from './validations';
 
-export function getSafePath(name: string, volume?: string): { fullPath: string; alias: string } {
-  const dataPath = getFsDataPath();
-  const fullPath = volume ? join(dataPath, volume, name) : join(dataPath, name);
+export function getSafePath(
+  name: string,
+  volume?: string,
+  dataPath?: string
+): { fullPath: string; alias: string } {
+  const root = resolveFsDataPath(dataPath);
+  const fullPath = volume ? join(root, volume, name) : join(root, name);
 
-  const resolvedPath = validateNoPathTraversal(fullPath);
+  const resolvedPath = validateNoPathTraversal(fullPath, root);
 
   validateFileExtension(fullPath);
 

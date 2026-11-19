@@ -68,6 +68,8 @@ interface PackageInstallerOpts {
   kibanaVersion: string;
   elserInferenceId?: string;
   isServerless?: boolean;
+  /** Configured Kibana `path.data`. Artifact files are confined to this directory. */
+  dataPath?: string;
 }
 // Process each product (elasticsearch and kibana)
 const OPEN_API_SPEC_PRODUCTS: Array<{
@@ -95,6 +97,7 @@ export class PackageInstaller {
   private readonly currentVersion: string;
   private readonly elserInferenceId: string;
   private readonly isServerless: boolean;
+  private readonly dataPath?: string;
 
   constructor({
     artifactsFolder,
@@ -106,11 +109,13 @@ export class PackageInstaller {
     elserInferenceId,
     kibanaVersion,
     isServerless,
+    dataPath,
   }: PackageInstallerOpts) {
     this.esClient = esClient;
     this.productDocClient = productDocClient;
     this.artifactsFolder = artifactsFolder;
-    this.artifactsFolderPath = resolveArtifactsFolderPath(artifactsFolder);
+    this.dataPath = dataPath;
+    this.artifactsFolderPath = resolveArtifactsFolderPath(artifactsFolder, dataPath);
     this.artifactRepositoryUrl = artifactRepositoryUrl;
     this.artifactRepositoryProxyUrl = artifactRepositoryProxyUrl;
     this.currentVersion = majorMinor(kibanaVersion);
@@ -637,12 +642,13 @@ export class PackageInstaller {
       const artifactUrl = `${this.artifactRepositoryUrl}/${artifactFileName}`;
       const artifactPathAtVolume = `${this.artifactsFolder}/${artifactFileName}`;
       // Resolved up front so a failed download still gets cleaned up
-      artifactFullPath = getSafePath(artifactPathAtVolume).fullPath;
+      artifactFullPath = getSafePath(artifactPathAtVolume, undefined, this.dataPath).fullPath;
       this.log.debug(`Downloading from [${artifactUrl}] to [${artifactPathAtVolume}]`);
       artifactFullPath = await downloadToDisk(
         artifactUrl,
         artifactPathAtVolume,
-        this.artifactRepositoryProxyUrl
+        this.artifactRepositoryProxyUrl,
+        this.dataPath
       );
 
       zipArchive = await openZipArchive(artifactFullPath);
@@ -790,13 +796,14 @@ export class PackageInstaller {
       });
       const artifactUrl = `${this.artifactRepositoryUrl}/${artifactFileName}`;
       const artifactPath = `${this.artifactsFolder}/${artifactFileName}`;
-      artifactFullPath = getSafePath(artifactPath).fullPath;
+      artifactFullPath = getSafePath(artifactPath, undefined, this.dataPath).fullPath;
 
       this.log.debug(`Downloading Security Labs from [${artifactUrl}] to [${artifactPath}]`);
       artifactFullPath = await downloadToDisk(
         artifactUrl,
         artifactPath,
-        this.artifactRepositoryProxyUrl
+        this.artifactRepositoryProxyUrl,
+        this.dataPath
       );
 
       zipArchive = await openZipArchive(artifactFullPath);
@@ -1017,13 +1024,14 @@ export class PackageInstaller {
       });
       const artifactUrl = `${this.artifactRepositoryUrl}/${artifactFileName}`;
       const artifactPath = `${this.artifactsFolder}/${artifactFileName}`;
-      artifactFullPath = getSafePath(artifactPath).fullPath;
+      artifactFullPath = getSafePath(artifactPath, undefined, this.dataPath).fullPath;
 
       this.log.debug(`Downloading OpenAPI artifact from [${artifactUrl}] to [${artifactPath}]`);
       artifactFullPath = await downloadToDisk(
         artifactUrl,
         artifactPath,
-        this.artifactRepositoryProxyUrl
+        this.artifactRepositoryProxyUrl,
+        this.dataPath
       );
 
       zipArchive = await openZipArchive(artifactFullPath);

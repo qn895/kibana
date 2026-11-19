@@ -62,14 +62,15 @@ const assertArtifactResponse = (res: Response, fileUrl: string): void => {
 export const downloadToDisk = async (
   fileUrl: string,
   filePathAtVolume: string,
-  artifactRepositoryProxyUrl?: string
+  artifactRepositoryProxyUrl?: string,
+  dataPath?: string
 ): Promise<string> => {
   const parsedUrl = new URL(fileUrl);
   if (parsedUrl.protocol === 'file:') {
     return resolveLocalArtifactsPath(parsedUrl);
   }
 
-  const { fullPath: artifactFullPath } = getSafePath(filePathAtVolume);
+  const { fullPath: artifactFullPath } = getSafePath(filePathAtVolume, undefined, dataPath);
   const fetchOptions = getFetchOptions(fileUrl, artifactRepositoryProxyUrl);
   const res = await fetch(fileUrl, fetchOptions as RequestInit);
   assertArtifactResponse(res, fileUrl);
@@ -78,7 +79,7 @@ export const downloadToDisk = async (
     throw new Error('Response body is null');
   }
   const readStream = Readable.fromWeb(res.body as WebReadableStream);
-  const writeStream = createWriteStream(filePathAtVolume);
+  const writeStream = createWriteStream(filePathAtVolume, undefined, undefined, dataPath);
   await pipeline(readStream, writeStream);
 
   return artifactFullPath;
